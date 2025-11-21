@@ -125,26 +125,35 @@
         </header>
 
         <!-- FILTROS (tarjetas pequeñas) -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <div class="card rounded-xl px-5 py-4 flex flex-col">
-                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por asesor</p>
-                <select id="advisor-filter"
-                        class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
-                    <option value="">Todos los asesores</option>
-                </select>
-            </div>
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+    <div class="card rounded-xl px-5 py-4 flex flex-col">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por asesor</p>
+        <select id="advisor-filter"
+                class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+            <option value="">Todos los asesores</option>
+        </select>
+    </div>
 
-            <div class="card rounded-xl px-5 py-4 flex flex-col">
-                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por fecha</p>
-                <input type="date" id="date-filter"
-                       class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
-            </div>
+    <div class="card rounded-xl px-5 py-4 flex flex-col">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por mes</p>
+        <input type="month" id="month-filter"
+               class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+    </div>
 
-            <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
-                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Vista actual</p>
-                <p class="text-sm text-white font-semibold">Análisis de desempeño de asesores</p>
-            </div>
-        </div>
+    <div class="card rounded-xl px-5 py-4 flex flex-col">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por fecha (día)</p>
+        <input type="date" id="date-filter"
+               class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+    </div>
+
+    <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Vista actual</p>
+        <p class="text-sm text-white font-semibold">Análisis de desempeño de asesores</p>
+    </div>
+</div>
+
+
+ 
 
         <!-- MÉTRICAS PRINCIPALES -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
