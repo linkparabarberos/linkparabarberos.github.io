@@ -4,8 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Califica Nuestro Servicio WhatsApp</title>
-    <!-- Carga de Tailwind CSS para el estilo -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Carga de Tailwind CSS para el estilo --><script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Definición de la fuente y estilos base para la estética de barbería */
@@ -99,42 +98,37 @@
     <!-- Carga de Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // setLogLevel('Debug'); // Descomentar para depuración
+        // Tu configuración de Firebase (Integrada aquí)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
+            authDomain: "linkparabarberos.firebaseapp.com",
+            projectId: "linkparabarberos",
+            storageBucket: "linkparabarberos.firebasestorage.app",
+            messagingSenderId: "237275244830",
+            appId: "1:237275244830:web:51c5a95a81c1287512810f",
+            measurementId: "G-SX4F2EL0C0"
+        };
 
-        // --------------------------------------------------------
-        // 1. CONFIGURACIÓN INICIAL DE FIREBASE
-        // --------------------------------------------------------
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const globalAppId = firebaseConfig.projectId;
 
         let app, db, auth, userId;
-
         const statusMessage = document.getElementById('status-message');
         
         async function initFirebase() {
             try {
-                if (Object.keys(firebaseConfig).length === 0) {
-                    throw new Error("La configuración de Firebase está vacía. Asegúrate de que las variables globales están definidas.");
-                }
-
+                
                 app = initializeApp(firebaseConfig);
                 auth = getAuth(app);
                 db = getFirestore(app);
 
-                // Autenticación: Usamos el token personalizado si está disponible, sino anónima.
+                // Autenticación: Usamos anónima para que los clientes puedan escribir sin registrarse.
                 statusMessage.textContent = 'Autenticando...';
                 statusMessage.classList.remove('hidden');
-
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
+                
+                await signInAnonymously(auth);
                 
                 userId = auth.currentUser?.uid || crypto.randomUUID();
                 statusMessage.textContent = 'Listo para calificar.';
@@ -156,13 +150,12 @@
         const advisorIdInput = document.getElementById('advisor-id');
         const submitButton = document.getElementById('submit-button');
         
-        // Mapeo simple de ID a nombre (debe coincidir con la lista de asesores)
+        // Mapeo simple de ID a nombre (Asesor 1, 2, 3, 4)
         const advisorMap = {
-            'juan': 'Juan',
-            'maria': 'María',
-            'pedro': 'Pedro',
-            'ana': 'Ana',
-            // Añade más asesores aquí si es necesario
+            'asesor1': 'Asesor 1',
+            'asesor2': 'Asesor 2',
+            'asesor3': 'Asesor 3',
+            'asesor4': 'Asesor 4',
         };
 
         const asesorNombre = advisorMap[advisorId ? advisorId.toLowerCase() : ''];
@@ -214,8 +207,11 @@
             const advisorDisplayName = asesorNameEl.textContent;
 
             if (rating === 0) {
-                // Usar un modal en lugar de alert() en producción
-                alert('Por favor, selecciona una calificación (1 a 5 estrellas).');
+                // Usar un feedback en UI en lugar de alert()
+                document.getElementById('status-message').textContent = 'Por favor, selecciona una calificación (1 a 5 estrellas).';
+                document.getElementById('status-message').classList.remove('hidden');
+                document.getElementById('status-message').classList.remove('text-yellow-400');
+                document.getElementById('status-message').classList.add('text-red-500');
                 return;
             }
 
@@ -226,6 +222,7 @@
 
             submitButton.disabled = true;
             submitButton.textContent = 'Enviando...';
+            document.getElementById('status-message').classList.add('hidden'); // Ocultar mensajes previos
 
             const ratingData = {
                 advisorId: advisorID,
@@ -234,12 +231,11 @@
                 comments: comments,
                 timestamp: new Date().toISOString(), // Fecha de envío
                 platform: 'WhatsApp', 
-                // Usamos el ID del usuario actual de Firebase para generar un ID único del documento
                 client_id: userId, 
             };
             
-            // Ruta de la colección: /artifacts/{appId}/public/data/whatsapp_ratings
-            const collectionPath = `artifacts/${appId}/public/data/whatsapp_ratings`;
+            // Ruta de la colección: /artifacts/linkparabarberos/public/data/whatsapp_ratings
+            const collectionPath = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
             const docRef = doc(collection(db, collectionPath)); // Firebase asignará un ID automáticamente
 
             try {
@@ -257,7 +253,8 @@
                 // Mostrar mensaje de error en UI
                 document.getElementById('status-message').textContent = 'Hubo un error al guardar. Revisa la consola.';
                 document.getElementById('status-message').classList.remove('hidden');
-
+                document.getElementById('status-message').classList.remove('text-yellow-400');
+                document.getElementById('status-message').classList.add('text-red-500');
             }
         });
 
