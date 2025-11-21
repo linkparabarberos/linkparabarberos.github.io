@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard de Calificaciones de Asesores PARABARBEROS</title>
+    <title>Dashboard | Barbero Pro</title>
     <!-- Carga de Tailwind CSS para el estilo --><script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Carga de Chart.js para los gráficos --><script src="https://cdn.jsdelivr.net/npm/chart.js@3.7.1/dist/chart.min.js"></script>
-    
+    <!-- Carga de Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -16,248 +16,425 @@
         }
         .card {
             background-color: #0d0d0d;
-            border: 1px solid rgba(255, 255, 255, 0.2);
+            border: 1px solid #262626;
         }
-        select, input, button {
+        input, button:not(#submit-button) {
             transition: all 0.2s;
-            border-radius: 0.5rem; /* rounded-lg */
         }
-        /* Estilos específicos para los selects e inputs en modo oscuro */
-        select, input[type="month"], input[type="text"], input[type="email"], input[type="password"] {
+        input {
             background-color: #262626 !important;
             color: #d4d4d4 !important;
             border-color: #4a4a4a !important;
-            padding: 0.5rem;
         }
-        /* Asegura que el contenedor de la tabla tenga scroll vertical si es necesario */
-        #ratings-table-container {
-            max-height: 400px; /* Altura máxima para evitar que el cuerpo principal crezca sin control */
-            overflow-y: auto;
-            overflow-x: auto;
+        .login-button {
+            @apply w-full font-semibold py-3 rounded-xl shadow-md transition duration-300 border;
+        }
+        .primary-button {
+            @apply bg-black hover:bg-gray-800 text-white border-gray-700;
+        }
+        .secondary-button {
+            @apply bg-gray-700 hover:bg-gray-600 text-white border-gray-500;
+        }
+        .data-grid {
+            grid-template-columns: 1fr;
+        }
+        @media (min-width: 768px) {
+            .data-grid {
+                grid-template-columns: 1fr 1fr; /* Dos columnas en desktop */
+            }
         }
     </style>
 </head>
-<body class="p-4 md:p-8 flex flex-col min-h-screen">
+<body class="p-4 md:p-8">
 
-    <!-- Pantalla de Login (Visible por defecto) -->
-    <div id="login-screen" class="absolute inset-0 bg-gray-900 flex items-center justify-center p-4 z-50">
-        <div class="card p-8 rounded-xl shadow-2xl max-w-sm w-full text-center">
-            <h2 class="text-3xl font-bold text-white mb-6">Dashboard Atención al cliente PARABARBEROS</h2>
+    <!-- Mensaje de Carga General -->
+    <div id="loading-spinner" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+    </div>
+
+    <!-- 1. Pantalla de Autenticación (Solo Iniciar Sesión) -->
+    <div id="auth-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center p-4 z-40 hidden">
+        <div class="w-full max-w-sm card p-8 rounded-xl shadow-2xl">
+            <h1 class="text-2xl font-bold text-center mb-6 text-white">Dashboard Atención al Cliente <br> PARABARBEROS</h1>
+            <input type="email" id="auth-email" placeholder="Correo Electrónico" class="w-full p-3 mb-4 border rounded-lg focus:ring-gray-700 focus:border-gray-700">
+            <input type="password" id="auth-password" placeholder="Contraseña" class="w-full p-3 mb-6 border rounded-lg focus:ring-gray-700 focus:border-gray-700">
             
-            <input type="email" id="login-email" placeholder="Correo Electrónico" class="w-full mb-3 border-gray-700">
-            <input type="password" id="login-password" placeholder="Contraseña" class="w-full mb-4 border-gray-700">
-            
-            <button id="login-button" class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-lg shadow-md transition duration-300 mb-2 border border-gray-700">
+            <button id="login-button" class="login-button primary-button mb-3">
                 Iniciar Sesión
             </button>
-            <button id="register-button" class="w-full bg-gray-700 hover:bg-gray-600 text-white font-semibold py-3 rounded-lg shadow-md transition duration-300">
-                Registrarse (Primer Administrador)
-            </button>
             
-            <p id="login-message" class="text-sm text-red-400 mt-4 hidden"></p>
+            <p id="auth-error-message" class="text-red-500 text-sm text-center mt-4"></p>
+            <p class="text-gray-500 text-xs text-center mt-6">
+                *Solo se permite acceso a cuentas creadas por el administrador en la Consola de Firebase.
+            </p>
         </div>
     </div>
 
+    <!-- 2. Pantalla de Creación de Perfil (Oculta) -->
+    <div id="profile-setup-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center p-4 z-40 hidden">
+        <div class="w-full max-w-sm card p-8 rounded-xl shadow-2xl">
+            <h1 class="text-2xl font-bold text-center mb-4 text-white">¡Bienvenido!</h1>
+            <p class="text-center text-gray-400 mb-6">Completa tu perfil de administrador:</p>
+            <input type="text" id="profile-name" placeholder="Tu Nombre o Rol (Ej: Admin Principal)" class="w-full p-3 mb-6 border rounded-lg focus:ring-gray-700 focus:border-gray-700">
+            <button id="save-profile-button" class="login-button primary-button">
+                Guardar Perfil y Continuar
+            </button>
+            <p id="profile-error-message" class="text-red-500 text-sm text-center mt-3"></p>
+        </div>
+    </div>
+    
+    <!-- 3. Contenido Principal del Dashboard (Oculto inicialmente) -->
+    <div id="dashboard-content" class="max-w-7xl mx-auto hidden">
 
-    <!-- Contenido Principal del Dashboard (Oculto por defecto) -->
-    <div id="main-dashboard-content" class="flex-grow hidden">
-
-        <!-- Encabezado del Dashboard --><header class="mb-8 flex items-center">
-            <!-- Contenedor para el Logo -->
-            <div class="mr-4">
-                <img src="path/to/your/logo.png" alt="Logo Barbero Pro" class="w-16 h-16 object-contain rounded-full">
+        <!-- Header y Filtros -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 pb-4 border-b border-gray-700">
+            <!-- Logo de Barbería -->
+            <div class="flex items-center">
+                 <img src="path/to/your/logo.png" alt="Logo Barbero Pro" class="w-12 h-12 object-contain mr-3">
+                 <h1 class="text-4xl font-extrabold text-white mb-0">Panel de Calificaciones</h1>
             </div>
-            <div>
-                <h1 class="text-4xl font-extrabold text-white mb-2">Panel de Control Barbero Pro</h1>
-                <p class="text-gray-400">Análisis de rendimiento de asesores en tiempo real.</p>
+            
+            <div class="flex space-x-3 items-center mt-4 md:mt-0">
+                <p class="text-sm font-medium text-gray-400 flex items-center">
+                    <span class="mr-2">Admin:</span>
+                    <span id="admin-name" class="font-semibold text-white">Cargando...</span>
+                </p>
+                <button id="logout-button" class="text-red-400 hover:text-red-600 text-sm font-medium transition duration-150">Cerrar Sesión</button>
             </div>
         </header>
 
-        <!-- Sección de Filtros y Métrica Global --><section class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            
-            <!-- Filtro de Asesor --><div class="card p-4 rounded-lg shadow-xl">
-                <label for="asesor-filter" class="block text-sm font-medium text-gray-400">Filtrar por Asesor</label>
-                <select id="asesor-filter" class="mt-1 block w-full border text-white focus:ring-gray-600 focus:border-gray-600">
-                    <option value="all">Todos los Asesores</option>
-                    <!-- Los nombres de los asesores se llenarán con JavaScript --></select>
-            </div>
-
-            <!-- Filtro de Mes --><div class="card p-4 rounded-lg shadow-xl">
-                <label for="month-filter" class="block text-sm font-medium text-gray-400">Filtrar por Mes</label>
-                <input type="month" id="month-filter" class="mt-1 block w-full border text-white focus:ring-gray-600 focus:border-gray-600">
-            </div>
-
-            <!-- Métrica: Calificación Promedio Global --><div class="card p-4 rounded-lg shadow-xl text-center">
-                <p class="text-sm font-medium text-gray-400">Calificación Promedio</p>
+        <!-- Estadísticas Clave -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card p-5 rounded-lg text-center">
+                <p class="text-sm text-gray-400">Calificación Promedio</p>
                 <p id="avg-rating" class="text-4xl font-bold text-yellow-400 mt-1">N/A</p>
             </div>
-
-            <!-- Métrica: Total de Calificaciones --><div class="card p-4 rounded-lg shadow-xl text-center">
-                <p class="text-sm font-medium text-gray-400">Total de Respuestas</p>
-                <p id="total-ratings" class="text-4xl font-bold text-gray-200 mt-1">0</p>
+            <div class="card p-5 rounded-lg text-center">
+                <p class="text-sm text-gray-400">Total de Calificaciones</p>
+                <p id="total-ratings" class="text-4xl font-bold text-white mt-1">0</p>
             </div>
-
-        </section>
-
-        <!-- Gráficos de Datos --><section class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            
-            <!-- Gráfico 1: Desempeño por Asesor (Barras) --><div class="card p-6 rounded-xl shadow-2xl">
-                <h2 class="text-xl font-semibold mb-4 text-white">Promedio de Calificación por Asesor</h2>
-                <!-- Altura fija para el contenedor del gráfico --><div class="h-64">
-                    <canvas id="advisorChart"></canvas>
-                </div>
+            <div class="card p-5 rounded-lg text-center">
+                <p class="text-sm text-gray-400">Asesores Activos</p>
+                <p id="total-advisors" class="text-4xl font-bold text-green-400 mt-1">0</p>
             </div>
-
-            <!-- Gráfico 2: Distribución de Puntuaciones (Dona) --><div class="card p-6 rounded-xl shadow-2xl">
-                <h2 class="text-xl font-semibold mb-4 text-white">Distribución de Puntuaciones (1-5 Estrellas)</h2>
-                <!-- Altura fija para el contenedor del gráfico --><div class="h-64">
-                    <canvas id="scoreDistributionChart"></canvas>
-                </div>
-            </div>
-
-        </section>
-
-        <!-- Tabla de Datos Crudos (Para revisión y edición) --><section class="card p-6 rounded-xl shadow-2xl">
-            <h2 class="text-xl font-semibold mb-4 text-white">Datos Detallados de Calificaciones</h2>
-            
-            <!-- Sección de Perfil de Administrador -->
-            <div class="mb-4 p-4 border border-gray-700 rounded-lg bg-gray-800 flex justify-between items-center">
-                <div>
-                    <p id="auth-status" class="text-sm text-yellow-400 mb-1">Estado de Autenticación: Cargando...</p>
-                    <p class="text-sm">Perfil de Admin: <span id="admin-name-display" class="font-bold text-white">Cargando...</span> (ID: <span id="user-id-display" class="text-gray-400">...</span>)</p>
-                </div>
-                <div class="flex space-x-2">
-                    <button id="edit-profile-btn" class="bg-gray-700 hover:bg-gray-600 text-white font-semibold py-1 px-3 rounded-lg shadow-md transition duration-300 text-xs">
-                        Editar Nombre
-                    </button>
-                    <button id="logout-button" class="bg-red-700 hover:bg-red-600 text-white font-semibold py-1 px-3 rounded-lg shadow-md transition duration-300 text-xs">
-                        Cerrar Sesión
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Formulario Oculto de Edición de Perfil -->
-            <div id="profile-edit-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-                <div class="card p-6 rounded-xl shadow-2xl max-w-sm w-full">
-                    <h3 class="text-lg font-semibold text-white mb-4">Editar Nombre de Administrador</h3>
-                    <label for="admin-name-input" class="block text-sm font-medium text-gray-400 mb-2">Nuevo Nombre:</label>
-                    <input type="text" id="admin-name-input" class="w-full mb-4 p-2" placeholder="Ej: Juan Gerente">
-                    <div class="flex justify-end space-x-3">
-                        <button id="cancel-profile-edit" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg">Cancelar</button>
-                        <button id="save-profile-edit" class="bg-black hover:bg-gray-800 text-white font-semibold py-2 px-4 rounded-lg">Guardar</button>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Contenedor con Scroll Vertical y Horizontal Interno --><div id="ratings-table-container">
-                <table class="min-w-full divide-y divide-gray-700">
-                    <thead class="bg-gray-800 sticky top-0">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Asesor</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Rating</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Comentario</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Fecha</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ratings-table-body" class="divide-y divide-gray-700">
-                        <!-- Filas se insertarán con JavaScript --></tbody>
-                </table>
-            </div>
-            <p id="no-data-message" class="text-center text-gray-500 mt-4 hidden">No hay datos de calificación para los filtros seleccionados.</p>
-        </section>
-        
-        <!-- Modal de Confirmación para Eliminar (Customizado) --><div id="delete-modal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4">
-            <div class="card p-6 rounded-xl shadow-2xl max-w-sm w-full">
-                <h3 class="text-lg font-semibold text-white mb-4">Confirmar Eliminación</h3>
-                <p class="text-gray-400 mb-6">¿Estás seguro de que quieres eliminar esta calificación? Esta acción es irreversible.</p>
-                <div class="flex justify-end space-x-3">
-                    <button id="cancel-delete" class="bg-gray-600 hover:bg-gray-500 text-white font-semibold py-2 px-4 rounded-lg">Cancelar</button>
-                    <button id="confirm-delete" data-doc-id="" class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-4 rounded-lg">Eliminar</button>
-                </div>
+            <div class="card p-5 rounded-lg text-center">
+                <p class="text-sm text-gray-400">Comentarios Negativos (1-2)</p>
+                <p id="low-ratings" class="text-4xl font-bold text-red-400 mt-1">0</p>
             </div>
         </div>
+
+        <!-- Filtros y Gráfico -->
+        <div class="mb-6 flex flex-col md:flex-row gap-4 items-center">
+            <h2 class="text-xl font-semibold text-white">Análisis de Desempeño</h2>
+            <div class="flex-grow"></div>
+            <select id="advisor-filter" class="p-2 card rounded-lg text-sm w-full md:w-auto">
+                <option value="">Todos los Asesores</option>
+                <!-- Opciones se llenarán con JS -->
+            </select>
+            <input type="date" id="date-filter" class="p-2 card rounded-lg text-sm w-full md:w-auto">
+        </div>
+        
+        <div class="card p-6 rounded-xl mb-8">
+            <h2 class="text-xl font-semibold mb-4 text-white">Distribución General de Calificaciones</h2>
+            <div class="h-64">
+                <canvas id="rating-distribution-chart"></canvas>
+            </div>
+        </div>
+
+        <!-- Listado -->
+        <h2 class="text-xl font-semibold text-white mb-4">Datos Detallados</h2>
+        <div id="ratings-list-container" class="space-y-4">
+            <!-- Calificaciones se insertarán aquí -->
+            <p id="no-ratings-message" class="text-center text-gray-500 mt-10">No hay calificaciones registradas o no coinciden con los filtros.</p>
+        </div>
+
     </div>
-
-
-    <!-- Script de Firebase y Lógica del Dashboard --><script type="module">
+    
+    <!-- Carga de Firebase SDKs -->
+    <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, query, onSnapshot, getDoc, setDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
         
-        // setLogLevel('Debug'); // Descomentar para depuración
-
-        // --------------------------------------------------------
-        // 1. CONFIGURACIÓN GLOBAL
-        // --------------------------------------------------------
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-        let app, db, auth, userId, unsubscribeSnapshot;
-        let allRatings = []; // Almacena todos los datos crudos
-        const ADVISOR_NAMES = ['Juan', 'María', 'Pedro', 'Ana']; // Lista de asesores
-        const ADVISOR_IDS = ['juan', 'maria', 'pedro', 'ana'];
-
-        // Elementos del DOM (Login)
-        const loginScreen = document.getElementById('login-screen');
-        const mainDashboardContent = document.getElementById('main-dashboard-content');
-        const loginEmailInput = document.getElementById('login-email');
-        const loginPasswordInput = document.getElementById('login-password');
-        const loginButton = document.getElementById('login-button');
-        const registerButton = document.getElementById('register-button');
-        const loginMessage = document.getElementById('login-message');
-        const logoutButton = document.getElementById('logout-button');
-        
-        // Elementos del DOM (Dashboard)
-        const asesorFilter = document.getElementById('asesor-filter');
-        const monthFilter = document.getElementById('month-filter');
-        const ratingsTableBody = document.getElementById('ratings-table-body');
-        const avgRatingEl = document.getElementById('avg-rating');
-        const totalRatingsEl = document.getElementById('total-ratings');
-        const noDataMessage = document.getElementById('no-data-message');
-        const userIdDisplay = document.getElementById('user-id-display');
-        const authStatusEl = document.getElementById('auth-status');
-        const adminNameDisplay = document.getElementById('admin-name-display');
-        
-        const deleteModal = document.getElementById('delete-modal');
-        const confirmDeleteBtn = document.getElementById('confirm-delete');
-        const cancelDeleteBtn = document.getElementById('cancel-delete');
-        
-        const editProfileBtn = document.getElementById('edit-profile-btn');
-        const profileEditModal = document.getElementById('profile-edit-modal');
-        const cancelProfileEditBtn = document.getElementById('cancel-profile-edit');
-        const saveProfileEditBtn = document.getElementById('save-profile-edit');
-        const adminNameInput = document.getElementById('admin-name-input');
-
-
-        // Inicializar Gráficos (referencias globales)
-        let advisorChartInstance, scoreDistributionChartInstance;
-        const CHART_COLORS = {
-            yellow: 'rgb(255, 205, 86)',
-            red: 'rgb(255, 99, 132)',
-            blue: 'rgb(54, 162, 235)',
-            green: 'rgb(75, 192, 192)',
-            purple: 'rgb(153, 102, 255)',
+        // Tu configuración de Firebase (Integrada aquí)
+        const firebaseConfig = {
+            apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
+            authDomain: "linkparabarberos.firebaseapp.com",
+            projectId: "linkparabarberos",
+            storageBucket: "linkparabarberos.firebasestorage.app",
+            messagingSenderId: "237275244830",
+            appId: "1:237275244830:web:51c5a95a81c1287512810f",
+            measurementId: "G-SX4F2EL0C0"
         };
+        
+        const globalAppId = firebaseConfig.projectId;
+
+        let app, db, auth, currentUserId;
+        let chartInstance = null;
+        let allRatings = [];
+
+        // Elementos de UI
+        const authScreen = document.getElementById('auth-screen');
+        const profileSetupScreen = document.getElementById('profile-setup-screen');
+        const dashboardContent = document.getElementById('dashboard-content');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const authErrorMessage = document.getElementById('auth-error-message');
+        const profileNameInput = document.getElementById('profile-name');
+        const advisorFilter = document.getElementById('advisor-filter');
+        const dateFilter = document.getElementById('date-filter');
+
+        // Rutas de Firestore
+        const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
+        const ADMIN_PROFILE_COLLECTION = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
+        
+        // --------------------------------------------------------
+        // 1. INICIALIZACIÓN Y AUTENTICACIÓN
+        // --------------------------------------------------------
+
+        function showScreen(screenId) {
+            authScreen.classList.add('hidden');
+            profileSetupScreen.classList.add('hidden');
+            dashboardContent.classList.add('hidden');
+            
+            if (screenId === 'auth') authScreen.classList.remove('hidden');
+            else if (screenId === 'profile') profileSetupScreen.classList.remove('hidden');
+            else if (screenId === 'dashboard') dashboardContent.classList.remove('hidden');
+            
+            loadingSpinner.classList.add('hidden');
+        }
+
+        async function initFirebase() {
+            loadingSpinner.classList.remove('hidden');
+            app = initializeApp(firebaseConfig);
+            auth = getAuth(app);
+            db = getFirestore(app);
+
+            // Listener de estado de autenticación
+            onAuthStateChanged(auth, async (user) => {
+                if (user) {
+                    currentUserId = user.uid;
+                    await checkProfileAndLoadDashboard(user.uid);
+                } else {
+                    showScreen('auth');
+                }
+            });
+        }
+
+        async function checkProfileAndLoadDashboard(uid) {
+            const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(uid), 'data');
+            try {
+                const docSnap = await getDoc(profileRef);
+                if (docSnap.exists()) {
+                    document.getElementById('admin-name').textContent = docSnap.data().name;
+                    startRealtimeDataListener(); // Iniciar listener de datos
+                    showScreen('dashboard');
+                } else {
+                    // Si el usuario existe en Auth pero no tiene perfil en Firestore
+                    showScreen('profile'); 
+                }
+            } catch (e) {
+                console.error("Error al verificar perfil:", e);
+                showScreen('profile');
+            }
+        }
 
         // --------------------------------------------------------
-        // 2. UTILIDADES Y GRÁFICOS
+        // 2. LÓGICA DE AUTENTICACIÓN
         // --------------------------------------------------------
 
-        function initializeCharts() {
-            const advisorCtx = document.getElementById('advisorChart').getContext('2d');
-            advisorChartInstance = new Chart(advisorCtx, {
+        document.getElementById('login-button').addEventListener('click', async () => {
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            authErrorMessage.textContent = '';
+            
+            if (!email || !password) {
+                authErrorMessage.textContent = 'Por favor, ingresa correo y contraseña.';
+                return;
+            }
+
+            try {
+                // Solo permite el inicio de sesión para cuentas pre-creadas
+                await signInWithEmailAndPassword(auth, email, password);
+                // onAuthStateChanged se dispara al iniciar sesión con éxito y lleva al dashboard.
+            } catch (error) {
+                console.error("Error de autenticación:", error);
+                let message = 'Error de credenciales. Asegúrate de que el correo existe y la contraseña es correcta.';
+                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                    message = 'Credenciales inválidas. Revisa el correo y la contraseña.';
+                } else if (error.code === 'auth/invalid-email') {
+                    message = 'El formato del correo es inválido.';
+                } else if (error.code === 'auth/network-request-failed') {
+                    message = 'Error de red. Revisa tu conexión.';
+                }
+                authErrorMessage.textContent = message;
+            }
+        });
+        
+        document.getElementById('logout-button').addEventListener('click', async () => {
+            try {
+                await signOut(auth);
+            } catch (error) {
+                console.error("Error al cerrar sesión:", error);
+            }
+        });
+
+        // --------------------------------------------------------
+        // 3. CONFIGURACIÓN DEL PERFIL (Primer login de una cuenta creada)
+        // --------------------------------------------------------
+
+        document.getElementById('save-profile-button').addEventListener('click', async () => {
+            const name = profileNameInput.value.trim();
+            const profileErrorEl = document.getElementById('profile-error-message');
+            profileErrorEl.textContent = '';
+
+            if (name.length < 2) {
+                profileErrorEl.textContent = 'Por favor, ingresa tu nombre o rol.';
+                return;
+            }
+
+            const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(currentUserId), 'data');
+            try {
+                // Guarda el nombre del administrador en Firestore
+                await setDoc(profileRef, { name: name, created: new Date().toISOString() });
+                document.getElementById('admin-name').textContent = name;
+                startRealtimeDataListener(); 
+                showScreen('dashboard');
+            } catch (e) {
+                console.error("Error al guardar perfil:", e);
+                profileErrorEl.textContent = 'Error al guardar. Intenta de nuevo.';
+            }
+        });
+
+        // --------------------------------------------------------
+        // 4. LÓGICA DEL DASHBOARD Y DATOS EN TIEMPO REAL
+        // --------------------------------------------------------
+
+        function startRealtimeDataListener() {
+            const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
+            const q = query(ratingsCollection);
+
+            onSnapshot(q, (snapshot) => {
+                allRatings = [];
+                snapshot.forEach((doc) => {
+                    allRatings.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Procesar y renderizar la data
+                processAndRenderRatings(allRatings);
+            }, (error) => {
+                console.error("Error al escuchar calificaciones:", error);
+                document.getElementById('no-ratings-message').textContent = 'Error cargando datos. Revisa las Reglas de Seguridad de Firestore.';
+            });
+        }
+
+        // Listeners de Filtros
+        advisorFilter.addEventListener('change', () => filterAndDisplayRatings());
+        dateFilter.addEventListener('change', () => filterAndDisplayRatings());
+
+
+        function filterAndDisplayRatings() {
+            let filteredRatings = allRatings;
+            const selectedAdvisor = advisorFilter.value;
+            const selectedDate = dateFilter.value;
+            
+            // Filtrar por Asesor
+            if (selectedAdvisor) {
+                filteredRatings = filteredRatings.filter(r => r.advisorId === selectedAdvisor);
+            }
+
+            // Filtrar por Fecha
+            if (selectedDate) {
+                filteredRatings = filteredRatings.filter(r => {
+                    const ratingDate = r.timestamp.substring(0, 10);
+                    return ratingDate === selectedDate;
+                });
+            }
+
+            // Ordenar por más reciente primero
+            filteredRatings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+            renderRatingsList(filteredRatings);
+            updateStatsAndChart(filteredRatings);
+        }
+
+        function processAndRenderRatings(ratings) {
+            const stats = calculateStats(ratings);
+            updateFilterOptions(ratings);
+            
+            document.getElementById('total-ratings').textContent = stats.totalRatings;
+            document.getElementById('avg-rating').textContent = stats.avgRating.toFixed(1);
+            document.getElementById('total-advisors').textContent = stats.totalAdvisors;
+            document.getElementById('low-ratings').textContent = stats.lowRatings;
+
+            renderRatingsList(ratings);
+            renderChart(stats.ratingDistribution);
+        }
+
+        function calculateStats(ratings) {
+            if (ratings.length === 0) {
+                return {
+                    totalRatings: 0, avgRating: 0, totalAdvisors: 0, lowRatings: 0, ratingDistribution: [0, 0, 0, 0, 0]
+                };
+            }
+            
+            const totalRatingSum = ratings.reduce((sum, r) => sum + r.rating, 0);
+            const uniqueAdvisors = new Set(ratings.map(r => r.advisorId));
+            const lowRatingsCount = ratings.filter(r => r.rating <= 2).length;
+            
+            const distribution = [0, 0, 0, 0, 0];
+            ratings.forEach(r => {
+                if (r.rating >= 1 && r.rating <= 5) {
+                    distribution[r.rating - 1]++;
+                }
+            });
+
+            return {
+                totalRatings: ratings.length,
+                avgRating: totalRatingSum / ratings.length,
+                totalAdvisors: uniqueAdvisors.size,
+                lowRatings: lowRatingsCount,
+                ratingDistribution: distribution
+            };
+        }
+
+        function updateFilterOptions(ratings) {
+            const advisors = [...new Set(ratings.map(r => ({ id: r.advisorId, name: r.advisorName })))];
+            const currentFilter = advisorFilter.value;
+            
+            advisorFilter.innerHTML = '<option value="">Todos los Asesores</option>';
+            advisors.forEach(advisor => {
+                const option = document.createElement('option');
+                option.value = advisor.id;
+                option.textContent = advisor.name;
+                if (advisor.id === currentFilter) {
+                    option.selected = true;
+                }
+                advisorFilter.appendChild(option);
+            });
+        }
+
+        function renderChart(distributionData) {
+            const ctx = document.getElementById('rating-distribution-chart').getContext('2d');
+            
+            if (chartInstance) {
+                chartInstance.destroy();
+            }
+
+            chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ADVISOR_NAMES, 
+                    labels: ['1 Estrella', '2 Estrellas', '3 Estrellas', '4 Estrellas', '5 Estrellas'],
                     datasets: [{
-                        label: 'Calificación Promedio',
-                        data: ADVISOR_NAMES.map(() => 0),
-                        backgroundColor: ADVISOR_NAMES.map((_, i) => [CHART_COLORS.blue, CHART_COLORS.green, CHART_COLORS.yellow, CHART_COLORS.purple][i % 4]),
-                        borderRadius: 8,
+                        label: 'Número de Calificaciones',
+                        data: distributionData,
+                        backgroundColor: [
+                            '#DC2626', // Rojo para 1
+                            '#F59E0B', // Ámbar para 2
+                            '#4B5563', // Gris para 3
+                            '#3B82F6', // Azul para 4
+                            '#10B981'  // Verde para 5
+                        ],
+                        borderRadius: 4,
                     }]
                 },
                 options: {
@@ -266,425 +443,86 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            max: 5,
-                            title: { display: true, text: 'Promedio de Estrellas', color: '#d4d4d4' },
-                            ticks: { color: '#d4d4d4' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            ticks: { color: '#d4d4d4', precision: 0 },
+                            grid: { color: '#262626' }
                         },
                         x: {
-                            title: { display: true, text: 'Asesor', color: '#d4d4d4' },
                             ticks: { color: '#d4d4d4' },
-                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                            grid: { display: false }
                         }
                     },
-                    plugins: { legend: { display: false } }
-                }
-            });
-
-            const scoreCtx = document.getElementById('scoreDistributionChart').getContext('2d');
-            scoreDistributionChartInstance = new Chart(scoreCtx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['1 Estrella', '2 Estrellas', '3 Estrellas', '4 Estrellas', '5 Estrellas'],
-                    datasets: [{
-                        label: 'Distribución de Calificaciones',
-                        data: [0, 0, 0, 0, 0], 
-                        backgroundColor: [
-                            CHART_COLORS.red, 
-                            CHART_COLORS.yellow, 
-                            CHART_COLORS.green, 
-                            CHART_COLORS.blue, 
-                            CHART_COLORS.purple
-                        ],
-                        hoverOffset: 4
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
                     plugins: {
-                        legend: { position: 'right', labels: { color: '#d4d4d4' } },
-                        tooltip: { callbacks: { label: (context) => {
-                            let label = context.label || '';
-                            if (label) { label += ': '; }
-                            label += context.parsed + ' votos';
-                            return label;
-                        } } }
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                title: (items) => items[0].label,
+                                label: (context) => `Total: ${context.parsed.y}`
+                            }
+                        }
                     }
                 }
             });
         }
 
-        function populateAdvisorFilter() {
-            ADVISOR_IDS.forEach((id, index) => {
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = ADVISOR_NAMES[index];
-                asesorFilter.appendChild(option);
-            });
-        }
-
-        function applyFilters() {
-            let filteredRatings = allRatings;
-            const selectedAsesor = asesorFilter.value;
-            const selectedMonth = monthFilter.value; 
-
-            // 1. Filtrar por Asesor
-            if (selectedAsesor !== 'all') {
-                filteredRatings = filteredRatings.filter(r => r.advisorId === selectedAsesor);
-            }
-
-            // 2. Filtrar por Mes
-            if (selectedMonth) {
-                const [year, month] = selectedMonth.split('-').map(Number);
-                filteredRatings = filteredRatings.filter(r => {
-                    const date = new Date(r.timestamp);
-                    // Date.getMonth() es base 0 (0=Ene, 11=Dic), por eso month-1
-                    return date.getFullYear() === year && date.getMonth() === (month - 1);
-                });
-            }
-
-            renderMetrics(filteredRatings);
-            renderCharts(filteredRatings);
-            renderTable(filteredRatings);
-        }
-
-        function renderMetrics(ratings) {
-            const total = ratings.length;
-            totalRatingsEl.textContent = total;
-
-            if (total === 0) {
-                avgRatingEl.textContent = 'N/A';
-                return;
-            }
-
-            const totalScore = ratings.reduce((sum, r) => sum + r.rating, 0);
-            const average = (totalScore / total).toFixed(2);
-            avgRatingEl.textContent = average;
-        }
-
-        function renderCharts(ratings) {
-            const advisorData = {};
-            ADVISOR_IDS.forEach(id => advisorData[id] = { total: 0, count: 0 });
-
-            ratings.forEach(r => {
-                if (advisorData[r.advisorId]) {
-                    advisorData[r.advisorId].total += r.rating;
-                    advisorData[r.advisorId].count++;
-                }
-            });
-
-            const chartLabels = [];
-            const chartData = [];
-
-            ADVISOR_IDS.forEach((id, index) => {
-                const name = ADVISOR_NAMES[index];
-                const data = advisorData[id];
-                if (data.count > 0) {
-                    chartLabels.push(name);
-                    chartData.push((data.total / data.count).toFixed(2));
-                }
-            });
+        function renderRatingsList(ratings) {
+            const container = document.getElementById('ratings-list-container');
+            const noRatingsMsg = document.getElementById('no-ratings-message');
+            container.innerHTML = '';
             
-            advisorChartInstance.data.labels = chartLabels;
-            advisorChartInstance.data.datasets[0].data = chartData;
-            advisorChartInstance.update();
-
-            const distribution = [0, 0, 0, 0, 0]; 
-
-            ratings.forEach(r => {
-                if (r.rating >= 1 && r.rating <= 5) {
-                    distribution[r.rating - 1]++;
-                }
-            });
-
-            scoreDistributionChartInstance.data.datasets[0].data = distribution;
-            scoreDistributionChartInstance.update();
-        }
-
-        function renderTable(ratings) {
-            ratingsTableBody.innerHTML = ''; 
             if (ratings.length === 0) {
-                noDataMessage.classList.remove('hidden');
-                return;
-            }
-            noDataMessage.classList.add('hidden');
-
-            const sortedRatings = ratings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-            sortedRatings.forEach(rating => {
-                const date = new Date(rating.timestamp).toLocaleString('es-CO', {
-                    year: 'numeric', month: 'short', day: 'numeric', 
-                    hour: '2-digit', minute: '2-digit'
-                });
-
-                const row = document.createElement('tr');
-                row.className = 'text-gray-300 hover:bg-gray-800 transition duration-150';
-                row.innerHTML = `
-                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">${rating.advisorName}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">${'⭐'.repeat(rating.rating)} (${rating.rating})</td>
-                    <td class="px-6 py-4 whitespace-normal text-sm">${rating.comments || 'N/A'}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-xs">${date}</td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm">
-                        <button onclick="showDeleteModal('${rating.id}')" class="text-red-500 hover:text-red-400 font-semibold focus:outline-none ml-2">Eliminar</button>
-                    </td>
-                `;
-                ratingsTableBody.appendChild(row);
-            });
-        }
-
-        // --------------------------------------------------------
-        // 3. LÓGICA DE AUTENTICACIÓN
-        // --------------------------------------------------------
-
-        function setLoginMessage(message, isError = true) {
-            loginMessage.textContent = message;
-            loginMessage.classList.remove('hidden');
-            loginMessage.classList.remove(isError ? 'text-green-400' : 'text-red-400');
-            loginMessage.classList.add(isError ? 'text-red-400' : 'text-green-400');
-        }
-
-        loginButton.addEventListener('click', async () => {
-            const email = loginEmailInput.value;
-            const password = loginPasswordInput.value;
-            if (!email || !password) {
-                setLoginMessage('Debes ingresar correo y contraseña.');
+                noRatingsMsg.classList.remove('hidden');
                 return;
             }
 
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                console.error("Error al iniciar sesión:", error);
-                setLoginMessage('Error de inicio de sesión. Credenciales inválidas.');
-            }
-        });
-
-        registerButton.addEventListener('click', async () => {
-            const email = loginEmailInput.value;
-            const password = loginPasswordInput.value;
-            if (!email || !password) {
-                setLoginMessage('Debes ingresar correo y contraseña para registrarte.');
-                return;
-            }
-
-            try {
-                await createUserWithEmailAndPassword(auth, email, password);
-                setLoginMessage('Registro exitoso. Iniciando sesión...', false);
-            } catch (error) {
-                console.error("Error al registrarse:", error);
-                setLoginMessage('Error al registrarse. La contraseña debe tener al menos 6 caracteres y el correo ser válido.');
-            }
-        });
-        
-        logoutButton.addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-                console.log("Sesión cerrada.");
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error);
-            }
-        });
-
-        // --------------------------------------------------------
-        // 4. LÓGICA DEL PERFIL DE ADMINISTRADOR
-        // --------------------------------------------------------
-
-        const ADMIN_PROFILE_DOC_ID = 'profile'; 
-        
-        function getAdminProfileDocRef() {
-            if (!userId) {
-                console.error("User ID no disponible para la referencia del perfil.");
-                return null;
-            }
-            // Ruta: /artifacts/{appId}/users/{userId}/admin_profile/profile
-            const collectionPath = `artifacts/${appId}/users/${userId}/admin_profile`;
-            return doc(db, collectionPath, ADMIN_PROFILE_DOC_ID);
-        }
-
-        async function loadAdminProfile() {
-            const docRef = getAdminProfileDocRef();
-            if (!docRef) return;
-
-            try {
-                const docSnap = await getDoc(docRef);
-                let profile = {};
-                
-                if (docSnap.exists()) {
-                    profile = docSnap.data();
-                    adminNameDisplay.textContent = profile.name || 'Admin Principal';
-                    adminNameInput.value = profile.name || '';
-                } else {
-                    profile = { name: 'Admin Principal', userId: userId, createdAt: new Date().toISOString() };
-                    await setDoc(docRef, profile);
-                    adminNameDisplay.textContent = 'Admin Principal';
-                    adminNameInput.value = 'Admin Principal';
-                }
-            } catch (error) {
-                console.error("Error al cargar/crear perfil de admin:", error);
-                adminNameDisplay.textContent = 'Error de carga';
-            }
-        }
-        
-        // Abrir Modal de Edición
-        editProfileBtn.addEventListener('click', () => {
-            profileEditModal.classList.remove('hidden');
-        });
-
-        // Cancelar Edición
-        cancelProfileEditBtn.addEventListener('click', () => {
-            profileEditModal.classList.add('hidden');
-        });
-
-        // Guardar Edición
-        saveProfileEditBtn.addEventListener('click', async () => {
-            const newName = adminNameInput.value.trim();
-            if (!newName) {
-                alert('El nombre no puede estar vacío.');
-                return;
-            }
-
-            const docRef = getAdminProfileDocRef();
-            if (!docRef) return;
+            noRatingsMsg.classList.add('hidden');
             
-            saveProfileEditBtn.disabled = true;
-            saveProfileEditBtn.textContent = 'Guardando...';
-
-            try {
-                await setDoc(docRef, { name: newName, updatedAt: new Date().toISOString() }, { merge: true });
-                adminNameDisplay.textContent = newName;
-                profileEditModal.classList.add('hidden');
-            } catch (error) {
-                console.error("Error al guardar perfil:", error);
-                alert('Error al guardar el perfil. Revisa la consola.');
-            } finally {
-                saveProfileEditBtn.disabled = false;
-                saveProfileEditBtn.textContent = 'Guardar';
-            }
-        });
-
-        // --------------------------------------------------------
-        // 5. CONEXIÓN Y CONTROL DE ESTADO DE FIREBASE
-        // --------------------------------------------------------
-        
-        async function initFirebase() {
-            try {
-                if (Object.keys(firebaseConfig).length === 0) {
-                     authStatusEl.textContent = 'Error: Configuración de Firebase no cargada.';
-                     return;
-                }
-
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                // Autenticación inicial del Canvas (si aplica)
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                }
+            ratings.forEach(rating => {
+                const isNegative = rating.rating <= 2;
+                const date = new Date(rating.timestamp).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
                 
-                // Listener de estado de autenticación
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        // Usuario autenticado (incluye login de email o token inicial)
-                        userId = user.uid;
-                        userIdDisplay.textContent = userId;
+                const ratingCard = document.createElement('div');
+                ratingCard.className = `card p-5 rounded-xl flex justify-between items-center transition duration-150 shadow-lg ${isNegative ? 'border-red-600' : 'border-gray-700'}`;
+                ratingCard.innerHTML = `
+                    <div>
+                        <div class="flex items-center space-x-2 mb-2">
+                            <span class="text-3xl font-bold ${isNegative ? 'text-red-400' : 'text-yellow-400'}">${rating.rating} / 5</span>
+                            <span class="text-sm font-medium text-gray-400">(${rating.advisorName})</span>
+                        </div>
+                        <p class="text-gray-200 mb-2 whitespace-pre-wrap">${rating.comments || '— Sin comentarios —'}</p>
+                        <p class="text-xs text-gray-500">Enviado: ${date}</p>
+                    </div>
+                    <button data-id="${rating.id}" class="delete-button text-red-500 hover:text-red-700 ml-4 p-2 rounded-full hover:bg-gray-800 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </button>
+                `;
+                container.appendChild(ratingCard);
+            });
 
-                        // Ocultar login y mostrar dashboard
-                        loginScreen.classList.add('hidden');
-                        mainDashboardContent.classList.remove('hidden');
-                        authStatusEl.textContent = 'Conectado. Bienvenido(a).';
-
-                        // Cargar perfil y datos
-                        await loadAdminProfile(); 
-                        startDataListener();
-
-                    } else {
-                        // Usuario no autenticado
-                        userId = null;
-                        
-                        // Mostrar login y ocultar dashboard
-                        loginScreen.classList.remove('hidden');
-                        mainDashboardContent.classList.add('hidden');
-                        
-                        authStatusEl.textContent = 'Desconectado.';
+            // Re-adjuntar listeners de borrado
+            document.querySelectorAll('.delete-button').forEach(button => {
+                button.addEventListener('click', async (e) => {
+                    const ratingId = e.currentTarget.dataset.id;
+                    if (confirm('¿Estás seguro de que quieres eliminar esta calificación?')) {
+                        await deleteRating(ratingId);
                     }
                 });
-
-            } catch (error) {
-                console.error("Error al inicializar Firebase:", error);
-                authStatusEl.textContent = 'Error crítico de Firebase. Revisa la consola.';
-            }
-        }
-
-        function startDataListener() {
-            if (unsubscribeSnapshot) {
-                unsubscribeSnapshot();
-            }
-            
-            const collectionPath = `artifacts/${appId}/public/data/whatsapp_ratings`;
-            const q = query(collection(db, collectionPath));
-            
-            unsubscribeSnapshot = onSnapshot(q, (snapshot) => {
-                allRatings = [];
-                snapshot.forEach((doc) => {
-                    allRatings.push({ id: doc.id, ...doc.data() });
-                });
-                
-                applyFilters(); 
-            }, (error) => {
-                console.error("Error al escuchar datos de Firestore:", error);
-                authStatusEl.textContent = 'Error al cargar datos. Revisa las reglas de seguridad.';
             });
         }
-        
-        // --------------------------------------------------------
-        // 6. LÓGICA DE ELIMINACIÓN Y MODAL
-        // --------------------------------------------------------
 
-        window.showDeleteModal = (docId) => {
-            confirmDeleteBtn.dataset.docId = docId;
-            deleteModal.classList.remove('hidden');
-        };
-
-        cancelDeleteBtn.addEventListener('click', () => {
-            deleteModal.classList.add('hidden');
-        });
-
-        confirmDeleteBtn.addEventListener('click', async (e) => {
-            const docIdToDelete = e.currentTarget.dataset.docId;
-            if (!docIdToDelete) {
-                console.error("No se encontró ID de documento para eliminar.");
-                return;
-            }
-
-            deleteModal.classList.add('hidden');
-            e.currentTarget.disabled = true;
-            e.currentTarget.textContent = 'Eliminando...';
-            
-            const collectionPath = `artifacts/${appId}/public/data/whatsapp_ratings`;
-            const docRef = doc(db, collectionPath, docIdToDelete);
-
+        async function deleteRating(id) {
+            const ratingRef = doc(db, PUBLIC_RATINGS_COLLECTION, id);
             try {
-                await deleteDoc(docRef);
-                console.log("Documento eliminado con éxito:", docIdToDelete);
-            } catch (error) {
-                console.error("Error al eliminar el documento:", error);
-            } finally {
-                e.currentTarget.disabled = false;
-                e.currentTarget.textContent = 'Eliminar';
+                await deleteDoc(ratingRef);
+                console.log("Calificación eliminada:", id);
+            } catch (e) {
+                console.error("Error al eliminar calificación:", e);
+                alert('Error: No se pudo eliminar la calificación. Verifica permisos.');
             }
-        });
-        
-        // --------------------------------------------------------
-        // 7. INICIALIZACIÓN
-        // --------------------------------------------------------
-        
-        asesorFilter.addEventListener('change', applyFilters);
-        monthFilter.addEventListener('change', applyFilters);
+        }
 
-        populateAdvisorFilter();
-        initializeCharts();
+        // Iniciar la aplicación
         initFirebase();
     </script>
 
