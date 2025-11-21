@@ -216,383 +216,404 @@
 
     <!-- FIREBASE + LÓGICA -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- CONFIG FIREBASE ---
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
-            authDomain: "linkparabarberos.firebaseapp.com",
-            projectId: "linkparabarberos",
-            storageBucket: "linkparabarberos.firebasestorage.app",
-            messagingSenderId: "237275244830",
-            appId: "1:237275244830:web:51c5a95a81c1287512810f",
-            measurementId: "G-SX4F2EL0C0"
-        };
+    // --- CONFIG FIREBASE ---
+    const firebaseConfig = {
+        apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
+        authDomain: "linkparabarberos.firebaseapp.com",
+        projectId: "linkparabarberos",
+        storageBucket: "linkparabarberos.firebasestorage.app",
+        messagingSenderId: "237275244830",
+        appId: "1:237275244830:web:51c5a95a81c1287512810f",
+        measurementId: "G-SX4F2EL0C0"
+    };
 
-        const globalAppId = firebaseConfig.projectId;
+    const globalAppId = firebaseConfig.projectId;
 
-        let app, db, auth, currentUserId;
-        let chartInstance = null;
-        let allRatings = [];
+    let app, db, auth, currentUserId;
+    let chartInstance = null;
+    let allRatings = [];
 
-        // UI
-        const authScreen = document.getElementById('auth-screen');
-        const profileSetupScreen = document.getElementById('profile-setup-screen');
-        const dashboardContent = document.getElementById('dashboard-content');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const authErrorMessage = document.getElementById('auth-error-message');
-        const profileNameInput = document.getElementById('profile-name');
-        const advisorFilter = document.getElementById('advisor-filter');
-        const dateFilter = document.getElementById('date-filter');
-        const monthFilter  = document.getElementById('month-filter');
-        const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
-        const ADMIN_PROFILE_COLLECTION = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
+    // --- ELEMENTOS DE UI ---
+    const authScreen = document.getElementById('auth-screen');
+    const profileSetupScreen = document.getElementById('profile-setup-screen');
+    const dashboardContent = document.getElementById('dashboard-content');
+    const loadingSpinner = document.getElementById('loading-spinner');
+    const authErrorMessage = document.getElementById('auth-error-message');
+    const profileNameInput = document.getElementById('profile-name');
 
-        // --------- helpers de pantalla ----------
-        function showScreen(screenId) {
-            authScreen.classList.add('hidden');
-            profileSetupScreen.classList.add('hidden');
-            dashboardContent.classList.add('hidden');
+    const advisorFilter = document.getElementById('advisor-filter');
+    const dateFilter   = document.getElementById('date-filter');
+    const monthFilter  = document.getElementById('month-filter');
 
-            if (screenId === 'auth') authScreen.classList.remove('hidden');
-            else if (screenId === 'profile') profileSetupScreen.classList.remove('hidden');
-            else if (screenId === 'dashboard') dashboardContent.classList.remove('hidden');
+    const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
+    const ADMIN_PROFILE_COLLECTION = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
 
-            loadingSpinner.classList.add('hidden');
-        }
+    // ----------------------------------------------------
+    // 1. Cambio de pantallas
+    // ----------------------------------------------------
+    function showScreen(screenId) {
+        authScreen.classList.add('hidden');
+        profileSetupScreen.classList.add('hidden');
+        dashboardContent.classList.add('hidden');
 
-        async function initFirebase() {
-            loadingSpinner.classList.remove('hidden');
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
+        if (screenId === 'auth')      authScreen.classList.remove('hidden');
+        if (screenId === 'profile')   profileSetupScreen.classList.remove('hidden');
+        if (screenId === 'dashboard') dashboardContent.classList.remove('hidden');
 
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    currentUserId = user.uid;
-                    await checkProfileAndLoadDashboard(user.uid);
-                } else {
-                    showScreen('auth');
-                }
-            });
-        }
+        loadingSpinner.classList.add('hidden');
+    }
 
-        async function checkProfileAndLoadDashboard(uid) {
-            const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(uid), 'data');
-            try {
-                const docSnap = await getDoc(profileRef);
-                if (docSnap.exists()) {
-                    document.getElementById('admin-name').textContent = docSnap.data().name;
-                    startRealtimeDataListener();
-                    showScreen('dashboard');
-                } else {
-                    showScreen('profile');
-                }
-            } catch (e) {
-                console.error("Error al verificar perfil:", e);
-                showScreen('profile');
-            }
-        }
+    // ----------------------------------------------------
+    // 2. Inicializar Firebase y Auth
+    // ----------------------------------------------------
+    async function initFirebase() {
+        loadingSpinner.classList.remove('hidden');
 
-        // --------- LOGIN ----------
-        document.getElementById('login-button').addEventListener('click', async () => {
-            const email = document.getElementById('auth-email').value;
-            const password = document.getElementById('auth-password').value;
-            authErrorMessage.textContent = '';
+        app  = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db   = getFirestore(app);
 
-            if (!email || !password) {
-                authErrorMessage.textContent = 'Por favor, ingresa correo y contraseña.';
-                return;
-            }
-
-            try {
-                await signInWithEmailAndPassword(auth, email, password);
-            } catch (error) {
-                console.error("Error de autenticación:", error);
-                let message = 'Error de credenciales. Asegúrate de que el correo existe y la contraseña es correcta.';
-                if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                    message = 'Credenciales inválidas. Revisa el correo y la contraseña.';
-                } else if (error.code === 'auth/invalid-email') {
-                    message = 'El formato del correo es inválido.';
-                } else if (error.code === 'auth/network-request-failed') {
-                    message = 'Error de red. Revisa tu conexión.';
-                }
-                authErrorMessage.textContent = message;
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUserId = user.uid;
+                await checkProfileAndLoadDashboard(user.uid);
+            } else {
+                showScreen('auth');
             }
         });
+    }
 
-        document.getElementById('logout-button').addEventListener('click', async () => {
-            try {
-                await signOut(auth);
-            } catch (error) {
-                console.error("Error al cerrar sesión:", error);
-            }
-        });
-
-        // --------- PERFIL ----------
-        document.getElementById('save-profile-button').addEventListener('click', async () => {
-            const name = profileNameInput.value.trim();
-            const profileErrorEl = document.getElementById('profile-error-message');
-            profileErrorEl.textContent = '';
-
-            if (name.length < 2) {
-                profileErrorEl.textContent = 'Por favor, ingresa tu nombre o rol.';
-                return;
-            }
-
-            const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(currentUserId), 'data');
-            try {
-                await setDoc(profileRef, { name: name, created: new Date().toISOString() });
-                document.getElementById('admin-name').textContent = name;
+    async function checkProfileAndLoadDashboard(uid) {
+        const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(uid), 'data');
+        try {
+            const docSnap = await getDoc(profileRef);
+            if (docSnap.exists()) {
+                document.getElementById('admin-name').textContent = docSnap.data().name;
                 startRealtimeDataListener();
                 showScreen('dashboard');
-            } catch (e) {
-                console.error("Error al guardar perfil:", e);
-                profileErrorEl.textContent = 'Error al guardar. Intenta de nuevo.';
+            } else {
+                showScreen('profile');
             }
+        } catch (e) {
+            console.error("Error al verificar perfil:", e);
+            showScreen('profile');
+        }
+    }
+
+    // ----------------------------------------------------
+    // 3. Login / Logout
+    // ----------------------------------------------------
+    document.getElementById('login-button').addEventListener('click', async () => {
+        const email    = document.getElementById('auth-email').value;
+        const password = document.getElementById('auth-password').value;
+        authErrorMessage.textContent = '';
+
+        if (!email || !password) {
+            authErrorMessage.textContent = 'Por favor, ingresa correo y contraseña.';
+            return;
+        }
+
+        try {
+            await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+            console.error("Error de autenticación:", error);
+            let message = 'Error de credenciales. Asegúrate de que el correo existe y la contraseña es correcta.';
+            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
+                message = 'Credenciales inválidas. Revisa el correo y la contraseña.';
+            } else if (error.code === 'auth/invalid-email') {
+                message = 'El formato del correo es inválido.';
+            } else if (error.code === 'auth/network-request-failed') {
+                message = 'Error de red. Revisa tu conexión.';
+            }
+            authErrorMessage.textContent = message;
+        }
+    });
+
+    document.getElementById('logout-button').addEventListener('click', async () => {
+        try {
+            await signOut(auth);
+        } catch (error) {
+            console.error("Error al cerrar sesión:", error);
+        }
+    });
+
+    // ----------------------------------------------------
+    // 4. Guardar perfil de admin
+    // ----------------------------------------------------
+    document.getElementById('save-profile-button').addEventListener('click', async () => {
+        const name = profileNameInput.value.trim();
+        const profileErrorEl = document.getElementById('profile-error-message');
+        profileErrorEl.textContent = '';
+
+        if (name.length < 2) {
+            profileErrorEl.textContent = 'Por favor, ingresa tu nombre o rol.';
+            return;
+        }
+
+        const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(currentUserId), 'data');
+        try {
+            await setDoc(profileRef, { name, created: new Date().toISOString() });
+            document.getElementById('admin-name').textContent = name;
+            startRealtimeDataListener();
+            showScreen('dashboard');
+        } catch (e) {
+            console.error("Error al guardar perfil:", e);
+            profileErrorEl.textContent = 'Error al guardar. Intenta de nuevo.';
+        }
+    });
+
+    // ----------------------------------------------------
+    // 5. Escucha en tiempo real de calificaciones
+    // ----------------------------------------------------
+    function startRealtimeDataListener() {
+        const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
+        const q = query(ratingsCollection);
+
+        onSnapshot(q, (snapshot) => {
+            allRatings = [];
+            snapshot.forEach((docSnap) => {
+                allRatings.push({ id: docSnap.id, ...docSnap.data() });
+            });
+
+            // Primer render sin filtros
+            renderRatingsList(allRatings);
+            updateFilterOptions(allRatings);
+            updateStatsAndChart(allRatings);
+        }, (error) => {
+            console.error("Error al escuchar calificaciones:", error);
+            document.getElementById('no-ratings-message').textContent =
+                'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
         });
+    }
 
-        // --------- DATA EN TIEMPO REAL ----------
-        function startRealtimeDataListener() {
-            const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
-            const q = query(ratingsCollection);
+    // ----------------------------------------------------
+    // 6. Filtros (asesor, mes, día)
+    // ----------------------------------------------------
+    advisorFilter.addEventListener('change', () => filterAndDisplayRatings());
 
-            onSnapshot(q, (snapshot) => {
-                allRatings = [];
-                snapshot.forEach((docSnap) => {
-                    allRatings.push({ id: docSnap.id, ...docSnap.data() });
-                });
-                processAndRenderRatings(allRatings);
-            }, (error) => {
-                console.error("Error al escuchar calificaciones:", error);
-                document.getElementById('no-ratings-message').textContent =
-                    'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
+    // si se elige día, vaciamos mes
+    dateFilter.addEventListener('change', () => {
+        if (dateFilter.value) monthFilter.value = '';
+        filterAndDisplayRatings();
+    });
+
+    // si se elige mes, vaciamos día
+    monthFilter.addEventListener('change', () => {
+        if (monthFilter.value) dateFilter.value = '';
+        filterAndDisplayRatings();
+    });
+
+    function filterAndDisplayRatings() {
+        let filtered = allRatings;
+        const selectedAdvisor = advisorFilter.value;
+        const selectedDate   = dateFilter.value;   // YYYY-MM-DD
+        const selectedMonth  = monthFilter.value;  // YYYY-MM
+
+        // asesor
+        if (selectedAdvisor) {
+            filtered = filtered.filter(r => r.advisorId === selectedAdvisor);
+        }
+
+        // mes (tiene prioridad sobre día)
+        if (selectedMonth) {
+            filtered = filtered.filter(r => {
+                if (!r.timestamp) return false;
+                const ratingMonth = r.timestamp.substring(0, 7); // "YYYY-MM"
+                return ratingMonth === selectedMonth;
+            });
+        } else if (selectedDate) {
+            filtered = filtered.filter(r => {
+                if (!r.timestamp) return false;
+                const ratingDate = r.timestamp.substring(0, 10); // "YYYY-MM-DD"
+                return ratingDate === selectedDate;
             });
         }
 
-        advisorFilter.addEventListener('change', () => filterAndDisplayRatings());
+        // ordenar por más recientes
+        filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-// si eligen día, limpiamos mes
-dateFilter.addEventListener('change', () => {
-    if (dateFilter.value) monthFilter.value = '';
-    filterAndDisplayRatings();
-});
-
-// si eligen mes, limpiamos día
-monthFilter.addEventListener('change', () => {
-    if (monthFilter.value) dateFilter.value = '';
-    filterAndDisplayRatings();
-});
-
-        function filterAndDisplayRatings() {
-    let filteredRatings = allRatings;
-    const selectedAdvisor = advisorFilter.value;
-    const selectedDate   = dateFilter.value;    // YYYY-MM-DD
-    const selectedMonth  = monthFilter.value;   // YYYY-MM
-
-    // Filtrar por asesor
-    if (selectedAdvisor) {
-        filteredRatings = filteredRatings.filter(r => r.advisorId === selectedAdvisor);
+        renderRatingsList(filtered);
+        updateStatsAndChart(filtered);
     }
 
-    // Si hay mes, filtramos por mes (YYYY-MM)
-    if (selectedMonth) {
-        filteredRatings = filteredRatings.filter(r => {
-            if (!r.timestamp) return false;
-            const ratingMonth = r.timestamp.substring(0, 7); // "YYYY-MM"
-            return ratingMonth === selectedMonth;
-        });
-    }
-    // Si no hay mes pero sí día, filtramos por fecha exacta
-    else if (selectedDate) {
-        filteredRatings = filteredRatings.filter(r => {
-            if (!r.timestamp) return false;
-            const ratingDate = r.timestamp.substring(0, 10); // "YYYY-MM-DD"
-            return ratingDate === selectedDate;
-        });
-    }
-
-    // Ordenar por más reciente
-    filteredRatings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-
-    renderRatingsList(filteredRatings);
-    updateStatsAndChart(filteredRatings);
-}
-
-
-        function processAndRenderRatings(ratings) {
-            const stats = calculateStats(ratings);
-            updateFilterOptions(ratings);
-
-            document.getElementById('total-ratings').textContent = stats.totalRatings;
-            document.getElementById('avg-rating').textContent = stats.totalRatings ? stats.avgRating.toFixed(1) : 'N/A';
-            document.getElementById('total-advisors').textContent = stats.totalAdvisors;
-            document.getElementById('low-ratings').textContent = stats.lowRatings;
-
-            renderRatingsList(ratings);
-            renderChart(stats.ratingDistribution);
-        }
-
-        function calculateStats(ratings) {
-            if (!ratings.length) {
-                return {
-                    totalRatings: 0,
-                    avgRating: 0,
-                    totalAdvisors: 0,
-                    lowRatings: 0,
-                    ratingDistribution: [0, 0, 0, 0, 0]
-                };
-            }
-
-            const totalRatingSum = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
-            const uniqueAdvisors = new Set(ratings.map(r => r.advisorId));
-            const lowRatingsCount = ratings.filter(r => r.rating <= 2).length;
-
-            const distribution = [0, 0, 0, 0, 0];
-            ratings.forEach(r => {
-                if (r.rating >= 1 && r.rating <= 5) {
-                    distribution[r.rating - 1]++;
-                }
-            });
-
+    // ----------------------------------------------------
+    // 7. Cálculos y actualización de estadísticas / gráfico
+    // ----------------------------------------------------
+    function calculateStats(ratings) {
+        if (!ratings.length) {
             return {
-                totalRatings: ratings.length,
-                avgRating: totalRatingSum / ratings.length,
-                totalAdvisors: uniqueAdvisors.size,
-                lowRatings: lowRatingsCount,
-                ratingDistribution: distribution
+                totalRatings: 0,
+                avgRating: 0,
+                totalAdvisors: 0,
+                lowRatings: 0,
+                ratingDistribution: [0, 0, 0, 0, 0]
             };
         }
 
-        function updateFilterOptions(ratings) {
-            const advisors = [...new Set(ratings.map(r => JSON.stringify({ id: r.advisorId, name: r.advisorName })))]
-                .map(str => JSON.parse(str));
+        const totalRatingSum = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
+        const uniqueAdvisors = new Set(ratings.map(r => r.advisorId));
+        const lowRatingsCount = ratings.filter(r => r.rating <= 2).length;
 
-            const currentFilter = advisorFilter.value;
-            advisorFilter.innerHTML = '<option value="">Todos los asesores</option>';
+        const distribution = [0, 0, 0, 0, 0];
+        ratings.forEach(r => {
+            if (r.rating >= 1 && r.rating <= 5) distribution[r.rating - 1]++;
+        });
 
-            advisors.forEach(advisor => {
-                if (!advisor.id) return;
-                const option = document.createElement('option');
-                option.value = advisor.id;
-                option.textContent = advisor.name || advisor.id;
-                if (advisor.id === currentFilter) option.selected = true;
-                advisorFilter.appendChild(option);
-            });
-        }
+        return {
+            totalRatings: ratings.length,
+            avgRating: totalRatingSum / ratings.length,
+            totalAdvisors: uniqueAdvisors.size,
+            lowRatings: lowRatingsCount,
+            ratingDistribution: distribution
+        };
+    }
 
-        function renderChart(distributionData) {
-            const ctx = document.getElementById('rating-distribution-chart').getContext('2d');
-            if (chartInstance) chartInstance.destroy();
+    function updateStatsAndChart(ratings) {
+        const stats = calculateStats(ratings);
 
-            chartInstance = new Chart(ctx, {
-                type: 'bar',
-                data: {
-                    labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
-                    datasets: [{
-                        data: distributionData,
-                        backgroundColor: ['#DC2626', '#F97316', '#4B5563', '#3B82F6', '#10B981'],
-                        borderRadius: 6
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            ticks: { color: '#e5e7eb', precision: 0 },
-                            grid: { color: '#27272a' }
-                        },
-                        x: {
-                            ticks: { color: '#e5e7eb' },
-                            grid: { display: false }
-                        }
+        document.getElementById('total-ratings').textContent =
+            stats.totalRatings;
+        document.getElementById('avg-rating').textContent =
+            stats.totalRatings ? stats.avgRating.toFixed(1) : 'N/A';
+        document.getElementById('total-advisors').textContent =
+            stats.totalAdvisors;
+        document.getElementById('low-ratings').textContent =
+            stats.lowRatings;
+
+        renderChart(stats.ratingDistribution);
+    }
+
+    function updateFilterOptions(ratings) {
+        const advisors = [...new Set(
+            ratings.map(r => JSON.stringify({ id: r.advisorId, name: r.advisorName }))
+        )].map(str => JSON.parse(str));
+
+        const currentFilter = advisorFilter.value;
+        advisorFilter.innerHTML = '<option value="">Todos los asesores</option>';
+
+        advisors.forEach(advisor => {
+            if (!advisor.id) return;
+            const option = document.createElement('option');
+            option.value = advisor.id;
+            option.textContent = advisor.name || advisor.id;
+            if (advisor.id === currentFilter) option.selected = true;
+            advisorFilter.appendChild(option);
+        });
+    }
+
+    function renderChart(distributionData) {
+        const ctx = document.getElementById('rating-distribution-chart').getContext('2d');
+        if (chartInstance) chartInstance.destroy();
+
+        chartInstance = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
+                datasets: [{
+                    data: distributionData,
+                    backgroundColor: ['#DC2626', '#F97316', '#4B5563', '#3B82F6', '#10B981'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { color: '#e5e7eb', precision: 0 },
+                        grid: { color: '#27272a' }
                     },
-                    plugins: {
-                        legend: { display: false }
+                    x: {
+                        ticks: { color: '#e5e7eb' },
+                        grid: { display: false }
                     }
+                },
+                plugins: { legend: { display: false } }
+            }
+        });
+    }
+
+    // ----------------------------------------------------
+    // 8. Render de la lista de calificaciones
+    // ----------------------------------------------------
+    function renderRatingsList(ratings) {
+        const container = document.getElementById('ratings-list-container');
+        const noRatingsMsg = document.getElementById('no-ratings-message');
+        container.innerHTML = '';
+
+        if (!ratings.length) {
+            noRatingsMsg.classList.remove('hidden');
+            return;
+        }
+        noRatingsMsg.classList.add('hidden');
+
+        ratings.forEach(rating => {
+            const isNegative = rating.rating <= 2;
+            const date = rating.timestamp
+                ? new Date(rating.timestamp).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+                : '-';
+
+            const row = document.createElement('div');
+            row.className = "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-zinc-800/80 rounded-xl px-3 py-2 bg-zinc-950/80";
+
+            row.innerHTML = `
+                <div class="flex items-center justify-between md:block">
+                    <p class="text-sm font-semibold text-white">${rating.advisorName || rating.advisorId || 'Asesor'}</p>
+                    <p class="md:hidden text-xs text-gray-500 mt-0.5">${date}</p>
+                </div>
+                <div class="flex items-center md:justify-start justify-between">
+                    <span class="text-base font-bold ${isNegative ? 'text-red-400' : 'text-yellow-300'}">
+                        ${rating.rating ?? '-'} / 5
+                    </span>
+                </div>
+                <div class="text-xs text-gray-200 md:pr-4">
+                    ${rating.comments ? rating.comments.replace(/\n/g, '<br>') : '— Sin comentarios —'}
+                </div>
+                <div class="hidden md:block text-xs text-gray-400">
+                    ${date}
+                </div>
+                <div class="flex justify-end">
+                    <button data-id="${rating.id}"
+                            class="delete-button text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-zinc-800 transition">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                             viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                        </svg>
+                    </button>
+                </div>
+            `;
+
+            container.appendChild(row);
+        });
+
+        document.querySelectorAll('.delete-button').forEach(button => {
+            button.addEventListener('click', async (e) => {
+                const ratingId = e.currentTarget.dataset.id;
+                if (confirm('¿Eliminar esta calificación?')) {
+                    await deleteRating(ratingId);
                 }
             });
+        });
+    }
+
+    async function deleteRating(id) {
+        const ratingRef = doc(db, PUBLIC_RATINGS_COLLECTION, id);
+        try {
+            await deleteDoc(ratingRef);
+        } catch (e) {
+            console.error("Error al eliminar calificación:", e);
+            alert('No se pudo eliminar la calificación. Revisa permisos.');
         }
+    }
 
-        function renderRatingsList(ratings) {
-            const container = document.getElementById('ratings-list-container');
-            const noRatingsMsg = document.getElementById('no-ratings-message');
-            container.innerHTML = '';
-
-            if (!ratings.length) {
-                noRatingsMsg.classList.remove('hidden');
-                return;
-            }
-            noRatingsMsg.classList.add('hidden');
-
-            ratings.forEach(rating => {
-                const isNegative = rating.rating <= 2;
-                const date = rating.timestamp
-                    ? new Date(rating.timestamp).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
-                    : '-';
-
-                const wrapper = document.createElement('div');
-                wrapper.className = "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-zinc-800/80 rounded-xl px-3 py-2 bg-zinc-950/80";
-
-                wrapper.innerHTML = `
-                    <div class="flex items-center justify-between md:block">
-                        <p class="text-sm font-semibold text-white">${rating.advisorName || rating.advisorId || 'Asesor'}</p>
-                        <p class="md:hidden text-xs text-gray-500 mt-0.5">${date}</p>
-                    </div>
-
-                    <div class="flex items-center md:justify-start justify-between">
-                        <span class="text-base font-bold ${isNegative ? 'text-red-400' : 'text-yellow-300'}">${rating.rating ?? '-'}/5</span>
-                    </div>
-
-                    <div class="text-xs text-gray-200 md:pr-4">
-                        ${rating.comments ? rating.comments.replace(/\n/g, '<br>') : '— Sin comentarios —'}
-                    </div>
-
-                    <div class="hidden md:block text-xs text-gray-400">
-                        ${date}
-                    </div>
-
-                    <div class="flex justify-end">
-                        <button data-id="${rating.id}"
-                                class="delete-button text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-zinc-800 transition">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                                 viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                            </svg>
-                        </button>
-                    </div>
-                `;
-
-                container.appendChild(wrapper);
-            });
-
-            document.querySelectorAll('.delete-button').forEach(button => {
-                button.addEventListener('click', async (e) => {
-                    const ratingId = e.currentTarget.dataset.id;
-                    if (confirm('¿Eliminar esta calificación?')) {
-                        await deleteRating(ratingId);
-                    }
-                });
-            });
-        }
-
-        async function deleteRating(id) {
-            const ratingRef = doc(db, PUBLIC_RATINGS_COLLECTION, id);
-            try {
-                await deleteDoc(ratingRef);
-            } catch (e) {
-                console.error("Error al eliminar calificación:", e);
-                alert('No se pudo eliminar la calificación. Revisa permisos.');
-            }
-        }
-
-        initFirebase();
-    </script>
-
+    // Iniciar todo
+    initFirebase();
+</script>
 </body>
 </html>
