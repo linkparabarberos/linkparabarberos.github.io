@@ -369,7 +369,7 @@
     // ----------------------------------------------------
     // 5. Escucha en tiempo real de calificaciones
     // ----------------------------------------------------
-   function startRealtimeDataListener() {
+        function startRealtimeDataListener() {
     const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
     const q = query(ratingsCollection);
 
@@ -379,10 +379,10 @@
             allRatings.push({ id: docSnap.id, ...docSnap.data() });
         });
 
-        // Actualizamos opciones del select de asesor
+        // Actualiza opciones del filtro de asesor
         updateFilterOptions(allRatings);
 
-        // Aplicamos los filtros actuales (asesor / mes / día)
+        // MUY IMPORTANTE: aplicar los filtros activos (asesor / mes / día)
         filterAndDisplayRatings();
     }, (error) => {
         console.error("Error al escuchar calificaciones:", error);
@@ -390,6 +390,7 @@
             'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
     });
 }
+
 
 
     // ----------------------------------------------------
@@ -409,38 +410,35 @@
         filterAndDisplayRatings();
     });
 
-    function filterAndDisplayRatings() {
-        let filtered = allRatings;
-        const selectedAdvisor = advisorFilter.value;
-        const selectedDate   = dateFilter.value;   // YYYY-MM-DD
-        const selectedMonth  = monthFilter.value;  // YYYY-MM
+        function filterAndDisplayRatings() {
+  let filtered = allRatings;
+  const selectedAdvisor = advisorFilter.value;
+  const selectedDate   = dateFilter.value;   // YYYY-MM-DD
+  const selectedMonth  = monthFilter.value;  // YYYY-MM
 
-        // asesor
-        if (selectedAdvisor) {
-            filtered = filtered.filter(r => r.advisorId === selectedAdvisor);
-        }
+  if (selectedAdvisor) {
+    filtered = filtered.filter(r => r.advisorId === selectedAdvisor);
+  }
 
-        // mes (tiene prioridad sobre día)
-        if (selectedMonth) {
-            filtered = filtered.filter(r => {
-                if (!r.timestamp) return false;
-                const ratingMonth = r.timestamp.substring(0, 7); // "YYYY-MM"
-                return ratingMonth === selectedMonth;
-            });
-        } else if (selectedDate) {
-            filtered = filtered.filter(r => {
-                if (!r.timestamp) return false;
-                const ratingDate = r.timestamp.substring(0, 10); // "YYYY-MM-DD"
-                return ratingDate === selectedDate;
-            });
-        }
+  if (selectedMonth) {
+    filtered = filtered.filter(r => {
+      if (!r.timestamp) return false;
+      const ratingMonth = r.timestamp.substring(0, 7); // "YYYY-MM"
+      return ratingMonth === selectedMonth;
+    });
+  } else if (selectedDate) {
+    filtered = filtered.filter(r => {
+      if (!r.timestamp) return false;
+      const ratingDate = r.timestamp.substring(0, 10); // "YYYY-MM-DD"
+      return ratingDate === selectedDate;
+    });
+  }
 
-        // ordenar por más recientes
-        filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+  filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-        renderRatingsList(filtered);
-        updateStatsAndChart(filtered);
-    }
+  renderRatingsList(filtered);
+  updateStatsAndChart(filtered);
+}
 
     // ----------------------------------------------------
     // 7. Cálculos y actualización de estadísticas / gráfico
