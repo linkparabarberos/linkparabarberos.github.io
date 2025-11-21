@@ -4,159 +4,214 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Barbero Pro</title>
-    <!-- Carga de Tailwind CSS para el estilo --><script src="https://cdn.tailwindcss.com"></script>
+
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <!-- Carga de Chart.js para gráficos -->
+
+    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #1a1a1a;
+            background: radial-gradient(circle at top left, #111827, #020617 55%, #000000);
             color: #d4d4d4;
         }
         .card {
-            background-color: #0d0d0d;
-            border: 1px solid #262626;
-        }
-        input, button:not(#submit-button) {
-            transition: all 0.2s;
+            background-color: #020617;          /* gris súper oscuro */
+            border: 1px solid #27272a;          /* borde sutil */
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.7);
         }
         input {
-            background-color: #262626 !important;
-            color: #d4d4d4 !important;
-            border-color: #4a4a4a !important;
-        }
-        .login-button {
-            @apply w-full font-semibold py-3 rounded-xl shadow-md transition duration-300 border;
-        }
-        .primary-button {
-            @apply bg-black hover:bg-gray-800 text-white border-gray-700;
-        }
-        .secondary-button {
-            @apply bg-gray-700 hover:bg-gray-600 text-white border-gray-500;
-        }
-        .data-grid {
-            grid-template-columns: 1fr;
-        }
-        @media (min-width: 768px) {
-            .data-grid {
-                grid-template-columns: 1fr 1fr; /* Dos columnas en desktop */
-            }
+            background-color: #18181b !important;
+            color: #e5e5e5 !important;
+            border-color: #3f3f46 !important;
         }
     </style>
 </head>
-<body class="p-4 md:p-8">
+<body class="min-h-screen p-4 md:p-8">
 
-    <!-- Mensaje de Carga General -->
-    <div id="loading-spinner" class="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-500"></div>
+    <!-- Spinner de carga -->
+    <div id="loading-spinner" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
+        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
     </div>
 
-    <!-- 1. Pantalla de Autenticación (Solo Iniciar Sesión) -->
-    <div id="auth-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center p-4 z-40 hidden">
-        <div class="w-full max-w-sm card p-8 rounded-xl shadow-2xl">
-            <h1 class="text-2xl font-bold text-center mb-6 text-white">Dashboard Atención al Cliente <br> PARABARBEROS</h1>
-            <input type="email" id="auth-email" placeholder="Correo Electrónico" class="w-full p-3 mb-4 border rounded-lg focus:ring-gray-700 focus:border-gray-700">
-            <input type="password" id="auth-password" placeholder="Contraseña" class="w-full p-3 mb-6 border rounded-lg focus:ring-gray-700 focus:border-gray-700">
-            
-            <button id="login-button" class="login-button primary-button mb-3">
-                Iniciar Sesión
+    <!-- 1. LOGIN -->
+    <div id="auth-screen" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-40 hidden">
+        <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
+            <div class="flex items-center justify-center mb-6">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center mr-3">
+                    <!-- icono simple de “barbería” -->
+                    <span class="text-black font-extrabold text-xl">✂</span>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-white leading-tight">
+                        Panel de Control<br>Barbero Pro
+                    </h1>
+                    <p class="text-[11px] text-gray-400 mt-1">
+                        Análisis de atención al cliente en tiempo real
+                    </p>
+                </div>
+            </div>
+
+            <input type="email" id="auth-email" placeholder="Correo electrónico"
+                   class="w-full p-3 mb-4 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
+
+            <input type="password" id="auth-password" placeholder="Contraseña"
+                   class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
+
+            <button id="login-button"
+                    class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm tracking-wide">
+                Iniciar sesión
             </button>
-            
-            <p id="auth-error-message" class="text-red-500 text-sm text-center mt-4"></p>
-            <p class="text-gray-500 text-xs text-center mt-6">
-                *Solo se permite acceso a cuentas creadas por el administrador en la Consola de Firebase.
+
+            <p id="auth-error-message" class="text-red-400 text-xs text-center mt-4"></p>
+            <p class="text-gray-500 text-[11px] text-center mt-6">
+                Acceso exclusivo para cuentas creadas por el administrador en Firebase.
             </p>
         </div>
     </div>
 
-    <!-- 2. Pantalla de Creación de Perfil (Oculta) -->
-    <div id="profile-setup-screen" class="fixed inset-0 bg-gray-900 flex items-center justify-center p-4 z-40 hidden">
-        <div class="w-full max-w-sm card p-8 rounded-xl shadow-2xl">
-            <h1 class="text-2xl font-bold text-center mb-4 text-white">¡Bienvenido!</h1>
-            <p class="text-center text-gray-400 mb-6">Completa tu perfil de administrador:</p>
-            <input type="text" id="profile-name" placeholder="Tu Nombre o Rol (Ej: Admin Principal)" class="w-full p-3 mb-6 border rounded-lg focus:ring-gray-700 focus:border-gray-700">
-            <button id="save-profile-button" class="login-button primary-button">
-                Guardar Perfil y Continuar
+    <!-- 2. CONFIGURAR PERFIL -->
+    <div id="profile-setup-screen" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-40 hidden">
+        <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
+            <h1 class="text-2xl font-bold text-center mb-2 text-white">¡Bienvenido!</h1>
+            <p class="text-center text-gray-400 mb-6 text-sm">
+                Completa tu perfil de administrador para personalizar el panel.
+            </p>
+
+            <input type="text" id="profile-name" placeholder="Tu nombre o rol (Ej: Admin Principal)"
+                   class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
+
+            <button id="save-profile-button"
+                    class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm tracking-wide">
+                Guardar perfil y continuar
             </button>
-            <p id="profile-error-message" class="text-red-500 text-sm text-center mt-3"></p>
+
+            <p id="profile-error-message" class="text-red-400 text-xs text-center mt-3"></p>
         </div>
     </div>
-    
-    <!-- 3. Contenido Principal del Dashboard (Oculto inicialmente) -->
+
+    <!-- 3. DASHBOARD -->
     <div id="dashboard-content" class="max-w-7xl mx-auto hidden">
 
-        <!-- Header y Filtros -->
-        <header class="flex flex-col md:flex-row justify-between items-center mb-8 pb-4 border-b border-gray-700">
-            <!-- Logo de Barbería -->
-            <div class="flex items-center">
-                 <img src="path/to/your/logo.png" alt="Logo Barbero Pro" class="w-12 h-12 object-contain mr-3">
-                 <h1 class="text-4xl font-extrabold text-white mb-0">Panel de Calificaciones</h1>
+        <!-- HEADER -->
+        <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+            <div class="flex items-center mb-4 md:mb-0">
+                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center mr-3 shadow-xl">
+                    <img src="path/to/your/logo.png" alt="Logo Barbero Pro" class="w-8 h-8 object-contain">
+                </div>
+                <div>
+                    <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+                        Panel de Control Barbero Pro
+                    </h1>
+                    <p class="text-xs md:text-sm text-gray-400 mt-1">
+                        Análisis de rendimiento de asesores en tiempo real
+                    </p>
+                </div>
             </div>
-            
-            <div class="flex space-x-3 items-center mt-4 md:mt-0">
-                <p class="text-sm font-medium text-gray-400 flex items-center">
-                    <span class="mr-2">Admin:</span>
-                    <span id="admin-name" class="font-semibold text-white">Cargando...</span>
-                </p>
-                <button id="logout-button" class="text-red-400 hover:text-red-600 text-sm font-medium transition duration-150">Cerrar Sesión</button>
+
+            <div class="flex items-center space-x-4">
+                <div class="text-right">
+                    <p class="text-[11px] text-gray-400 uppercase tracking-wide">Administrador</p>
+                    <p id="admin-name" class="text-sm font-semibold text-white">Cargando...</p>
+                </div>
+                <button id="logout-button"
+                        class="text-xs font-semibold text-red-400 hover:text-red-500 transition">
+                    Cerrar sesión
+                </button>
             </div>
         </header>
 
-        <!-- Estadísticas Clave -->
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="card p-5 rounded-lg text-center">
-                <p class="text-sm text-gray-400">Calificación Promedio</p>
-                <p id="avg-rating" class="text-4xl font-bold text-yellow-400 mt-1">N/A</p>
+        <!-- FILTROS (tarjetas pequeñas) -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+            <div class="card rounded-xl px-5 py-4 flex flex-col">
+                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por asesor</p>
+                <select id="advisor-filter"
+                        class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+                    <option value="">Todos los asesores</option>
+                </select>
             </div>
-            <div class="card p-5 rounded-lg text-center">
-                <p class="text-sm text-gray-400">Total de Calificaciones</p>
-                <p id="total-ratings" class="text-4xl font-bold text-white mt-1">0</p>
+
+            <div class="card rounded-xl px-5 py-4 flex flex-col">
+                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por fecha</p>
+                <input type="date" id="date-filter"
+                       class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
             </div>
-            <div class="card p-5 rounded-lg text-center">
-                <p class="text-sm text-gray-400">Asesores Activos</p>
-                <p id="total-advisors" class="text-4xl font-bold text-green-400 mt-1">0</p>
-            </div>
-            <div class="card p-5 rounded-lg text-center">
-                <p class="text-sm text-gray-400">Comentarios Negativos (1-2)</p>
-                <p id="low-ratings" class="text-4xl font-bold text-red-400 mt-1">0</p>
+
+            <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
+                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Vista actual</p>
+                <p class="text-sm text-white font-semibold">Análisis de desempeño de asesores</p>
             </div>
         </div>
 
-        <!-- Filtros y Gráfico -->
-        <div class="mb-6 flex flex-col md:flex-row gap-4 items-center">
-            <h2 class="text-xl font-semibold text-white">Análisis de Desempeño</h2>
-            <div class="flex-grow"></div>
-            <select id="advisor-filter" class="p-2 card rounded-lg text-sm w-full md:w-auto">
-                <option value="">Todos los Asesores</option>
-                <!-- Opciones se llenarán con JS -->
-            </select>
-            <input type="date" id="date-filter" class="p-2 card rounded-lg text-sm w-full md:w-auto">
+        <!-- MÉTRICAS PRINCIPALES -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+            <div class="card rounded-xl px-5 py-4 text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-wide">Calificación promedio</p>
+                <p id="avg-rating" class="mt-2 text-4xl font-extrabold text-yellow-400">N/A</p>
+            </div>
+
+            <div class="card rounded-xl px-5 py-4 text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-wide">Total de respuestas</p>
+                <p id="total-ratings" class="mt-2 text-4xl font-extrabold text-white">0</p>
+            </div>
+
+            <div class="card rounded-xl px-5 py-4 text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-wide">Asesores activos</p>
+                <p id="total-advisors" class="mt-2 text-4xl font-extrabold text-emerald-400">0</p>
+            </div>
+
+            <div class="card rounded-xl px-5 py-4 text-center">
+                <p class="text-xs text-gray-400 uppercase tracking-wide">Comentarios negativos (1–2)</p>
+                <p id="low-ratings" class="mt-2 text-4xl font-extrabold text-red-400">0</p>
+            </div>
         </div>
-        
-        <div class="card p-6 rounded-xl mb-8">
-            <h2 class="text-xl font-semibold mb-4 text-white">Distribución General de Calificaciones</h2>
-            <div class="h-64">
+
+        <!-- GRÁFICO PRINCIPAL -->
+        <div class="card rounded-2xl px-6 py-6 mb-10">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-semibold text-white">Distribución de puntuaciones (1–5 estrellas)</h2>
+                <p class="text-xs text-gray-500">Actualizado en tiempo real</p>
+            </div>
+            <div class="h-64 md:h-72">
                 <canvas id="rating-distribution-chart"></canvas>
             </div>
         </div>
 
-        <!-- Listado -->
-        <h2 class="text-xl font-semibold text-white mb-4">Datos Detallados</h2>
-        <div id="ratings-list-container" class="space-y-4">
-            <!-- Calificaciones se insertarán aquí -->
-            <p id="no-ratings-message" class="text-center text-gray-500 mt-10">No hay calificaciones registradas o no coinciden con los filtros.</p>
+        <!-- LISTA DETALLADA -->
+        <div class="mb-3 flex items-center justify-between">
+            <h2 class="text-lg font-semibold text-white">Calificaciones recientes</h2>
+            <p class="text-[11px] text-gray-500">Haz clic en el ícono de papelera para eliminar una entrada.</p>
+        </div>
+
+        <div class="card rounded-2xl p-4 overflow-hidden">
+            <div class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 border-b border-zinc-700 pb-2 mb-2 uppercase tracking-wide">
+                <span>Asesor</span>
+                <span>Rating</span>
+                <span>Comentario</span>
+                <span>Fecha</span>
+                <span class="text-center">Acción</span>
+            </div>
+
+            <div id="ratings-list-container" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+                <!-- items se agregan por JS -->
+                <p id="no-ratings-message" class="text-center text-gray-500 text-sm mt-6">
+                    No hay calificaciones registradas o no coinciden con los filtros.
+                </p>
+            </div>
         </div>
 
     </div>
-    
-    <!-- Carga de Firebase SDKs -->
+
+    <!-- FIREBASE + LÓGICA -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Tu configuración de Firebase (Integrada aquí)
+
+        // --- CONFIG FIREBASE ---
         const firebaseConfig = {
             apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
             authDomain: "linkparabarberos.firebaseapp.com",
@@ -166,14 +221,14 @@
             appId: "1:237275244830:web:51c5a95a81c1287512810f",
             measurementId: "G-SX4F2EL0C0"
         };
-        
+
         const globalAppId = firebaseConfig.projectId;
 
         let app, db, auth, currentUserId;
         let chartInstance = null;
         let allRatings = [];
 
-        // Elementos de UI
+        // UI
         const authScreen = document.getElementById('auth-screen');
         const profileSetupScreen = document.getElementById('profile-setup-screen');
         const dashboardContent = document.getElementById('dashboard-content');
@@ -183,23 +238,19 @@
         const advisorFilter = document.getElementById('advisor-filter');
         const dateFilter = document.getElementById('date-filter');
 
-        // Rutas de Firestore
         const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
         const ADMIN_PROFILE_COLLECTION = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
-        
-        // --------------------------------------------------------
-        // 1. INICIALIZACIÓN Y AUTENTICACIÓN
-        // --------------------------------------------------------
 
+        // --------- helpers de pantalla ----------
         function showScreen(screenId) {
             authScreen.classList.add('hidden');
             profileSetupScreen.classList.add('hidden');
             dashboardContent.classList.add('hidden');
-            
+
             if (screenId === 'auth') authScreen.classList.remove('hidden');
             else if (screenId === 'profile') profileSetupScreen.classList.remove('hidden');
             else if (screenId === 'dashboard') dashboardContent.classList.remove('hidden');
-            
+
             loadingSpinner.classList.add('hidden');
         }
 
@@ -209,7 +260,6 @@
             auth = getAuth(app);
             db = getFirestore(app);
 
-            // Listener de estado de autenticación
             onAuthStateChanged(auth, async (user) => {
                 if (user) {
                     currentUserId = user.uid;
@@ -226,11 +276,10 @@
                 const docSnap = await getDoc(profileRef);
                 if (docSnap.exists()) {
                     document.getElementById('admin-name').textContent = docSnap.data().name;
-                    startRealtimeDataListener(); // Iniciar listener de datos
+                    startRealtimeDataListener();
                     showScreen('dashboard');
                 } else {
-                    // Si el usuario existe en Auth pero no tiene perfil en Firestore
-                    showScreen('profile'); 
+                    showScreen('profile');
                 }
             } catch (e) {
                 console.error("Error al verificar perfil:", e);
@@ -238,24 +287,19 @@
             }
         }
 
-        // --------------------------------------------------------
-        // 2. LÓGICA DE AUTENTICACIÓN
-        // --------------------------------------------------------
-
+        // --------- LOGIN ----------
         document.getElementById('login-button').addEventListener('click', async () => {
             const email = document.getElementById('auth-email').value;
             const password = document.getElementById('auth-password').value;
             authErrorMessage.textContent = '';
-            
+
             if (!email || !password) {
                 authErrorMessage.textContent = 'Por favor, ingresa correo y contraseña.';
                 return;
             }
 
             try {
-                // Solo permite el inicio de sesión para cuentas pre-creadas
                 await signInWithEmailAndPassword(auth, email, password);
-                // onAuthStateChanged se dispara al iniciar sesión con éxito y lleva al dashboard.
             } catch (error) {
                 console.error("Error de autenticación:", error);
                 let message = 'Error de credenciales. Asegúrate de que el correo existe y la contraseña es correcta.';
@@ -269,7 +313,7 @@
                 authErrorMessage.textContent = message;
             }
         });
-        
+
         document.getElementById('logout-button').addEventListener('click', async () => {
             try {
                 await signOut(auth);
@@ -278,10 +322,7 @@
             }
         });
 
-        // --------------------------------------------------------
-        // 3. CONFIGURACIÓN DEL PERFIL (Primer login de una cuenta creada)
-        // --------------------------------------------------------
-
+        // --------- PERFIL ----------
         document.getElementById('save-profile-button').addEventListener('click', async () => {
             const name = profileNameInput.value.trim();
             const profileErrorEl = document.getElementById('profile-error-message');
@@ -294,10 +335,9 @@
 
             const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(currentUserId), 'data');
             try {
-                // Guarda el nombre del administrador en Firestore
                 await setDoc(profileRef, { name: name, created: new Date().toISOString() });
                 document.getElementById('admin-name').textContent = name;
-                startRealtimeDataListener(); 
+                startRealtimeDataListener();
                 showScreen('dashboard');
             } catch (e) {
                 console.error("Error al guardar perfil:", e);
@@ -305,52 +345,39 @@
             }
         });
 
-        // --------------------------------------------------------
-        // 4. LÓGICA DEL DASHBOARD Y DATOS EN TIEMPO REAL
-        // --------------------------------------------------------
-
+        // --------- DATA EN TIEMPO REAL ----------
         function startRealtimeDataListener() {
             const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
             const q = query(ratingsCollection);
 
             onSnapshot(q, (snapshot) => {
                 allRatings = [];
-                snapshot.forEach((doc) => {
-                    allRatings.push({ id: doc.id, ...doc.data() });
+                snapshot.forEach((docSnap) => {
+                    allRatings.push({ id: docSnap.id, ...docSnap.data() });
                 });
-                
-                // Procesar y renderizar la data
                 processAndRenderRatings(allRatings);
             }, (error) => {
                 console.error("Error al escuchar calificaciones:", error);
-                document.getElementById('no-ratings-message').textContent = 'Error cargando datos. Revisa las Reglas de Seguridad de Firestore.';
+                document.getElementById('no-ratings-message').textContent =
+                    'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
             });
         }
 
-        // Listeners de Filtros
         advisorFilter.addEventListener('change', () => filterAndDisplayRatings());
         dateFilter.addEventListener('change', () => filterAndDisplayRatings());
-
 
         function filterAndDisplayRatings() {
             let filteredRatings = allRatings;
             const selectedAdvisor = advisorFilter.value;
             const selectedDate = dateFilter.value;
-            
-            // Filtrar por Asesor
+
             if (selectedAdvisor) {
                 filteredRatings = filteredRatings.filter(r => r.advisorId === selectedAdvisor);
             }
-
-            // Filtrar por Fecha
             if (selectedDate) {
-                filteredRatings = filteredRatings.filter(r => {
-                    const ratingDate = r.timestamp.substring(0, 10);
-                    return ratingDate === selectedDate;
-                });
+                filteredRatings = filteredRatings.filter(r => r.timestamp?.substring(0, 10) === selectedDate);
             }
 
-            // Ordenar por más reciente primero
             filteredRatings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
             renderRatingsList(filteredRatings);
@@ -360,9 +387,9 @@
         function processAndRenderRatings(ratings) {
             const stats = calculateStats(ratings);
             updateFilterOptions(ratings);
-            
+
             document.getElementById('total-ratings').textContent = stats.totalRatings;
-            document.getElementById('avg-rating').textContent = stats.avgRating.toFixed(1);
+            document.getElementById('avg-rating').textContent = stats.totalRatings ? stats.avgRating.toFixed(1) : 'N/A';
             document.getElementById('total-advisors').textContent = stats.totalAdvisors;
             document.getElementById('low-ratings').textContent = stats.lowRatings;
 
@@ -371,16 +398,20 @@
         }
 
         function calculateStats(ratings) {
-            if (ratings.length === 0) {
+            if (!ratings.length) {
                 return {
-                    totalRatings: 0, avgRating: 0, totalAdvisors: 0, lowRatings: 0, ratingDistribution: [0, 0, 0, 0, 0]
+                    totalRatings: 0,
+                    avgRating: 0,
+                    totalAdvisors: 0,
+                    lowRatings: 0,
+                    ratingDistribution: [0, 0, 0, 0, 0]
                 };
             }
-            
-            const totalRatingSum = ratings.reduce((sum, r) => sum + r.rating, 0);
+
+            const totalRatingSum = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
             const uniqueAdvisors = new Set(ratings.map(r => r.advisorId));
             const lowRatingsCount = ratings.filter(r => r.rating <= 2).length;
-            
+
             const distribution = [0, 0, 0, 0, 0];
             ratings.forEach(r => {
                 if (r.rating >= 1 && r.rating <= 5) {
@@ -398,43 +429,34 @@
         }
 
         function updateFilterOptions(ratings) {
-            const advisors = [...new Set(ratings.map(r => ({ id: r.advisorId, name: r.advisorName })))];
+            const advisors = [...new Set(ratings.map(r => JSON.stringify({ id: r.advisorId, name: r.advisorName })))]
+                .map(str => JSON.parse(str));
+
             const currentFilter = advisorFilter.value;
-            
-            advisorFilter.innerHTML = '<option value="">Todos los Asesores</option>';
+            advisorFilter.innerHTML = '<option value="">Todos los asesores</option>';
+
             advisors.forEach(advisor => {
+                if (!advisor.id) return;
                 const option = document.createElement('option');
                 option.value = advisor.id;
-                option.textContent = advisor.name;
-                if (advisor.id === currentFilter) {
-                    option.selected = true;
-                }
+                option.textContent = advisor.name || advisor.id;
+                if (advisor.id === currentFilter) option.selected = true;
                 advisorFilter.appendChild(option);
             });
         }
 
         function renderChart(distributionData) {
             const ctx = document.getElementById('rating-distribution-chart').getContext('2d');
-            
-            if (chartInstance) {
-                chartInstance.destroy();
-            }
+            if (chartInstance) chartInstance.destroy();
 
             chartInstance = new Chart(ctx, {
                 type: 'bar',
                 data: {
-                    labels: ['1 Estrella', '2 Estrellas', '3 Estrellas', '4 Estrellas', '5 Estrellas'],
+                    labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
                     datasets: [{
-                        label: 'Número de Calificaciones',
                         data: distributionData,
-                        backgroundColor: [
-                            '#DC2626', // Rojo para 1
-                            '#F59E0B', // Ámbar para 2
-                            '#4B5563', // Gris para 3
-                            '#3B82F6', // Azul para 4
-                            '#10B981'  // Verde para 5
-                        ],
-                        borderRadius: 4,
+                        backgroundColor: ['#DC2626', '#F97316', '#4B5563', '#3B82F6', '#10B981'],
+                        borderRadius: 6
                     }]
                 },
                 options: {
@@ -443,22 +465,16 @@
                     scales: {
                         y: {
                             beginAtZero: true,
-                            ticks: { color: '#d4d4d4', precision: 0 },
-                            grid: { color: '#262626' }
+                            ticks: { color: '#e5e7eb', precision: 0 },
+                            grid: { color: '#27272a' }
                         },
                         x: {
-                            ticks: { color: '#d4d4d4' },
+                            ticks: { color: '#e5e7eb' },
                             grid: { display: false }
                         }
                     },
                     plugins: {
-                        legend: { display: false },
-                        tooltip: {
-                            callbacks: {
-                                title: (items) => items[0].label,
-                                label: (context) => `Total: ${context.parsed.y}`
-                            }
-                        }
+                        legend: { display: false }
                     }
                 }
             });
@@ -468,43 +484,59 @@
             const container = document.getElementById('ratings-list-container');
             const noRatingsMsg = document.getElementById('no-ratings-message');
             container.innerHTML = '';
-            
-            if (ratings.length === 0) {
+
+            if (!ratings.length) {
                 noRatingsMsg.classList.remove('hidden');
                 return;
             }
-
             noRatingsMsg.classList.add('hidden');
-            
+
             ratings.forEach(rating => {
                 const isNegative = rating.rating <= 2;
-                const date = new Date(rating.timestamp).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' });
-                
-                const ratingCard = document.createElement('div');
-                ratingCard.className = `card p-5 rounded-xl flex justify-between items-center transition duration-150 shadow-lg ${isNegative ? 'border-red-600' : 'border-gray-700'}`;
-                ratingCard.innerHTML = `
-                    <div>
-                        <div class="flex items-center space-x-2 mb-2">
-                            <span class="text-3xl font-bold ${isNegative ? 'text-red-400' : 'text-yellow-400'}">${rating.rating} / 5</span>
-                            <span class="text-sm font-medium text-gray-400">(${rating.advisorName})</span>
-                        </div>
-                        <p class="text-gray-200 mb-2 whitespace-pre-wrap">${rating.comments || '— Sin comentarios —'}</p>
-                        <p class="text-xs text-gray-500">Enviado: ${date}</p>
+                const date = rating.timestamp
+                    ? new Date(rating.timestamp).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
+                    : '-';
+
+                const wrapper = document.createElement('div');
+                wrapper.className = "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-zinc-800/80 rounded-xl px-3 py-2 bg-zinc-950/80";
+
+                wrapper.innerHTML = `
+                    <div class="flex items-center justify-between md:block">
+                        <p class="text-sm font-semibold text-white">${rating.advisorName || rating.advisorId || 'Asesor'}</p>
+                        <p class="md:hidden text-xs text-gray-500 mt-0.5">${date}</p>
                     </div>
-                    <button data-id="${rating.id}" class="delete-button text-red-500 hover:text-red-700 ml-4 p-2 rounded-full hover:bg-gray-800 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                        </svg>
-                    </button>
+
+                    <div class="flex items-center md:justify-start justify-between">
+                        <span class="text-base font-bold ${isNegative ? 'text-red-400' : 'text-yellow-300'}">${rating.rating ?? '-'}/5</span>
+                    </div>
+
+                    <div class="text-xs text-gray-200 md:pr-4">
+                        ${rating.comments ? rating.comments.replace(/\n/g, '<br>') : '— Sin comentarios —'}
+                    </div>
+
+                    <div class="hidden md:block text-xs text-gray-400">
+                        ${date}
+                    </div>
+
+                    <div class="flex justify-end">
+                        <button data-id="${rating.id}"
+                                class="delete-button text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-zinc-800 transition">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                                 viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                      d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    </div>
                 `;
-                container.appendChild(ratingCard);
+
+                container.appendChild(wrapper);
             });
 
-            // Re-adjuntar listeners de borrado
             document.querySelectorAll('.delete-button').forEach(button => {
                 button.addEventListener('click', async (e) => {
                     const ratingId = e.currentTarget.dataset.id;
-                    if (confirm('¿Estás seguro de que quieres eliminar esta calificación?')) {
+                    if (confirm('¿Eliminar esta calificación?')) {
                         await deleteRating(ratingId);
                     }
                 });
@@ -515,14 +547,12 @@
             const ratingRef = doc(db, PUBLIC_RATINGS_COLLECTION, id);
             try {
                 await deleteDoc(ratingRef);
-                console.log("Calificación eliminada:", id);
             } catch (e) {
                 console.error("Error al eliminar calificación:", e);
-                alert('Error: No se pudo eliminar la calificación. Verifica permisos.');
+                alert('No se pudo eliminar la calificación. Revisa permisos.');
             }
         }
 
-        // Iniciar la aplicación
         initFirebase();
     </script>
 
