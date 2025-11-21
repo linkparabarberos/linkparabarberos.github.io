@@ -246,7 +246,7 @@
         const profileNameInput = document.getElementById('profile-name');
         const advisorFilter = document.getElementById('advisor-filter');
         const dateFilter = document.getElementById('date-filter');
-
+        const monthFilter  = document.getElementById('month-filter');
         const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
         const ADMIN_PROFILE_COLLECTION = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
 
@@ -373,25 +373,54 @@
         }
 
         advisorFilter.addEventListener('change', () => filterAndDisplayRatings());
-        dateFilter.addEventListener('change', () => filterAndDisplayRatings());
+
+// si eligen día, limpiamos mes
+dateFilter.addEventListener('change', () => {
+    if (dateFilter.value) monthFilter.value = '';
+    filterAndDisplayRatings();
+});
+
+// si eligen mes, limpiamos día
+monthFilter.addEventListener('change', () => {
+    if (monthFilter.value) dateFilter.value = '';
+    filterAndDisplayRatings();
+});
 
         function filterAndDisplayRatings() {
-            let filteredRatings = allRatings;
-            const selectedAdvisor = advisorFilter.value;
-            const selectedDate = dateFilter.value;
+    let filteredRatings = allRatings;
+    const selectedAdvisor = advisorFilter.value;
+    const selectedDate   = dateFilter.value;    // YYYY-MM-DD
+    const selectedMonth  = monthFilter.value;   // YYYY-MM
 
-            if (selectedAdvisor) {
-                filteredRatings = filteredRatings.filter(r => r.advisorId === selectedAdvisor);
-            }
-            if (selectedDate) {
-                filteredRatings = filteredRatings.filter(r => r.timestamp?.substring(0, 10) === selectedDate);
-            }
+    // Filtrar por asesor
+    if (selectedAdvisor) {
+        filteredRatings = filteredRatings.filter(r => r.advisorId === selectedAdvisor);
+    }
 
-            filteredRatings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+    // Si hay mes, filtramos por mes (YYYY-MM)
+    if (selectedMonth) {
+        filteredRatings = filteredRatings.filter(r => {
+            if (!r.timestamp) return false;
+            const ratingMonth = r.timestamp.substring(0, 7); // "YYYY-MM"
+            return ratingMonth === selectedMonth;
+        });
+    }
+    // Si no hay mes pero sí día, filtramos por fecha exacta
+    else if (selectedDate) {
+        filteredRatings = filteredRatings.filter(r => {
+            if (!r.timestamp) return false;
+            const ratingDate = r.timestamp.substring(0, 10); // "YYYY-MM-DD"
+            return ratingDate === selectedDate;
+        });
+    }
 
-            renderRatingsList(filteredRatings);
-            updateStatsAndChart(filteredRatings);
-        }
+    // Ordenar por más reciente
+    filteredRatings.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+    renderRatingsList(filteredRatings);
+    updateStatsAndChart(filteredRatings);
+}
+
 
         function processAndRenderRatings(ratings) {
             const stats = calculateStats(ratings);
