@@ -369,26 +369,28 @@
     // ----------------------------------------------------
     // 5. Escucha en tiempo real de calificaciones
     // ----------------------------------------------------
-    function startRealtimeDataListener() {
-        const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
-        const q = query(ratingsCollection);
+   function startRealtimeDataListener() {
+    const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
+    const q = query(ratingsCollection);
 
-        onSnapshot(q, (snapshot) => {
-            allRatings = [];
-            snapshot.forEach((docSnap) => {
-                allRatings.push({ id: docSnap.id, ...docSnap.data() });
-            });
-
-            // Primer render sin filtros
-            renderRatingsList(allRatings);
-            updateFilterOptions(allRatings);
-            updateStatsAndChart(allRatings);
-        }, (error) => {
-            console.error("Error al escuchar calificaciones:", error);
-            document.getElementById('no-ratings-message').textContent =
-                'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
+    onSnapshot(q, (snapshot) => {
+        allRatings = [];
+        snapshot.forEach((docSnap) => {
+            allRatings.push({ id: docSnap.id, ...docSnap.data() });
         });
-    }
+
+        // Actualizamos opciones del select de asesor
+        updateFilterOptions(allRatings);
+
+        // Aplicamos los filtros actuales (asesor / mes / día)
+        filterAndDisplayRatings();
+    }, (error) => {
+        console.error("Error al escuchar calificaciones:", error);
+        document.getElementById('no-ratings-message').textContent =
+            'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
+    });
+}
+
 
     // ----------------------------------------------------
     // 6. Filtros (asesor, mes, día)
