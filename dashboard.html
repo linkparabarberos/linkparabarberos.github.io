@@ -1,620 +1,578 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Barbero Pro</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard | Barbero Pro</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background: radial-gradient(circle at top left, #111827, #020617 55%, #000000);
-            color: #d4d4d4;
-        }
-        .card {
-            background-color: #020617;          /* gris súper oscuro */
-            border: 1px solid #27272a;          /* borde sutil */
-            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.7);
-        }
-        input {
-            background-color: #18181b !important;
-            color: #e5e5e5 !important;
-            border-color: #3f3f46 !important;
-        }
-    </style>
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #000000; /* negro */
+      color: #f9fafb;
+    }
+    .card {
+      background-color: #050505;
+      border: 1px solid #262626;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.8);
+    }
+    input, select {
+      background-color: #111827 !important;
+      color: #f9fafb !important;
+      border-color: #374151 !important;
+    }
+  </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
-    <div id="loading-spinner" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
-        <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+  <!-- SPINNER -->
+  <div id="loading-spinner" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
+    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="auth-screen" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-40 hidden">
+    <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
+      <div class="flex items-center justify-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center mr-3">
+          <span class="text-black font-extrabold text-xl">✂</span>
+        </div>
+        <div>
+          <h1 class="text-xl font-extrabold text-white leading-tight">
+            Panel de Control<br>Barbero Pro
+          </h1>
+          <p class="text-[11px] text-gray-400 mt-1">
+            Análisis de atención al cliente en tiempo real
+          </p>
+        </div>
+      </div>
+
+      <input id="auth-email" type="email" placeholder="Correo electrónico"
+        class="w-full p-3 mb-4 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
+
+      <input id="auth-password" type="password" placeholder="Contraseña"
+        class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
+
+      <button id="login-button"
+        class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition text-sm">
+        Iniciar sesión
+      </button>
+
+      <p id="auth-error-message" class="text-red-400 text-xs text-center mt-4"></p>
+      <p class="text-gray-500 text-[11px] text-center mt-6">
+        Acceso solo para cuentas creadas en Firebase.
+      </p>
+    </div>
+  </div>
+
+  <!-- CONFIG PERFIL -->
+  <div id="profile-setup-screen" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-40 hidden">
+    <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
+      <h1 class="text-2xl font-bold text-center mb-2 text-white">¡Bienvenido!</h1>
+      <p class="text-center text-gray-400 mb-6 text-sm">
+        Completa tu perfil de administrador.
+      </p>
+
+      <input id="profile-name" type="text" placeholder="Tu nombre o rol"
+        class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
+
+      <button id="save-profile-button"
+        class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition text-sm">
+        Guardar perfil y continuar
+      </button>
+
+      <p id="profile-error-message" class="text-red-400 text-xs text-center mt-3"></p>
+    </div>
+  </div>
+
+  <!-- DASHBOARD -->
+  <div id="dashboard-content" class="max-w-7xl mx-auto hidden">
+
+    <!-- HEADER -->
+    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+      <div class="flex items-center mb-4 md:mb-0">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center mr-3 shadow-xl">
+          <img src="logo.png" alt="Logo" class="w-8 h-8 object-contain">
+        </div>
+        <div>
+          <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
+            Panel de Control Barbero Pro
+          </h1>
+          <p class="text-xs md:text-sm text-gray-400 mt-1">
+            Análisis de rendimiento de asesores en tiempo real
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-center space-x-4">
+        <div class="text-right">
+          <p class="text-[11px] text-gray-400 uppercase tracking-wide">Administrador</p>
+          <p id="admin-name" class="text-sm font-semibold text-white">Cargando...</p>
+        </div>
+        <button id="logout-button"
+          class="text-xs font-semibold text-red-400 hover:text-red-500 transition">
+          Cerrar sesión
+        </button>
+      </div>
+    </header>
+
+    <!-- FILTROS -->
+    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+      <div class="card rounded-xl px-5 py-4 flex flex-col">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por asesor</p>
+        <select id="advisor-filter"
+          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+          <option value="">Todos los asesores</option>
+        </select>
+      </div>
+
+      <div class="card rounded-xl px-5 py-4 flex flex-col">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por mes</p>
+        <input id="month-filter" type="month"
+          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+      </div>
+
+      <div class="card rounded-xl px-5 py-4 flex flex-col">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por fecha (día)</p>
+        <input id="date-filter" type="date"
+          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+      </div>
+
+      <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Vista actual</p>
+        <p class="text-sm text-white font-semibold">Análisis de desempeño de asesores</p>
+      </div>
+
+      <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
+        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Acción</p>
+        <button id="apply-filters-button"
+          class="mt-1 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-gray-200 transition">
+          Aplicar filtros
+        </button>
+      </div>
     </div>
 
-    <div id="auth-screen" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-40 hidden">
-        <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
-            <div class="flex items-center justify-center mb-6">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center mr-3">
-                    <span class="text-black font-extrabold text-xl">✂</span>
-                </div>
-                <div>
-                    <h1 class="text-xl font-extrabold text-white leading-tight">
-                        Panel de Control<br>Barbero Pro
-                    </h1>
-                    <p class="text-[11px] text-gray-400 mt-1">
-                        Análisis de atención al cliente en tiempo real
-                    </p>
-                </div>
-            </div>
-
-            <input type="email" id="auth-email" placeholder="Correo electrónico"
-                   class="w-full p-3 mb-4 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
-
-            <input type="password" id="auth-password" placeholder="Contraseña"
-                   class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
-
-            <button id="login-button"
-                    class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm tracking-wide">
-                Iniciar sesión
-            </button>
-
-            <p id="auth-error-message" class="text-red-400 text-xs text-center mt-4"></p>
-            <p class="text-gray-500 text-[11px] text-center mt-6">
-                Acceso exclusivo para cuentas creadas por el administrador en Firebase.
-            </p>
-        </div>
+    <!-- MÉTRICAS -->
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
+      <div class="card rounded-xl px-5 py-4 text-center">
+        <p class="text-xs text-gray-400 uppercase tracking-wide">Calificación promedio</p>
+        <p id="avg-rating" class="mt-2 text-4xl font-extrabold text-yellow-400">N/A</p>
+      </div>
+      <div class="card rounded-xl px-5 py-4 text-center">
+        <p class="text-xs text-gray-400 uppercase tracking-wide">Total de respuestas</p>
+        <p id="total-ratings" class="mt-2 text-4xl font-extrabold text-white">0</p>
+      </div>
+      <div class="card rounded-xl px-5 py-4 text-center">
+        <p class="text-xs text-gray-400 uppercase tracking-wide">Asesores activos</p>
+        <p id="total-advisors" class="mt-2 text-4xl font-extrabold text-emerald-400">0</p>
+      </div>
+      <div class="card rounded-xl px-5 py-4 text-center">
+        <p class="text-xs text-gray-400 uppercase tracking-wide">Comentarios negativos (1–2)</p>
+        <p id="low-ratings" class="mt-2 text-4xl font-extrabold text-red-400">0</p>
+      </div>
     </div>
 
-    <div id="profile-setup-screen" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-40 hidden">
-        <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
-            <h1 class="text-2xl font-bold text-center mb-2 text-white">¡Bienvenido!</h1>
-            <p class="text-center text-gray-400 mb-6 text-sm">
-                Completa tu perfil de administrador para personalizar el panel.
-            </p>
-
-            <input type="text" id="profile-name" placeholder="Tu nombre o rol (Ej: Admin Principal)"
-                   class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
-
-            <button id="save-profile-button"
-                    class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition duration-200 text-sm tracking-wide">
-                Guardar perfil y continuar
-            </button>
-
-            <p id="profile-error-message" class="text-red-400 text-xs text-center mt-3"></p>
-        </div>
+    <!-- GRÁFICO -->
+    <div class="card rounded-2xl px-6 py-6 mb-10">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-lg font-semibold text-white">Distribución de puntuaciones (1–5 estrellas)</h2>
+        <p class="text-xs text-gray-500">Actualizado en tiempo real</p>
+      </div>
+      <div class="h-64 md:h-72">
+        <canvas id="rating-distribution-chart"></canvas>
+      </div>
     </div>
 
-    <div id="dashboard-content" class="max-w-7xl mx-auto hidden">
-
-        <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-            <div class="flex items-center mb-4 md:mb-0">
-                <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center mr-3 shadow-xl">
-                    <img src="path/to/your/logo.png" alt="Logo Barbero Pro" class="w-8 h-8 object-contain">
-                </div>
-                <div>
-                    <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-                        Panel de Control Barbero Pro
-                    </h1>
-                    <p class="text-xs md:text-sm text-gray-400 mt-1">
-                        Análisis de rendimiento de asesores en tiempo real
-                    </p>
-                </div>
-            </div>
-
-            <div class="flex items-center space-x-4">
-                <div class="text-right">
-                    <p class="text-[11px] text-gray-400 uppercase tracking-wide">Administrador</p>
-                    <p id="admin-name" class="text-sm font-semibold text-white">Cargando...</p>
-                </div>
-                <button id="logout-button"
-                        class="text-xs font-semibold text-red-400 hover:text-red-500 transition">
-                    Cerrar sesión
-                </button>
-            </div>
-        </header>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <div class="card rounded-xl px-5 py-4 flex flex-col">
-                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por asesor</p>
-                <select id="advisor-filter"
-                        class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
-                    <option value="">Todos los asesores</option>
-                </select>
-            </div>
-
-            <div class="card rounded-xl px-5 py-4 flex flex-col">
-                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por mes</p>
-                <input type="month" id="month-filter"
-                       class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
-            </div>
-
-            <div class="card rounded-xl px-5 py-4 flex flex-col">
-                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por fecha (día)</p>
-                <input type="date" id="date-filter"
-                       class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
-            </div>
-
-            <div class="card rounded-xl px-5 py-4 flex flex-col">
-                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Aplicar filtros</p>
-                <button id="apply-filters-button"
-                        class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2.5 rounded-lg shadow-md transition duration-200 text-sm tracking-wide mt-1">
-                    Buscar
-                </button>
-            </div>
-            </div>
-
- 
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
-            <div class="card rounded-xl px-5 py-4 text-center">
-                <p class="text-xs text-gray-400 uppercase tracking-wide">Calificación promedio</p>
-                <p id="avg-rating" class="mt-2 text-4xl font-extrabold text-yellow-400">N/A</p>
-            </div>
-
-            <div class="card rounded-xl px-5 py-4 text-center">
-                <p class="text-xs text-gray-400 uppercase tracking-wide">Total de respuestas</p>
-                <p id="total-ratings" class="mt-2 text-4xl font-extrabold text-white">0</p>
-            </div>
-
-            <div class="card rounded-xl px-5 py-4 text-center">
-                <p class="text-xs text-gray-400 uppercase tracking-wide">Asesores activos</p>
-                <p id="total-advisors" class="mt-2 text-4xl font-extrabold text-emerald-400">0</p>
-            </div>
-
-            <div class="card rounded-xl px-5 py-4 text-center">
-                <p class="text-xs text-gray-400 uppercase tracking-wide">Comentarios negativos (1–2)</p>
-                <p id="low-ratings" class="mt-2 text-4xl font-extrabold text-red-400">0</p>
-            </div>
-        </div>
-
-        <div class="card rounded-2xl px-6 py-6 mb-10">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-semibold text-white">Distribución de puntuaciones (1–5 estrellas)</h2>
-                <p class="text-xs text-gray-500">Actualizado en tiempo real</p>
-            </div>
-            <div class="h-64 md:h-72">
-                <canvas id="rating-distribution-chart"></canvas>
-            </div>
-        </div>
-
-        <div class="mb-3 flex items-center justify-between">
-            <h2 class="text-lg font-semibold text-white">Calificaciones recientes</h2>
-            <p class="text-[11px] text-gray-500">Haz clic en el ícono de papelera para eliminar una entrada.</p>
-        </div>
-
-        <div class="card rounded-2xl p-4 overflow-hidden">
-            <div class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 border-b border-zinc-700 pb-2 mb-2 uppercase tracking-wide">
-                <span>Asesor</span>
-                <span>Rating</span>
-                <span>Comentario</span>
-                <span>Fecha</span>
-                <span class="text-center">Acción</span>
-            </div>
-
-            <div id="ratings-list-container" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                <p id="no-ratings-message" class="text-center text-gray-500 text-sm mt-6">
-                    No hay calificaciones registradas o no coinciden con los filtros.
-                </p>
-            </div>
-        </div>
-
+    <!-- LISTA -->
+    <div class="mb-3 flex items-center justify-between">
+      <h2 class="text-lg font-semibold text-white">Calificaciones recientes</h2>
+      <p class="text-[11px] text-gray-500">Haz clic en la papelera para eliminar una entrada.</p>
     </div>
 
-    <script type="module">
+    <div class="card rounded-2xl p-4 overflow-hidden">
+      <div
+        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 border-b border-zinc-700 pb-2 mb-2 uppercase tracking-wide">
+        <span>Asesor</span>
+        <span>Rating</span>
+        <span>Comentario</span>
+        <span>Fecha</span>
+        <span class="text-center">Acción</span>
+      </div>
+
+      <div id="ratings-list-container" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+        <!-- Aquí se insertan los items o el mensaje de "no hay datos" -->
+      </div>
+    </div>
+  </div>
+
+  <!-- FIREBASE + LÓGICA -->
+  <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // --- CONFIG FIREBASE ---
     const firebaseConfig = {
-        apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
-        authDomain: "linkparabarberos.firebaseapp.com",
-        projectId: "linkparabarberos",
-        storageBucket: "linkparabarberos.firebasestorage.app",
-        messagingSenderId: "237275244830",
-        appId: "1:237275244830:web:51c5a95a81c1287512810f",
-        measurementId: "G-SX4F2EL0C0"
+      apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
+      authDomain: "linkparabarberos.firebaseapp.com",
+      projectId: "linkparabarberos",
+      storageBucket: "linkparabarberos.firebasestorage.app",
+      messagingSenderId: "237275244830",
+      appId: "1:237275244830:web:51c5a95a81c1287512810f",
+      measurementId: "G-SX4F2EL0C0"
     };
 
     const globalAppId = firebaseConfig.projectId;
 
     let app, db, auth, currentUserId;
-    let chartInstance = null;
     let allRatings = [];
+    let chartInstance = null;
 
-    // --- ELEMENTOS DE UI ---
-    const authScreen = document.getElementById('auth-screen');
-    const profileSetupScreen = document.getElementById('profile-setup-screen');
-    const dashboardContent = document.getElementById('dashboard-content');
-    const loadingSpinner = document.getElementById('loading-spinner');
-    const authErrorMessage = document.getElementById('auth-error-message');
-    const profileNameInput = document.getElementById('profile-name');
+    const authScreen = document.getElementById("auth-screen");
+    const profileSetupScreen = document.getElementById("profile-setup-screen");
+    const dashboardContent = document.getElementById("dashboard-content");
+    const loadingSpinner = document.getElementById("loading-spinner");
+    const authErrorMessage = document.getElementById("auth-error-message");
+    const profileNameInput = document.getElementById("profile-name");
 
-    const advisorFilter = document.getElementById('advisor-filter');
-    const dateFilter   = document.getElementById('date-filter');
-    const monthFilter  = document.getElementById('month-filter');
+    const advisorFilter = document.getElementById("advisor-filter");
+    const monthFilter  = document.getElementById("month-filter");
+    const dateFilter   = document.getElementById("date-filter");
+    const applyFiltersButton = document.getElementById("apply-filters-button");
 
     const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
     const ADMIN_PROFILE_COLLECTION = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
 
-    // ----------------------------------------------------
-    // 1. Cambio de pantallas
-    // ----------------------------------------------------
-    function showScreen(screenId) {
-        authScreen.classList.add('hidden');
-        profileSetupScreen.classList.add('hidden');
-        dashboardContent.classList.add('hidden');
+    function showScreen(id) {
+      authScreen.classList.add("hidden");
+      profileSetupScreen.classList.add("hidden");
+      dashboardContent.classList.add("hidden");
 
-        if (screenId === 'auth')      authScreen.classList.remove('hidden');
-        if (screenId === 'profile')   profileSetupScreen.classList.remove('hidden');
-        if (screenId === 'dashboard') dashboardContent.classList.remove('hidden');
+      if (id === "auth")      authScreen.classList.remove("hidden");
+      if (id === "profile")   profileSetupScreen.classList.remove("hidden");
+      if (id === "dashboard") dashboardContent.classList.remove("hidden");
 
-        loadingSpinner.classList.add('hidden');
+      loadingSpinner.classList.add("hidden");
     }
 
-    // ----------------------------------------------------
-    // 2. Inicializar Firebase y Auth
-    // ----------------------------------------------------
     async function initFirebase() {
-        loadingSpinner.classList.remove('hidden');
+      loadingSpinner.classList.remove("hidden");
+      app  = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db   = getFirestore(app);
 
-        app  = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db   = getFirestore(app);
-
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUserId = user.uid;
-                await checkProfileAndLoadDashboard(user.uid);
-            } else {
-                showScreen('auth');
-            }
-        });
+      onAuthStateChanged(auth, async (user) => {
+        if (user) {
+          currentUserId = user.uid;
+          await checkProfileAndLoadDashboard(user.uid);
+        } else {
+          showScreen("auth");
+        }
+      });
     }
 
     async function checkProfileAndLoadDashboard(uid) {
-        const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(uid), 'data');
-        try {
-            const docSnap = await getDoc(profileRef);
-            if (docSnap.exists()) {
-                document.getElementById('admin-name').textContent = docSnap.data().name;
-                startRealtimeDataListener();
-                showScreen('dashboard');
-            } else {
-                showScreen('profile');
-            }
-        } catch (e) {
-            console.error("Error al verificar perfil:", e);
-            showScreen('profile');
+      const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(uid), "data");
+      try {
+        const snap = await getDoc(profileRef);
+        if (snap.exists()) {
+          document.getElementById("admin-name").textContent = snap.data().name;
+          startRealtimeDataListener();
+          showScreen("dashboard");
+        } else {
+          showScreen("profile");
         }
+      } catch (e) {
+        console.error("Error al leer perfil:", e);
+        showScreen("profile");
+      }
     }
 
-    // ----------------------------------------------------
-    // 3. Login / Logout
-    // ----------------------------------------------------
-    document.getElementById('login-button').addEventListener('click', async () => {
-        const email    = document.getElementById('auth-email').value;
-        const password = document.getElementById('auth-password').value;
-        authErrorMessage.textContent = '';
+    document.getElementById("login-button").addEventListener("click", async () => {
+      const email    = document.getElementById("auth-email").value;
+      const password = document.getElementById("auth-password").value;
+      authErrorMessage.textContent = "";
 
-        if (!email || !password) {
-            authErrorMessage.textContent = 'Por favor, ingresa correo y contraseña.';
-            return;
-        }
+      if (!email || !password) {
+        authErrorMessage.textContent = "Ingresa correo y contraseña.";
+        return;
+      }
 
-        try {
-            await signInWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-            console.error("Error de autenticación:", error);
-            let message = 'Error de credenciales. Asegúrate de que el correo existe y la contraseña es correcta.';
-            if (error.code === 'auth/wrong-password' || error.code === 'auth/user-not-found') {
-                message = 'Credenciales inválidas. Revisa el correo y la contraseña.';
-            } else if (error.code === 'auth/invalid-email') {
-                message = 'El formato del correo es inválido.';
-            } else if (error.code === 'auth/network-request-failed') {
-                message = 'Error de red. Revisa tu conexión.';
-            }
-            authErrorMessage.textContent = message;
-        }
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        console.error("Error de login:", error);
+        let msg = "Error de credenciales.";
+        if (error.code === "auth/wrong-password" || error.code === "auth/user-not-found") msg = "Correo o contraseña incorrectos.";
+        else if (error.code === "auth/invalid-email") msg = "Correo inválido.";
+        else if (error.code === "auth/network-request-failed") msg = "Error de red.";
+        authErrorMessage.textContent = msg;
+      }
     });
 
-    document.getElementById('logout-button').addEventListener('click', async () => {
-        try {
-            await signOut(auth);
-        } catch (error) {
-            console.error("Error al cerrar sesión:", error);
-        }
+    document.getElementById("logout-button").addEventListener("click", async () => {
+      try {
+        await signOut(auth);
+      } catch (e) {
+        console.error("Error al cerrar sesión:", e);
+      }
     });
 
-    // ----------------------------------------------------
-    // 4. Guardar perfil de admin
-    // ----------------------------------------------------
-    document.getElementById('save-profile-button').addEventListener('click', async () => {
-        const name = profileNameInput.value.trim();
-        const profileErrorEl = document.getElementById('profile-error-message');
-        profileErrorEl.textContent = '';
+    document.getElementById("save-profile-button").addEventListener("click", async () => {
+      const name = profileNameInput.value.trim();
+      const errorEl = document.getElementById("profile-error-message");
+      errorEl.textContent = "";
 
-        if (name.length < 2) {
-            profileErrorEl.textContent = 'Por favor, ingresa tu nombre o rol.';
-            return;
-        }
+      if (name.length < 2) {
+        errorEl.textContent = "Ingresa tu nombre o rol.";
+        return;
+      }
 
-        const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(currentUserId), 'data');
-        try {
-            await setDoc(profileRef, { name, created: new Date().toISOString() });
-            document.getElementById('admin-name').textContent = name;
-            startRealtimeDataListener();
-            showScreen('dashboard');
-        } catch (e) {
-            console.error("Error al guardar perfil:", e);
-            profileErrorEl.textContent = 'Error al guardar. Intenta de nuevo.';
-        }
+      const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(currentUserId), "data");
+      try {
+        await setDoc(profileRef, { name, created: new Date().toISOString() });
+        document.getElementById("admin-name").textContent = name;
+        startRealtimeDataListener();
+        showScreen("dashboard");
+      } catch (e) {
+        console.error("Error al guardar perfil:", e);
+        errorEl.textContent = "No se pudo guardar.";
+      }
     });
 
-    // ----------------------------------------------------
-    // 5. Escucha en tiempo real de calificaciones - CORREGIDO
-    // ----------------------------------------------------
     function startRealtimeDataListener() {
-        const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
-        const q = query(ratingsCollection);
-        
-        // Bandera para asegurar que filtramos una vez al inicio.
-        let initialLoad = true;
+      const col = collection(db, PUBLIC_RATINGS_COLLECTION);
+      const q   = query(col);
 
-        onSnapshot(q, (snapshot) => {
-            allRatings = [];
-            snapshot.forEach((docSnap) => {
-                allRatings.push({ id: docSnap.id, ...docSnap.data() });
-            });
-
-            // Actualiza opciones del filtro de asesor
-            updateFilterOptions(allRatings);
-
-            // SOLO ejecuta el filtro la PRIMERA VEZ para inicializar la vista.
-            if (initialLoad) {
-                filterAndDisplayRatings();
-                initialLoad = false;
-            }
-            
-            // IMPORTANTE: Ya no se llama a filterAndDisplayRatings aquí para las actualizaciones en tiempo real.
-            // El usuario debe hacer clic en "Buscar" para filtrar los nuevos datos.
-            
-        }, (error) => {
-            console.error("Error al escuchar calificaciones:", error);
-            document.getElementById('no-ratings-message').textContent =
-                'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
+      onSnapshot(q, (snapshot) => {
+        allRatings = [];
+        snapshot.forEach(docSnap => {
+          allRatings.push({ id: docSnap.id, ...docSnap.data() });
         });
+
+        updateFilterOptions(allRatings);
+        filterAndDisplayRatings();
+      }, (error) => {
+        console.error("Error al escuchar calificaciones:", error);
+        const container = document.getElementById("ratings-list-container");
+        container.innerHTML = "<p class='text-center text-red-400 text-sm mt-4'>Error cargando datos.</p>";
+      });
     }
 
+    // BOTÓN APLICAR
+    applyFiltersButton.addEventListener("click", () => filterAndDisplayRatings());
 
-    // ----------------------------------------------------
-    // 6. Filtros (asesor, mes, día) - CORREGIDO (Solo con botón)
-    // ----------------------------------------------------
-    const applyFiltersButton = document.getElementById('apply-filters-button');
-    
-    // Si se elige día, vaciamos mes (y viceversa). No llama a filterAndDisplayRatings() aquí.
-    dateFilter.addEventListener('change', () => {
-        if (dateFilter.value) monthFilter.value = '';
+    // También al cambiar (comodidad)
+    advisorFilter.addEventListener("change", () => filterAndDisplayRatings());
+    monthFilter.addEventListener("change", () => {
+      if (monthFilter.value) dateFilter.value = "";
+      filterAndDisplayRatings();
     });
-
-    monthFilter.addEventListener('change', () => {
-        if (monthFilter.value) dateFilter.value = '';
+    dateFilter.addEventListener("change", () => {
+      if (dateFilter.value) monthFilter.value = "";
+      filterAndDisplayRatings();
     });
-    
-    // El filtro principal solo se activa al hacer click en el botón "Buscar"
-    if (applyFiltersButton) {
-        applyFiltersButton.addEventListener('click', () => {
-            filterAndDisplayRatings();
-        });
-    }
 
     function filterAndDisplayRatings() {
-        let filtered = allRatings;
-        const selectedAdvisor = advisorFilter.value;
-        const selectedDate   = dateFilter.value;   // YYYY-MM-DD
-        const selectedMonth  = monthFilter.value;  // YYYY-MM
+      let filtered = [...allRatings];
 
-        if (selectedAdvisor) {
-            filtered = filtered.filter(r => r.advisorId === selectedAdvisor);
-        }
+      const advisor = advisorFilter.value;
+      const month   = monthFilter.value;  // "YYYY-MM"
+      const day     = dateFilter.value;   // "YYYY-MM-DD"
 
-        if (selectedMonth) {
-            filtered = filtered.filter(r => {
-                if (!r.timestamp) return false;
-                const ratingMonth = r.timestamp.substring(0, 7); // "YYYY-MM"
-                return ratingMonth === selectedMonth;
-            });
-        } else if (selectedDate) {
-            filtered = filtered.filter(r => {
-                if (!r.timestamp) return false;
-                const ratingDate = r.timestamp.substring(0, 10); // "YYYY-MM-DD"
-                return ratingDate === selectedDate;
-            });
-        }
+      if (advisor) {
+        filtered = filtered.filter(r => r.advisorId === advisor);
+      }
 
-        filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      if (month) {
+        filtered = filtered.filter(r => {
+          if (!r.timestamp) return false;
+          const d = new Date(r.timestamp);
+          if (isNaN(d)) return false;
+          const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+          return ym === month;
+        });
+      } else if (day) {
+        filtered = filtered.filter(r => {
+          if (!r.timestamp) return false;
+          const d = new Date(r.timestamp);
+          if (isNaN(d)) return false;
+          const ymd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          return ymd === day;
+        });
+      }
 
-        renderRatingsList(filtered);
-        updateStatsAndChart(filtered);
+      filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+
+      renderRatingsList(filtered);
+      updateStatsAndChart(filtered);
     }
 
-    // ----------------------------------------------------
-    // 7. Cálculos y actualización de estadísticas / gráfico
-    // ----------------------------------------------------
     function calculateStats(ratings) {
-        if (!ratings.length) {
-            return {
-                totalRatings: 0,
-                avgRating: 0,
-                totalAdvisors: 0,
-                lowRatings: 0,
-                ratingDistribution: [0, 0, 0, 0, 0]
-            };
-        }
-
-        const totalRatingSum = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
-        const uniqueAdvisors = new Set(ratings.map(r => r.advisorId));
-        const lowRatingsCount = ratings.filter(r => r.rating <= 2).length;
-
-        const distribution = [0, 0, 0, 0, 0];
-        ratings.forEach(r => {
-            if (r.rating >= 1 && r.rating <= 5) distribution[r.rating - 1]++;
-        });
-
+      if (!ratings.length) {
         return {
-            totalRatings: ratings.length,
-            avgRating: totalRatingSum / ratings.length,
-            totalAdvisors: uniqueAdvisors.size,
-            lowRatings: lowRatingsCount,
-            ratingDistribution: distribution
+          totalRatings: 0,
+          avgRating: 0,
+          totalAdvisors: 0,
+          lowRatings: 0,
+          ratingDistribution: [0, 0, 0, 0, 0]
         };
+      }
+
+      const totalRatingSum = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
+      const uniqueAdvisors = new Set(ratings.map(r => r.advisorId));
+      const lowRatingsCount = ratings.filter(r => r.rating <= 2).length;
+
+      const dist = [0, 0, 0, 0, 0];
+      ratings.forEach(r => {
+        if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++;
+      });
+
+      return {
+        totalRatings: ratings.length,
+        avgRating: totalRatingSum / ratings.length,
+        totalAdvisors: uniqueAdvisors.size,
+        lowRatings: lowRatingsCount,
+        ratingDistribution: dist
+      };
     }
 
     function updateStatsAndChart(ratings) {
-        const stats = calculateStats(ratings);
+      const stats = calculateStats(ratings);
 
-        document.getElementById('total-ratings').textContent =
-            stats.totalRatings;
-        document.getElementById('avg-rating').textContent =
-            stats.totalRatings ? stats.avgRating.toFixed(1) : 'N/A';
-        document.getElementById('total-advisors').textContent =
-            stats.totalAdvisors;
-        document.getElementById('low-ratings').textContent =
-            stats.lowRatings;
+      document.getElementById("total-ratings").textContent = stats.totalRatings;
+      document.getElementById("avg-rating").textContent = stats.totalRatings ? stats.avgRating.toFixed(1) : "N/A";
+      document.getElementById("total-advisors").textContent = stats.totalAdvisors;
+      document.getElementById("low-ratings").textContent = stats.lowRatings;
 
-        renderChart(stats.ratingDistribution);
+      renderChart(stats.ratingDistribution);
     }
 
     function updateFilterOptions(ratings) {
-        const advisors = [...new Set(
-            ratings.map(r => JSON.stringify({ id: r.advisorId, name: r.advisorName }))
-        )].map(str => JSON.parse(str));
+      const advisors = [...new Set(
+        ratings.map(r => JSON.stringify({ id: r.advisorId, name: r.advisorName }))
+      )].map(str => JSON.parse(str));
 
-        const currentFilter = advisorFilter.value;
-        advisorFilter.innerHTML = '<option value="">Todos los asesores</option>';
+      const current = advisorFilter.value;
+      advisorFilter.innerHTML = '<option value="">Todos los asesores</option>';
 
-        advisors.forEach(advisor => {
-            if (!advisor.id) return;
-            const option = document.createElement('option');
-            option.value = advisor.id;
-            option.textContent = advisor.name || advisor.id;
-            if (advisor.id === currentFilter) option.selected = true;
-            advisorFilter.appendChild(option);
-        });
+      advisors.forEach(a => {
+        if (!a.id) return;
+        const opt = document.createElement("option");
+        opt.value = a.id;
+        opt.textContent = a.name || a.id;
+        if (a.id === current) opt.selected = true;
+        advisorFilter.appendChild(opt);
+      });
     }
 
-    function renderChart(distributionData) {
-        const ctx = document.getElementById('rating-distribution-chart').getContext('2d');
-        if (chartInstance) chartInstance.destroy();
+    function renderChart(data) {
+      const ctx = document.getElementById("rating-distribution-chart").getContext("2d");
+      if (chartInstance) chartInstance.destroy();
 
-        chartInstance = new Chart(ctx, {
-            type: 'bar',
-            data: {
-                labels: ['1 ★', '2 ★', '3 ★', '4 ★', '5 ★'],
-                datasets: [{
-                    data: distributionData,
-                    backgroundColor: ['#DC2626', '#F97316', '#4B5563', '#3B82F6', '#10B981'],
-                    borderRadius: 6
-                }]
+      chartInstance = new Chart(ctx, {
+        type: "bar",
+        data: {
+          labels: ["1 ★", "2 ★", "3 ★", "4 ★", "5 ★"],
+          datasets: [{
+            data,
+            backgroundColor: ["#DC2626", "#F97316", "#4B5563", "#3B82F6", "#10B981"],
+            borderRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { color: "#e5e7eb", precision: 0 },
+              grid: { color: "#27272a" }
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        ticks: { color: '#e5e7eb', precision: 0 },
-                        grid: { color: '#27272a' }
-                    },
-                    x: {
-                        ticks: { color: '#e5e7eb' },
-                        grid: { display: false }
-                    }
-                },
-                plugins: { legend: { display: false } }
+            x: {
+              ticks: { color: "#e5e7eb" },
+              grid: { display: false }
             }
-        });
+          },
+          plugins: { legend: { display: false } }
+        }
+      });
     }
 
-    // ----------------------------------------------------
-    // 8. Render de la lista de calificaciones
-    // ----------------------------------------------------
+    // ⚠️ AQUÍ VA LA FUNCIÓN ARREGLADA
     function renderRatingsList(ratings) {
-        const container = document.getElementById('ratings-list-container');
-        const noRatingsMsg = document.getElementById('no-ratings-message');
-        container.innerHTML = '';
+      const container = document.getElementById("ratings-list-container");
+      container.innerHTML = "";
 
-        if (!ratings.length) {
-            noRatingsMsg.classList.remove('hidden');
-            return;
-        }
-        noRatingsMsg.classList.add('hidden');
+      if (!ratings.length) {
+        // mostramos mensaje simple, SIN usar id ni classList
+        const msg = document.createElement("p");
+        msg.textContent = "No hay calificaciones registradas o no coinciden con los filtros.";
+        msg.className = "text-center text-gray-500 text-sm mt-6";
+        container.appendChild(msg);
+        return;
+      }
 
-        ratings.forEach(rating => {
-            const isNegative = rating.rating <= 2;
-            const date = rating.timestamp
-                ? new Date(rating.timestamp).toLocaleString('es-ES', { dateStyle: 'medium', timeStyle: 'short' })
-                : '-';
+      ratings.forEach(r => {
+        const isNegative = r.rating <= 2;
+        const date = r.timestamp
+          ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })
+          : "-";
 
-            const row = document.createElement('div');
-            row.className = "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-zinc-800/80 rounded-xl px-3 py-2 bg-zinc-950/80";
+        const row = document.createElement("div");
+        row.className = "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-zinc-800/80 rounded-xl px-3 py-2 bg-zinc-950/80";
 
-            row.innerHTML = `
-                <div class="flex items-center justify-between md:block">
-                    <p class="text-sm font-semibold text-white">${rating.advisorName || rating.advisorId || 'Asesor'}</p>
-                    <p class="md:hidden text-xs text-gray-500 mt-0.5">${date}</p>
-                </div>
-                <div class="flex items-center md:justify-start justify-between">
-                    <span class="text-base font-bold ${isNegative ? 'text-red-400' : 'text-yellow-300'}">
-                        ${rating.rating ?? '-'} / 5
-                    </span>
-                </div>
-                <div class="text-xs text-gray-200 md:pr-4">
-                    ${rating.comments ? rating.comments.replace(/\n/g, '<br>') : '— Sin comentarios —'}
-                </div>
-                <div class="hidden md:block text-xs text-gray-400">
-                    ${date}
-                </div>
-                <div class="flex justify-end">
-                    <button data-id="${rating.id}"
-                            class="delete-button text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-zinc-800 transition">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-                             viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                        </svg>
-                    </button>
-                </div>
-            `;
+        row.innerHTML = `
+          <div class="flex items-center justify-between md:block">
+            <p class="text-sm font-semibold text-white">${r.advisorName || r.advisorId || "Asesor"}</p>
+            <p class="md:hidden text-xs text-gray-500 mt-0.5">${date}</p>
+          </div>
+          <div class="flex items-center md:justify-start justify-between">
+            <span class="text-base font-bold ${isNegative ? "text-red-400" : "text-yellow-300"}">
+              ${r.rating ?? "-"} / 5
+            </span>
+          </div>
+          <div class="text-xs text-gray-200 md:pr-4">
+            ${r.comments ? r.comments.replace(/\n/g, "<br>") : "— Sin comentarios —"}
+          </div>
+          <div class="hidden md:block text-xs text-gray-400">${date}</div>
+          <div class="flex justify-end">
+            <button data-id="${r.id}" class="delete-button text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-zinc-800 transition">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
+                viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+              </svg>
+            </button>
+          </div>
+        `;
 
-            container.appendChild(row);
+        container.appendChild(row);
+      });
+
+      document.querySelectorAll(".delete-button").forEach(btn => {
+        btn.addEventListener("click", async (e) => {
+          const id = e.currentTarget.dataset.id;
+          if (confirm("¿Eliminar esta calificación?")) {
+            const ref = doc(db, PUBLIC_RATINGS_COLLECTION, id);
+            try {
+              await deleteDoc(ref);
+            } catch (err) {
+              console.error("Error al eliminar:", err);
+              alert("No se pudo eliminar. Revisa permisos.");
+            }
+          }
         });
-
-        document.querySelectorAll('.delete-button').forEach(button => {
-            button.addEventListener('click', async (e) => {
-                const ratingId = e.currentTarget.dataset.id;
-                if (confirm('¿Eliminar esta calificación?')) {
-                    await deleteRating(ratingId);
-                }
-            });
-        });
+      });
     }
 
-    async function deleteRating(id) {
-        const ratingRef = doc(db, PUBLIC_RATINGS_COLLECTION, id);
-        try {
-            await deleteDoc(ratingRef);
-        } catch (e) {
-            console.error("Error al eliminar calificación:", e);
-            alert('No se pudo eliminar la calificación. Revisa permisos.');
-        }
-    }
-
-    // Iniciar todo
     initFirebase();
-</script>
+  </script>
 </body>
 </html>
