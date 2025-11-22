@@ -5,11 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard | Barbero Pro</title>
 
-    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
     <style>
@@ -32,17 +30,14 @@
 </head>
 <body class="min-h-screen p-4 md:p-8">
 
-    <!-- Spinner de carga -->
     <div id="loading-spinner" class="fixed inset-0 bg-black/70 flex items-center justify-center z-50">
         <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
     </div>
 
-    <!-- 1. LOGIN -->
     <div id="auth-screen" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-40 hidden">
         <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
             <div class="flex items-center justify-center mb-6">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center mr-3">
-                    <!-- icono simple de “barbería” -->
                     <span class="text-black font-extrabold text-xl">✂</span>
                 </div>
                 <div>
@@ -73,7 +68,6 @@
         </div>
     </div>
 
-    <!-- 2. CONFIGURAR PERFIL -->
     <div id="profile-setup-screen" class="fixed inset-0 bg-black/80 flex items-center justify-center p-4 z-40 hidden">
         <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
             <h1 class="text-2xl font-bold text-center mb-2 text-white">¡Bienvenido!</h1>
@@ -93,10 +87,8 @@
         </div>
     </div>
 
-    <!-- 3. DASHBOARD -->
     <div id="dashboard-content" class="max-w-7xl mx-auto hidden">
 
-        <!-- HEADER -->
         <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
             <div class="flex items-center mb-4 md:mb-0">
                 <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center mr-3 shadow-xl">
@@ -124,38 +116,38 @@
             </div>
         </header>
 
-        <!-- FILTROS (tarjetas pequeñas) -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-    <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por asesor</p>
-        <select id="advisor-filter"
-                class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
-            <option value="">Todos los asesores</option>
-        </select>
-    </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div class="card rounded-xl px-5 py-4 flex flex-col">
+                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por asesor</p>
+                <select id="advisor-filter"
+                        class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+                    <option value="">Todos los asesores</option>
+                </select>
+            </div>
 
-    <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por mes</p>
-        <input type="month" id="month-filter"
-               class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
-    </div>
+            <div class="card rounded-xl px-5 py-4 flex flex-col">
+                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por mes</p>
+                <input type="month" id="month-filter"
+                       class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+            </div>
 
-    <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por fecha (día)</p>
-        <input type="date" id="date-filter"
-               class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
-    </div>
-    <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
-        <p class="text-[12px] text-gray-400 mb-2 uppercase tracking-wide">Aplicar filtros</p>
-        <button id="apply-filters-button"
-                class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2.5 rounded-lg shadow-md transition duration-200 text-sm tracking-wide">
-            Buscar
-        </button>
-    </div>
+            <div class="card rounded-xl px-5 py-4 flex flex-col">
+                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por fecha (día)</p>
+                <input type="date" id="date-filter"
+                       class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+            </div>
+
+            <div class="card rounded-xl px-5 py-4 flex flex-col">
+                <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Aplicar filtros</p>
+                <button id="apply-filters-button"
+                        class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2.5 rounded-lg shadow-md transition duration-200 text-sm tracking-wide mt-1">
+                    Buscar
+                </button>
+            </div>
+            </div>
 
  
 
-        <!-- MÉTRICAS PRINCIPALES -->
         <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
             <div class="card rounded-xl px-5 py-4 text-center">
                 <p class="text-xs text-gray-400 uppercase tracking-wide">Calificación promedio</p>
@@ -178,7 +170,6 @@
             </div>
         </div>
 
-        <!-- GRÁFICO PRINCIPAL -->
         <div class="card rounded-2xl px-6 py-6 mb-10">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-semibold text-white">Distribución de puntuaciones (1–5 estrellas)</h2>
@@ -189,7 +180,6 @@
             </div>
         </div>
 
-        <!-- LISTA DETALLADA -->
         <div class="mb-3 flex items-center justify-between">
             <h2 class="text-lg font-semibold text-white">Calificaciones recientes</h2>
             <p class="text-[11px] text-gray-500">Haz clic en el ícono de papelera para eliminar una entrada.</p>
@@ -205,7 +195,6 @@
             </div>
 
             <div id="ratings-list-container" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-                <!-- items se agregan por JS -->
                 <p id="no-ratings-message" class="text-center text-gray-500 text-sm mt-6">
                     No hay calificaciones registradas o no coinciden con los filtros.
                 </p>
@@ -214,7 +203,6 @@
 
     </div>
 
-    <!-- FIREBASE + LÓGICA -->
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -366,45 +354,48 @@
         }
     });
 
-        // ----------------------------------------------------
-// 5. Escucha en tiempo real de calificaciones
-// ----------------------------------------------------
-function startRealtimeDataListener() {
-    const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
-    const q = query(ratingsCollection);
+    // ----------------------------------------------------
+    // 5. Escucha en tiempo real de calificaciones - CORREGIDO
+    // ----------------------------------------------------
+    function startRealtimeDataListener() {
+        const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
+        const q = query(ratingsCollection);
+        
+        // Bandera para asegurar que filtramos una vez al inicio.
+        let initialLoad = true;
 
-    // Bandera para saber si ya se cargaron los datos iniciales
-    let initialLoad = true; 
+        onSnapshot(q, (snapshot) => {
+            allRatings = [];
+            snapshot.forEach((docSnap) => {
+                allRatings.push({ id: docSnap.id, ...docSnap.data() });
+            });
 
-    onSnapshot(q, (snapshot) => {
-        allRatings = [];
-        snapshot.forEach((docSnap) => {
-            allRatings.push({ id: docSnap.id, ...docSnap.data() });
+            // Actualiza opciones del filtro de asesor
+            updateFilterOptions(allRatings);
+
+            // SOLO ejecuta el filtro la PRIMERA VEZ para inicializar la vista.
+            if (initialLoad) {
+                filterAndDisplayRatings();
+                initialLoad = false;
+            }
+            
+            // IMPORTANTE: Ya no se llama a filterAndDisplayRatings aquí para las actualizaciones en tiempo real.
+            // El usuario debe hacer clic en "Buscar" para filtrar los nuevos datos.
+            
+        }, (error) => {
+            console.error("Error al escuchar calificaciones:", error);
+            document.getElementById('no-ratings-message').textContent =
+                'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
         });
+    }
 
-        // Actualiza opciones del filtro de asesor
-        updateFilterOptions(allRatings);
 
-        // SOLO ejecuta el filtro la PRIMERA VEZ para mostrar datos iniciales.
-        // Después, solo se ejecutará con el botón.
-        if (initialLoad) {
-            filterAndDisplayRatings();
-            initialLoad = false; // Desactiva la carga inicial
-        }
-    }, (error) => {
-        console.error("Error al escuchar calificaciones:", error);
-        document.getElementById('no-ratings-message').textContent =
-            'Error cargando datos. Revisa las reglas de seguridad de Firestore.';
-    });
-}
-
-        // ----------------------------------------------------
-    // 6. Filtros (asesor, mes, día) - CONTROLADO POR BOTÓN
+    // ----------------------------------------------------
+    // 6. Filtros (asesor, mes, día) - CORREGIDO (Solo con botón)
     // ----------------------------------------------------
     const applyFiltersButton = document.getElementById('apply-filters-button');
-
-    // Lógica para que al seleccionar día se borre mes, y viceversa
-    // Solo limpiamos, NO llamamos a filterAndDisplayRatings()
+    
+    // Si se elige día, vaciamos mes (y viceversa). No llama a filterAndDisplayRatings() aquí.
     dateFilter.addEventListener('change', () => {
         if (dateFilter.value) monthFilter.value = '';
     });
@@ -412,44 +403,43 @@ function startRealtimeDataListener() {
     monthFilter.addEventListener('change', () => {
         if (monthFilter.value) dateFilter.value = '';
     });
-
-    // **EL NUEVO EVENTO PRINCIPAL**: Solo se aplica el filtro con el clic del botón
+    
+    // El filtro principal solo se activa al hacer click en el botón "Buscar"
     if (applyFiltersButton) {
         applyFiltersButton.addEventListener('click', () => {
-            // Esta llamada ahora es la ÚNICA que desencadena la actualización
             filterAndDisplayRatings();
         });
     }
 
-        function filterAndDisplayRatings() {
-  let filtered = allRatings;
-  const selectedAdvisor = advisorFilter.value;
-  const selectedDate   = dateFilter.value;   // YYYY-MM-DD
-  const selectedMonth  = monthFilter.value;  // YYYY-MM
+    function filterAndDisplayRatings() {
+        let filtered = allRatings;
+        const selectedAdvisor = advisorFilter.value;
+        const selectedDate   = dateFilter.value;   // YYYY-MM-DD
+        const selectedMonth  = monthFilter.value;  // YYYY-MM
 
-  if (selectedAdvisor) {
-    filtered = filtered.filter(r => r.advisorId === selectedAdvisor);
-  }
+        if (selectedAdvisor) {
+            filtered = filtered.filter(r => r.advisorId === selectedAdvisor);
+        }
 
-  if (selectedMonth) {
-    filtered = filtered.filter(r => {
-      if (!r.timestamp) return false;
-      const ratingMonth = r.timestamp.substring(0, 7); // "YYYY-MM"
-      return ratingMonth === selectedMonth;
-    });
-  } else if (selectedDate) {
-    filtered = filtered.filter(r => {
-      if (!r.timestamp) return false;
-      const ratingDate = r.timestamp.substring(0, 10); // "YYYY-MM-DD"
-      return ratingDate === selectedDate;
-    });
-  }
+        if (selectedMonth) {
+            filtered = filtered.filter(r => {
+                if (!r.timestamp) return false;
+                const ratingMonth = r.timestamp.substring(0, 7); // "YYYY-MM"
+                return ratingMonth === selectedMonth;
+            });
+        } else if (selectedDate) {
+            filtered = filtered.filter(r => {
+                if (!r.timestamp) return false;
+                const ratingDate = r.timestamp.substring(0, 10); // "YYYY-MM-DD"
+                return ratingDate === selectedDate;
+            });
+        }
 
-  filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
 
-  renderRatingsList(filtered);
-  updateStatsAndChart(filtered);
-}
+        renderRatingsList(filtered);
+        updateStatsAndChart(filtered);
+    }
 
     // ----------------------------------------------------
     // 7. Cálculos y actualización de estadísticas / gráfico
