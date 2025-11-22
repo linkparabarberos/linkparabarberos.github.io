@@ -28,6 +28,22 @@
       color: #f9fafb !important;
       border-color: #374151 !important;
     }
+    .rating-star {
+  cursor: pointer;
+  transition: transform 0.1s ease-in-out, color 0.2s;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+  color: #4B5563;              /* gris por defecto */
+}
+
+.rating-star:hover {
+  transform: scale(1.1);
+}
+
+/* ⭐ Estrella activa (seleccionada) */
+.rating-star.active {
+  color: #FACC15;              /* amarillo */
+}
+
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
@@ -57,12 +73,12 @@
         ¿Cómo calificarías la atención recibida?
       </label>
       <div id="rating-stars" class="flex justify-center space-x-3 text-4xl">
-        <span class="rating-star text-gray-600" data-value="1">⭐</span>
-        <span class="rating-star text-gray-600" data-value="2">⭐</span>
-        <span class="rating-star text-gray-600" data-value="3">⭐</span>
-        <span class="rating-star text-gray-600" data-value="4">⭐</span>
-        <span class="rating-star text-gray-600" data-value="5">⭐</span>
-      </div>
+  <span class="rating-star" data-value="1">⭐</span>
+  <span class="rating-star" data-value="2">⭐</span>
+  <span class="rating-star" data-value="3">⭐</span>
+  <span class="rating-star" data-value="4">⭐</span>
+  <span class="rating-star" data-value="5">⭐</span>
+</div>
       <input type="hidden" id="rating-value" value="0">
     </div>
 
@@ -165,23 +181,30 @@
       statusMessage.textContent = "Link de calificación inválido. Revisa el enlace.";
       statusMessage.classList.remove("hidden");
     }
-
     // ---------- 3. ESTRELLAS ----------
-    const ratingStars     = document.getElementById("rating-stars");
-    const ratingValueInput = document.getElementById("rating-value");
-    const commentsInput   = document.getElementById("comments");
+const ratingStars     = document.getElementById("rating-stars");
+const ratingValueInput = document.getElementById("rating-value");
+const commentsInput   = document.getElementById("comments");
 
-    ratingStars.querySelectorAll(".rating-star").forEach(star => {
-      star.addEventListener("click", () => {
-        const value = parseInt(star.dataset.value, 10);
-        ratingValueInput.value = value;
+ratingStars.querySelectorAll(".rating-star").forEach(star => {
+  star.addEventListener("click", () => {
+    const value = parseInt(star.dataset.value, 10);
+    ratingValueInput.value = value;
 
-        ratingStars.querySelectorAll(".rating-star").forEach(s => {
-          const v = parseInt(s.dataset.value, 10);
-          s.style.color = v <= value ? "#FACC15" : "#4B5563";
-        });
-      });
+    // Activar todas las estrellas <= valor seleccionado
+    ratingStars.querySelectorAll(".rating-star").forEach(s => {
+      const v = parseInt(s.dataset.value, 10);
+      if (v <= value) {
+        s.classList.add("active");
+      } else {
+        s.classList.remove("active");
+      }
     });
+  });
+});
+
+
+    
 
     // ---------- 4. ENVIAR A FIRESTORE ----------
     submitButton.addEventListener("click", async () => {
