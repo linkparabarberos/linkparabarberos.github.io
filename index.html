@@ -16,32 +16,33 @@
       color: #f9fafb;
     }
     .rating-star {
-      cursor: pointer;
-      transition: transform 0.1s ease-in-out, color 0.2s;
-      filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
-    }
-    .rating-star:hover {
-      transform: scale(1.1);
-    }
-    textarea {
-      background-color: #111827 !important;
-      color: #f9fafb !important;
-      border-color: #374151 !important;
-    }
-    .rating-star {
   cursor: pointer;
-  transition: transform 0.1s ease-in-out, color 0.2s;
-  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
-  color: #4B5563;              /* gris por defecto */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 3rem;   /* tamaño del círculo */
+  height: 3rem;
+  border-radius: 9999px;           /* círculo */
+  border: 2px solid transparent;   /* sin borde por defecto */
+  background-color: #111827;       /* fondo oscuro detrás de la estrella */
+  transition: transform 0.1s ease-in-out,
+              border-color 0.15s,
+              box-shadow 0.15s,
+              background-color 0.15s;
+  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
 }
 
 .rating-star:hover {
-  transform: scale(1.1);
+  transform: scale(1.05);
+  border-color: #4B5563;
 }
 
-/* ⭐ Estrella activa (seleccionada) */
+/* ⭐ ESTRELLA SELECCIONADA */
 .rating-star.active {
-  color: #FACC15;              /* amarillo */
+  border-color: #FACC15;                      /* borde amarillo */
+  box-shadow: 0 0 0 3px rgba(250, 204, 21, .45);
+  background-color: #1f2933;
+  transform: scale(1.08);
 }
 
   </style>
@@ -182,16 +183,16 @@
       statusMessage.classList.remove("hidden");
     }
     // ---------- 3. ESTRELLAS ----------
-const ratingStars     = document.getElementById("rating-stars");
+const ratingStars      = document.getElementById("rating-stars");
 const ratingValueInput = document.getElementById("rating-value");
-const commentsInput   = document.getElementById("comments");
+const commentsInput    = document.getElementById("comments");
 
 ratingStars.querySelectorAll(".rating-star").forEach(star => {
   star.addEventListener("click", () => {
     const value = parseInt(star.dataset.value, 10);
     ratingValueInput.value = value;
 
-    // Activar todas las estrellas <= valor seleccionado
+    // Activa todas las <= valor seleccionado y apaga las demás
     ratingStars.querySelectorAll(".rating-star").forEach(s => {
       const v = parseInt(s.dataset.value, 10);
       if (v <= value) {
@@ -202,9 +203,6 @@ ratingStars.querySelectorAll(".rating-star").forEach(star => {
     });
   });
 });
-
-
-    
 
     // ---------- 4. ENVIAR A FIRESTORE ----------
     submitButton.addEventListener("click", async () => {
