@@ -145,13 +145,13 @@
         <input type="date" id="date-filter"
                class="mt-1 p-2 rounded-lg bg-zinc-900 border border-zinc-700 text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
     </div>
-
     <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Vista actual</p>
-        <p class="text-sm text-white font-semibold">Análisis de desempeño de asesores</p>
+        <p class="text-[12px] text-gray-400 mb-2 uppercase tracking-wide">Aplicar filtros</p>
+        <button id="apply-filters-button"
+                class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-2.5 rounded-lg shadow-md transition duration-200 text-sm tracking-wide">
+            Buscar
+        </button>
     </div>
-</div>
-
 
  
 
@@ -394,19 +394,22 @@
 
 
     // ----------------------------------------------------
-    // 6. Filtros (asesor, mes, día)
+    // 6. Filtros (asesor, mes, día) - AHORA CONTROLADO POR BOTÓN
     // ----------------------------------------------------
-    advisorFilter.addEventListener('change', () => filterAndDisplayRatings());
+    const applyFiltersButton = document.getElementById('apply-filters-button'); // Obtener el nuevo botón
 
-    // si se elige día, vaciamos mes
+    // Lógica para que al seleccionar día se borre mes, y viceversa
+    // Importante: Ya NO llamamos a filterAndDisplayRatings() aquí. Solo limpiamos el otro filtro.
     dateFilter.addEventListener('change', () => {
         if (dateFilter.value) monthFilter.value = '';
-        filterAndDisplayRatings();
     });
 
-    // si se elige mes, vaciamos día
     monthFilter.addEventListener('change', () => {
         if (monthFilter.value) dateFilter.value = '';
+    });
+
+    // **EL NUEVO EVENTO PRINCIPAL**: Solo se aplica el filtro con el clic del botón
+    applyFiltersButton.addEventListener('click', () => {
         filterAndDisplayRatings();
     });
 
