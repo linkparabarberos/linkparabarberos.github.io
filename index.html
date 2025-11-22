@@ -1,256 +1,249 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Califica Nuestro Servicio WhatsApp</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <style>
-        /* Definición de la fuente y estilos base para la estética de barbería */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #1a1a1a; /* Fondo oscuro, casi negro */
-        }
-        .rating-star {
-            cursor: pointer;
-            transition: transform 0.1s ease-in-out, color 0.2s;
-            filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4)); /* Sombra para efecto metálico */
-        }
-        .rating-star:hover {
-            transform: scale(1.1);
-        }
-        /* Estilo del contenedor principal para un efecto más 'limpio' */
-        #survey-container {
-            /* Borde metálico sutil */
-            border: 1px solid rgba(255, 255, 255, 0.2); 
-            background-color: #0d0d0d; /* Fondo del card más negro */
-        }
-        /* Estilo de los campos de texto para que coincidan con la estética oscura */
-        textarea {
-            background-color: #262626 !important;
-            color: #d4d4d4 !important;
-            border-color: #4a4a4a !important;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Califica Nuestro Servicio</title>
+
+  <!-- Tailwind -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #000;
+      color: #f9fafb;
+    }
+    .rating-star {
+      cursor: pointer;
+      transition: transform 0.1s ease-in-out, color 0.2s;
+      filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.4));
+    }
+    .rating-star:hover {
+      transform: scale(1.1);
+    }
+    textarea {
+      background-color: #111827 !important;
+      color: #f9fafb !important;
+      border-color: #374151 !important;
+    }
+  </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <div id="survey-container" class="w-full max-w-lg p-6 md:p-10 rounded-xl shadow-2xl transition-all duration-500">
-        
-        <div class="flex justify-center mb-6">
-             <img src="path/to/your/logo.png" alt="Logo Barbero Pro" class="h-10 object-contain rounded-lg">
-        </div>
-
-        <h1 class="text-3xl font-bold text-gray-100 text-center mb-2">
-            ¡Califica tu Experiencia!
-        </h1>
-        <p class="text-center text-gray-400 mb-8">
-            Ayúdanos a mejorar la atención de nuestro asesor(a): 
-            <span id="asesor-name" class="font-semibold text-gray-200">...</span>
-        </p>
-
-        <div id="status-message" class="text-center text-sm mb-4 text-yellow-400 hidden">Cargando...</div>
-        
-        <input type="hidden" id="advisor-id" value="">
-
-        <div class="mb-8 text-center">
-            <label class="block text-lg font-medium text-gray-300 mb-3">¿Cómo calificarías la atención recibida?</label>
-            <div id="rating-stars" class="flex justify-center space-x-2">
-                <span class="rating-star text-4xl text-gray-600" data-value="1">⭐</span>
-                <span class="rating-star text-4xl text-gray-600" data-value="2">⭐</span>
-                <span class="rating-star text-4xl text-gray-600" data-value="3">⭐</span>
-                <span class="rating-star text-4xl text-gray-600" data-value="4">⭐</span>
-                <span class="rating-star text-4xl text-gray-600" data-value="5">⭐</span>
-            </div>
-            <input type="hidden" id="rating-value" value="0">
-        </div>
-
-        <div class="mb-8">
-            <label for="comments" class="block text-sm font-medium text-gray-300 mb-2">
-                Comentarios adicionales (Opcional)
-            </label>
-            <textarea id="comments" rows="3" class="w-full p-3 border rounded-lg focus:ring-gray-700 focus:border-gray-700 transition duration-150" placeholder="¿Qué podríamos mejorar o qué te gustó más?"></textarea>
-        </div>
-
-        <button id="submit-button" class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-xl shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-700">
-            Enviar Calificación
-        </button>
+  <!-- CONTENEDOR PRINCIPAL -->
+  <div id="survey-container" class="w-full max-w-lg p-8 rounded-2xl bg-neutral-950 border border-neutral-800 shadow-2xl">
+    <div class="flex justify-center mb-6">
+      <!-- Cambia el src por tu logo real -->
+      <img src="logo.png" alt="Logo Barbero Pro" class="h-12 object-contain rounded-lg">
     </div>
 
-    <div id="success-message" class="hidden w-full max-w-lg bg-green-700 text-white p-10 rounded-xl shadow-2xl text-center">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-        <h2 class="text-2xl font-bold mb-2">¡Gracias por tu tiempo!</h2>
-        <p class="text-lg">Tu calificación ha sido registrada con éxito. Esto nos ayuda a seguir mejorando.</p>
+    <h1 class="text-3xl font-extrabold text-center mb-2">¡Califica tu Experiencia!</h1>
+    <p class="text-center text-gray-300 mb-4">
+      Ayúdanos a mejorar la atención de nuestro asesor(a):<br>
+      <span id="asesor-name" class="font-semibold text-white">...</span>
+    </p>
+
+    <!-- Mensaje de estado -->
+    <p id="status-message" class="text-center text-sm mb-4 text-yellow-400 hidden"></p>
+
+    <!-- ID oculto de asesor -->
+    <input type="hidden" id="advisor-id" value="">
+
+    <!-- Estrellas -->
+    <div class="mb-6 text-center">
+      <label class="block text-lg font-medium text-gray-200 mb-3">
+        ¿Cómo calificarías la atención recibida?
+      </label>
+      <div id="rating-stars" class="flex justify-center space-x-3 text-4xl">
+        <span class="rating-star text-gray-600" data-value="1">⭐</span>
+        <span class="rating-star text-gray-600" data-value="2">⭐</span>
+        <span class="rating-star text-gray-600" data-value="3">⭐</span>
+        <span class="rating-star text-gray-600" data-value="4">⭐</span>
+        <span class="rating-star text-gray-600" data-value="5">⭐</span>
+      </div>
+      <input type="hidden" id="rating-value" value="0">
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        
-        // Tu configuración de Firebase (Integrada aquí)
-        const firebaseConfig = {
-            apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
-            authDomain: "linkparabarberos.firebaseapp.com",
-            projectId: "linkparabarberos",
-            storageBucket: "linkparabarberos.firebasestorage.app",
-            messagingSenderId: "237275244830",
-            appId: "1:237275244830:web:51c5a95a81c1287512810f",
-            measurementId: "G-SX4F2EL0C0"
-        };
+    <!-- Comentarios -->
+    <div class="mb-6">
+      <label for="comments" class="block text-sm font-medium text-gray-200 mb-2">
+        Comentarios adicionales (opcional)
+      </label>
+      <textarea id="comments" rows="3"
+        class="w-full p-3 border rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-sm"
+        placeholder="¿Qué podríamos mejorar o qué te gustó más?"></textarea>
+    </div>
 
-        const globalAppId = firebaseConfig.projectId;
+    <!-- Botón enviar -->
+    <button id="submit-button"
+      class="w-full bg-white text-black font-semibold py-3 rounded-xl shadow-md hover:bg-gray-200 transition disabled:opacity-50 disabled:cursor-not-allowed">
+      Enviar calificación
+    </button>
+  </div>
 
-        let app, db, auth, userId;
-        const statusMessage = document.getElementById('status-message');
-        
-        async function initFirebase() {
-            try {
-                
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
+  <!-- MENSAJE DE ÉXITO -->
+  <div id="success-message" class="hidden w-full max-w-lg bg-emerald-600 text-white p-10 rounded-2xl shadow-2xl text-center">
+    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none"
+      viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+    </svg>
+    <h2 class="text-2xl font-bold mb-2">¡Gracias por tu tiempo!</h2>
+    <p class="text-lg">Tu calificación ha sido registrada con éxito.</p>
+  </div>
 
-                // Autenticación: Usamos anónima para que los clientes puedan escribir sin registrarse.
-                statusMessage.textContent = 'Autenticando...';
-                statusMessage.classList.remove('hidden');
-                
-                await signInAnonymously(auth);
-                
-                userId = auth.currentUser?.uid || crypto.randomUUID();
-                statusMessage.textContent = 'Listo para calificar.';
-                
-            } catch (error) {
-                console.error("Error al inicializar Firebase o autenticar:", error);
-                statusMessage.textContent = 'Error al cargar la aplicación. Intenta de nuevo.';
-            } finally {
-                statusMessage.classList.add('hidden');
-            }
-        }
+  <!-- FIREBASE -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --------------------------------------------------------
-        // 2. LÓGICA DE LA URL Y ASESOR
-        // --------------------------------------------------------
-        const urlParams = new URLSearchParams(window.location.search);
-        const advisorId = urlParams.get('asesor'); // Lee el parámetro 'asesor'
-        const asesorNameEl = document.getElementById('asesor-name');
-        const advisorIdInput = document.getElementById('advisor-id');
-        const submitButton = document.getElementById('submit-button');
-        
-        // Mapeo simple de ID a nombre (Asesor 1, 2, 3, 4)
-        const advisorMap = {
-            'asesor1': 'Asesor 1',
-            'asesor2': 'Asesor 2',
-            'asesor3': 'Asesor 3',
-            'asesor4': 'Asesor 4',
-        };
+    // 🔐 Config de tu proyecto
+    const firebaseConfig = {
+      apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
+      authDomain: "linkparabarberos.firebaseapp.com",
+      projectId: "linkparabarberos",
+      storageBucket: "linkparabarberos.firebasestorage.app",
+      messagingSenderId: "237275244830",
+      appId: "1:237275244830:web:51c5a95a81c1287512810f",
+      measurementId: "G-SX4F2EL0C0"
+    };
 
-        const asesorNombre = advisorMap[advisorId ? advisorId.toLowerCase() : ''];
+    const globalAppId = firebaseConfig.projectId;
+    let app, db, auth, userId;
 
-        if (asesorNombre) {
-            asesorNameEl.textContent = asesorNombre;
-            advisorIdInput.value = advisorId.toLowerCase();
-            submitButton.disabled = false;
-        } else {
-            asesorNameEl.textContent = '¡Asesor Desconocido!';
-            asesorNameEl.classList.remove('text-gray-200');
-            asesorNameEl.classList.add('text-red-500');
-            submitButton.disabled = true;
-            document.getElementById('status-message').textContent = 'Link de calificación inválido. Por favor, revisa el enlace.';
-            document.getElementById('status-message').classList.remove('hidden');
-        }
+    const statusMessage = document.getElementById("status-message");
+    const submitButton  = document.getElementById("submit-button");
 
-        // --------------------------------------------------------
-        // 3. LÓGICA DEL FORMULARIO
-        // --------------------------------------------------------
-        const ratingStars = document.getElementById('rating-stars');
-        const ratingValueInput = document.getElementById('rating-value');
-        const commentsInput = document.getElementById('comments');
+    // ---------- 1. INICIAR FIREBASE + LOGIN ANÓNIMO ----------
+    async function initFirebase() {
+      try {
+        app  = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db   = getFirestore(app);
 
-        // Manejar la selección de estrellas
-        ratingStars.querySelectorAll('.rating-star').forEach(star => {
-            star.addEventListener('click', () => {
-                const value = parseInt(star.dataset.value);
-                ratingValueInput.value = value;
-                
-                // Actualiza el color de las estrellas (amarillo metálico)
-                ratingStars.querySelectorAll('.rating-star').forEach(s => {
-                    if (parseInt(s.dataset.value) <= value) {
-                        s.style.color = '#FACC15'; // Tailwind yellow-400 (metálico)
-                    } else {
-                        s.style.color = '#4B5563'; // Tailwind gray-600
-                    }
-                });
-            });
+        statusMessage.textContent = "Autenticando...";
+        statusMessage.classList.remove("hidden");
+
+        const cred = await signInAnonymously(auth);
+        userId = cred.user.uid;
+
+        statusMessage.textContent = "Listo para calificar.";
+        setTimeout(() => statusMessage.classList.add("hidden"), 1500);
+      } catch (error) {
+        console.error("Error al inicializar Firebase:", error);
+        statusMessage.textContent = "Error al cargar la aplicación. Intenta más tarde.";
+      }
+    }
+
+    // ---------- 2. LEER ASESOR DE LA URL ----------
+    const urlParams = new URLSearchParams(window.location.search);
+    const advisorIdFromUrl = urlParams.get("asesor");   // ?asesor=asesor1
+    const asesorNameEl     = document.getElementById("asesor-name");
+    const advisorIdInput   = document.getElementById("advisor-id");
+
+    // Mapa simple
+    const advisorMap = {
+      "asesor1": "Asesor 1",
+      "asesor2": "Asesor 2",
+      "asesor3": "Asesor 3",
+      "asesor4": "Asesor 4"
+    };
+
+    const asesorNombre = advisorMap[advisorIdFromUrl?.toLowerCase()] || null;
+
+    if (asesorNombre) {
+      asesorNameEl.textContent = asesorNombre;
+      advisorIdInput.value = advisorIdFromUrl.toLowerCase();
+      submitButton.disabled = false;
+    } else {
+      asesorNameEl.textContent = "¡Asesor desconocido!";
+      asesorNameEl.classList.add("text-red-400");
+      submitButton.disabled = true;
+      statusMessage.textContent = "Link de calificación inválido. Revisa el enlace.";
+      statusMessage.classList.remove("hidden");
+    }
+
+    // ---------- 3. ESTRELLAS ----------
+    const ratingStars     = document.getElementById("rating-stars");
+    const ratingValueInput = document.getElementById("rating-value");
+    const commentsInput   = document.getElementById("comments");
+
+    ratingStars.querySelectorAll(".rating-star").forEach(star => {
+      star.addEventListener("click", () => {
+        const value = parseInt(star.dataset.value, 10);
+        ratingValueInput.value = value;
+
+        ratingStars.querySelectorAll(".rating-star").forEach(s => {
+          const v = parseInt(s.dataset.value, 10);
+          s.style.color = v <= value ? "#FACC15" : "#4B5563";
         });
+      });
+    });
 
-        // --------------------------------------------------------
-        // 4. ENVÍO DE DATOS A FIRESTORE
-        // --------------------------------------------------------
-        submitButton.addEventListener('click', async () => {
-            const rating = parseInt(ratingValueInput.value);
-            const comments = commentsInput.value.trim();
-            const advisorID = advisorIdInput.value;
-            const advisorDisplayName = asesorNameEl.textContent;
+    // ---------- 4. ENVIAR A FIRESTORE ----------
+    submitButton.addEventListener("click", async () => {
+      const rating = parseInt(ratingValueInput.value, 10);
+      const comments = commentsInput.value.trim();
+      const advisorID = advisorIdInput.value;
+      const advisorDisplayName = asesorNameEl.textContent;
 
-            if (rating === 0) {
-                // Usar un feedback en UI en lugar de alert()
-                document.getElementById('status-message').textContent = 'Por favor, selecciona una calificación (1 a 5 estrellas).';
-                document.getElementById('status-message').classList.remove('hidden');
-                document.getElementById('status-message').classList.remove('text-yellow-400');
-                document.getElementById('status-message').classList.add('text-red-500');
-                return;
-            }
+      if (!advisorID) {
+        statusMessage.textContent = "Asesor inválido. Revisa el enlace.";
+        statusMessage.classList.remove("hidden");
+        statusMessage.classList.add("text-red-400");
+        return;
+      }
 
-            if (!db) {
-                console.error("Firebase no está inicializado.");
-                return;
-            }
+      if (!rating || rating < 1 || rating > 5) {
+        statusMessage.textContent = "Por favor selecciona una calificación de 1 a 5 estrellas.";
+        statusMessage.classList.remove("hidden");
+        statusMessage.classList.add("text-red-400");
+        return;
+      }
 
-            submitButton.disabled = true;
-            submitButton.textContent = 'Enviando...';
-            document.getElementById('status-message').classList.add('hidden'); // Ocultar mensajes previos
+      if (!db) {
+        console.error("Firestore no está inicializado.");
+        statusMessage.textContent = "Error interno. Intenta más tarde.";
+        statusMessage.classList.remove("hidden");
+        return;
+      }
 
-            const ratingData = {
-                advisorId: advisorID,
-                advisorName: advisorDisplayName,
-                rating: rating,
-                comments: comments,
-                timestamp: new Date().toISOString(), // Fecha de envío
-                platform: 'WhatsApp', 
-                client_id: userId, 
-            };
-            
-            // Ruta de la colección: /artifacts/linkparabarberos/public/data/whatsapp_ratings
-            const collectionPath = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
-            const docRef = doc(collection(db, collectionPath)); // Firebase asignará un ID automáticamente
+      submitButton.disabled = true;
+      submitButton.textContent = "Enviando...";
 
-            try {
-                await setDoc(docRef, ratingData);
-                
-                console.log("Calificación enviada con ID:", docRef.id);
-                // Mostrar mensaje de éxito y ocultar formulario
-                document.getElementById('survey-container').classList.add('hidden');
-                document.getElementById('success-message').classList.remove('hidden');
+      const ratingData = {
+        advisorId: advisorID,
+        advisorName: advisorDisplayName,
+        rating: rating,
+        comments: comments,
+        timestamp: new Date().toISOString(), // <- AQUÍ se guarda fecha/hora
+        platform: "WhatsApp",
+        client_id: userId
+      };
 
-            } catch (e) {
-                console.error("Error al añadir el documento: ", e);
-                submitButton.textContent = 'Error al Enviar (Intenta de Nuevo)';
-                submitButton.disabled = false;
-                // Mostrar mensaje de error en UI
-                document.getElementById('status-message').textContent = 'Hubo un error al guardar. Revisa la consola.';
-                document.getElementById('status-message').classList.remove('hidden');
-                document.getElementById('status-message').classList.remove('text-yellow-400');
-                document.getElementById('status-message').classList.add('text-red-500');
-            }
-        });
+      const collectionPath = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
+      const docRef = doc(collection(db, collectionPath));
 
-        // Iniciar Firebase al cargar la página
-        initFirebase();
-    </script>
+      try {
+        await setDoc(docRef, ratingData);
+        console.log("Calificación enviada con ID:", docRef.id);
+        document.getElementById("survey-container").classList.add("hidden");
+        document.getElementById("success-message").classList.remove("hidden");
+      } catch (e) {
+        console.error("Error al guardar calificación:", e);
+        statusMessage.textContent = "Hubo un error al guardar. Intenta de nuevo.";
+        statusMessage.classList.remove("hidden");
+        statusMessage.classList.add("text-red-400");
+        submitButton.disabled = false;
+        submitButton.textContent = "Enviar calificación";
+      }
+    });
 
+    // Iniciar Firebase
+    initFirebase();
+  </script>
 </body>
 </html>
