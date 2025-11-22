@@ -366,12 +366,15 @@
         }
     });
 
-    // ----------------------------------------------------
-    // 5. Escucha en tiempo real de calificaciones
-    // ----------------------------------------------------
-        function startRealtimeDataListener() {
+        // ----------------------------------------------------
+// 5. Escucha en tiempo real de calificaciones
+// ----------------------------------------------------
+function startRealtimeDataListener() {
     const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
     const q = query(ratingsCollection);
+
+    // Bandera para saber si ya se cargaron los datos iniciales
+    let initialLoad = true; 
 
     onSnapshot(q, (snapshot) => {
         allRatings = [];
@@ -382,8 +385,12 @@
         // Actualiza opciones del filtro de asesor
         updateFilterOptions(allRatings);
 
-        // MUY IMPORTANTE: aplicar los filtros activos (asesor / mes / día)
-        filterAndDisplayRatings();
+        // SOLO ejecuta el filtro la PRIMERA VEZ para mostrar datos iniciales.
+        // Después, solo se ejecutará con el botón.
+        if (initialLoad) {
+            filterAndDisplayRatings();
+            initialLoad = false; // Desactiva la carga inicial
+        }
     }, (error) => {
         console.error("Error al escuchar calificaciones:", error);
         document.getElementById('no-ratings-message').textContent =
@@ -391,15 +398,13 @@
     });
 }
 
-
-
+        // ----------------------------------------------------
+    // 6. Filtros (asesor, mes, día) - CONTROLADO POR BOTÓN
     // ----------------------------------------------------
-    // 6. Filtros (asesor, mes, día) - AHORA CONTROLADO POR BOTÓN
-    // ----------------------------------------------------
-    const applyFiltersButton = document.getElementById('apply-filters-button'); // Obtener el nuevo botón
+    const applyFiltersButton = document.getElementById('apply-filters-button');
 
     // Lógica para que al seleccionar día se borre mes, y viceversa
-    // Importante: Ya NO llamamos a filterAndDisplayRatings() aquí. Solo limpiamos el otro filtro.
+    // Solo limpiamos, NO llamamos a filterAndDisplayRatings()
     dateFilter.addEventListener('change', () => {
         if (dateFilter.value) monthFilter.value = '';
     });
@@ -409,9 +414,12 @@
     });
 
     // **EL NUEVO EVENTO PRINCIPAL**: Solo se aplica el filtro con el clic del botón
-    applyFiltersButton.addEventListener('click', () => {
-        filterAndDisplayRatings();
-    });
+    if (applyFiltersButton) {
+        applyFiltersButton.addEventListener('click', () => {
+            // Esta llamada ahora es la ÚNICA que desencadena la actualización
+            filterAndDisplayRatings();
+        });
+    }
 
         function filterAndDisplayRatings() {
   let filtered = allRatings;
