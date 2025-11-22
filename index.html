@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Califica Nuestro Servicio WhatsApp</title>
-    <!-- Carga de Tailwind CSS para el estilo --><script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         /* Definición de la fuente y estilos base para la estética de barbería */
@@ -36,10 +36,8 @@
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
-    <!-- Contenedor Principal del Formulario -->
     <div id="survey-container" class="w-full max-w-lg p-6 md:p-10 rounded-xl shadow-2xl transition-all duration-500">
         
-        <!-- Logo de Barbería -->
         <div class="flex justify-center mb-6">
              <img src="path/to/your/logo.png" alt="Logo Barbero Pro" class="h-10 object-contain rounded-lg">
         </div>
@@ -52,17 +50,13 @@
             <span id="asesor-name" class="font-semibold text-gray-200">...</span>
         </p>
 
-        <!-- Mensaje de Carga/Estado -->
         <div id="status-message" class="text-center text-sm mb-4 text-yellow-400 hidden">Cargando...</div>
         
-        <!-- Campo Oculto para el ID del Asesor -->
         <input type="hidden" id="advisor-id" value="">
 
-        <!-- Sección de Calificación (Estrellas/Emojis) -->
         <div class="mb-8 text-center">
             <label class="block text-lg font-medium text-gray-300 mb-3">¿Cómo calificarías la atención recibida?</label>
             <div id="rating-stars" class="flex justify-center space-x-2">
-                <!-- Se generarán 5 estrellas (puntuación de 1 a 5) -->
                 <span class="rating-star text-4xl text-gray-600" data-value="1">⭐</span>
                 <span class="rating-star text-4xl text-gray-600" data-value="2">⭐</span>
                 <span class="rating-star text-4xl text-gray-600" data-value="3">⭐</span>
@@ -72,7 +66,6 @@
             <input type="hidden" id="rating-value" value="0">
         </div>
 
-        <!-- Campo de Comentarios -->
         <div class="mb-8">
             <label for="comments" class="block text-sm font-medium text-gray-300 mb-2">
                 Comentarios adicionales (Opcional)
@@ -80,13 +73,11 @@
             <textarea id="comments" rows="3" class="w-full p-3 border rounded-lg focus:ring-gray-700 focus:border-gray-700 transition duration-150" placeholder="¿Qué podríamos mejorar o qué te gustó más?"></textarea>
         </div>
 
-        <!-- Botón de Envío (Negro) -->
         <button id="submit-button" class="w-full bg-black hover:bg-gray-800 text-white font-semibold py-3 rounded-xl shadow-md transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-gray-700">
             Enviar Calificación
         </button>
     </div>
 
-    <!-- Mensaje de Confirmación (Oculto inicialmente) -->
     <div id="success-message" class="hidden w-full max-w-lg bg-green-700 text-white p-10 rounded-xl shadow-2xl text-center">
         <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -95,7 +86,6 @@
         <p class="text-lg">Tu calificación ha sido registrada con éxito. Esto nos ayuda a seguir mejorando.</p>
     </div>
 
-    <!-- Carga de Firebase SDKs -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
