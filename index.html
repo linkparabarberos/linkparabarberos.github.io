@@ -195,238 +195,274 @@
 
   <!-- FIREBASE + LÓGICA -->
   <script type="module">
-    console.log("JS del formulario cargado");
+  console.log("JS del formulario cargado");
 
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import {
-      getAuth,
-      signInAnonymously,
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import {
-      getFirestore,
-      doc,
-      setDoc,
-      collection,
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    collection,
+  } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // CONFIG FIREBASE
-    const firebaseConfig = {
-      apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
-      authDomain: "linkparabarberos.firebaseapp.com",
-      projectId: "linkparabarberos",
-      storageBucket: "linkparabarberos.firebasestorage.app",
-      messagingSenderId: "237275244830",
-      appId: "1:237275244830:web:51c5a95a81c1287512810f",
-      measurementId: "G-SX4F2EL0C0",
-    };
+  // CONFIG FIREBASE
+  const firebaseConfig = {
+    apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
+    authDomain: "linkparabarberos.firebaseapp.com",
+    projectId: "linkparabarberos",
+    storageBucket: "linkparabarberos.firebasestorage.app",
+    messagingSenderId: "237275244830",
+    appId: "1:237275244830:web:51c5a95a81c1287512810f",
+    measurementId: "G-SX4F2EL0C0",
+  };
 
-    const globalAppId = firebaseConfig.projectId;
-    let app, db, auth, userId;
+  const globalAppId = firebaseConfig.projectId;
+  let app, db, auth, userId;
 
-    // DOM
-    const statusMessage = document.getElementById("status-message");
-    const submitButton = document.getElementById("submit-button");
-    const ratingStars = document.getElementById("rating-stars");
-    const ratingValueInput = document.getElementById("rating-value");
-    const commentsInput = document.getElementById("comments");
-    const asesorNameEl = document.getElementById("asesor-name");
-    const advisorIdInput = document.getElementById("advisor-id");
-    const clientPhoneHidden = document.getElementById("client-phone-hidden");
+  // ELEMENTOS DOM
+  const statusMessage = document.getElementById("status-message");
+  const submitButton = document.getElementById("submit-button");
+  const ratingStars = document.getElementById("rating-stars");
+  const ratingValueInput = document.getElementById("rating-value");
+  const commentsInput = document.getElementById("comments");
+  const asesorNameEl = document.getElementById("asesor-name");
+  const advisorIdInput = document.getElementById("advisor-id");
+  const clientPhoneHidden = document.getElementById("client-phone-hidden");
 
-    // Modal
-    const lowRatingModal = document.getElementById("low-rating-modal");
-    const clientPhoneInput = document.getElementById("client-phone");
-    const phoneErrorEl = document.getElementById("phone-error");
-    const savePhoneBtn = document.getElementById("save-phone-btn");
-    const closePhoneBtn = document.getElementById("close-phone-btn");
-    let skipPhoneForThisRating = false;
+  // Modal de calificación baja
+  const lowRatingModal = document.getElementById("low-rating-modal");
+  const clientPhoneInput = document.getElementById("client-phone");
+  const phoneErrorEl = document.getElementById("phone-error");
+  const savePhoneBtn = document.getElementById("save-phone-btn");
+  const closePhoneBtn = document.getElementById("close-phone-btn");
 
+  // Flags
+  let skipPhoneForThisRating = false;      // el cliente ya decidió si deja teléfono o no
+  let pendingSubmitAfterModal = false;     // hay un envío pendiente después del modal
 
-    function openLowRatingModal() {
-      phoneErrorEl.classList.add("hidden");
-      lowRatingModal.classList.remove("hidden");
-      setTimeout(() => clientPhoneInput?.focus(), 10);
-    }
+  function openLowRatingModal() {
+    phoneErrorEl.classList.add("hidden");
+    clientPhoneInput.value = clientPhoneHidden.value || "";
+    lowRatingModal.classList.remove("hidden");
+    setTimeout(() => clientPhoneInput?.focus(), 10);
+  }
 
-    function closeLowRatingModal() {
-      lowRatingModal.classList.add("hidden");
-    }
+  function closeLowRatingModal() {
+    lowRatingModal.classList.add("hidden");
+  }
 
-    // INICIAR FIREBASE
-    async function initFirebase() {
-      try {
-        app = initializeApp(firebaseConfig);
-        auth = getAuth(app);
-        db = getFirestore(app);
+  // INICIAR FIREBASE
+  async function initFirebase() {
+    try {
+      app = initializeApp(firebaseConfig);
+      auth = getAuth(app);
+      db = getFirestore(app);
 
-        statusMessage.textContent = "Autenticando...";
-        statusMessage.classList.remove("hidden");
+      statusMessage.textContent = "Autenticando...";
+      statusMessage.classList.remove("hidden");
 
-        const cred = await signInAnonymously(auth);
-        userId = cred.user.uid;
+      const cred = await signInAnonymously(auth);
+      userId = cred.user.uid;
 
-        statusMessage.textContent = "Listo para calificar.";
-        setTimeout(() => statusMessage.classList.add("hidden"), 1500);
-      } catch (error) {
-        console.error("Error al inicializar Firebase:", error);
-        statusMessage.textContent =
-          "Error al cargar la aplicación. Intenta más tarde.";
-        statusMessage.classList.remove("hidden");
-        statusMessage.classList.add("text-red-400");
-      }
-    }
-
-    // NOMBRE DEL ASESOR DESDE LA URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const advisorIdFromUrl = urlParams.get("asesor"); // ?asesor=asesor1
-
-    const advisorMap = {
-      asesor1: "Jennifer Andrea Manzanares",
-      asesor2: "Daniela Barragan Patiño",
-      asesor3: "Jorge Leonardo Bedoya",
-      asesor4: "Javier Francisco Mamian",
-    };
-
-    const asesorNombre =
-      advisorMap[advisorIdFromUrl?.toLowerCase()] || null;
-
-    if (asesorNombre) {
-      asesorNameEl.textContent = asesorNombre;
-      advisorIdInput.value = advisorIdFromUrl.toLowerCase();
-      submitButton.disabled = false;
-    } else {
-      asesorNameEl.textContent = "¡Asesor desconocido!";
-      asesorNameEl.classList.add("text-red-400");
-      submitButton.disabled = true;
+      statusMessage.textContent = "Listo para calificar.";
+      setTimeout(() => statusMessage.classList.add("hidden"), 1500);
+    } catch (error) {
+      console.error("Error al inicializar Firebase:", error);
       statusMessage.textContent =
-        "Link de calificación inválido. Revisa el enlace.";
+        "Error al cargar la aplicación. Intenta más tarde.";
       statusMessage.classList.remove("hidden");
       statusMessage.classList.add("text-red-400");
     }
-    // ESTRELLAS
-if (ratingStars) {
-  ratingStars.querySelectorAll(".rating-star").forEach((star) => {
-    star.addEventListener("click", () => {
-      const value = parseInt(star.dataset.value, 10);
-      ratingValueInput.value = value;
+  }
 
-      // Pintar / despintar estrellas
-      ratingStars.querySelectorAll(".rating-star").forEach((s) => {
-        const v = parseInt(s.dataset.value, 10);
-        if (v <= value) {
-          s.classList.add("active");
-        } else {
-          s.classList.remove("active");
+  // NOMBRE DEL ASESOR DESDE LA URL
+  const urlParams = new URLSearchParams(window.location.search);
+  const advisorIdFromUrl = urlParams.get("asesor"); // ?asesor=asesor1
+
+  const advisorMap = {
+    asesor1: "Jennifer Andrea Manzanares",
+    asesor2: "Daniela Barragan Patiño",
+    asesor3: "Jorge Leonardo Bedoya",
+    asesor4: "Javier Francisco Mamian",
+  };
+
+  const asesorNombre =
+    advisorMap[advisorIdFromUrl?.toLowerCase()] || null;
+
+  if (asesorNombre) {
+    asesorNameEl.textContent = asesorNombre;
+    advisorIdInput.value = advisorIdFromUrl.toLowerCase();
+    submitButton.disabled = false;
+  } else {
+    asesorNameEl.textContent = "¡Asesor desconocido!";
+    asesorNameEl.classList.add("text-red-400");
+    submitButton.disabled = true;
+    statusMessage.textContent =
+      "Link de calificación inválido. Revisa el enlace.";
+    statusMessage.classList.remove("hidden");
+    statusMessage.classList.add("text-red-400");
+  }
+
+  // ESTRELLAS (solo marcan visual, no abren modal)
+  if (ratingStars) {
+    ratingStars.querySelectorAll(".rating-star").forEach((star) => {
+      star.addEventListener("click", () => {
+        const value = parseInt(star.dataset.value, 10);
+        ratingValueInput.value = value;
+
+        ratingStars.querySelectorAll(".rating-star").forEach((s) => {
+          const v = parseInt(s.dataset.value, 10);
+          if (v <= value) {
+            s.classList.add("active");
+          } else {
+            s.classList.remove("active");
+          }
+        });
+
+        // al cambiar de calificación, reseteamos la decisión
+        skipPhoneForThisRating = false;
+
+        // si la nota es buena, limpiamos teléfono opcional
+        if (value > 2) {
+          clientPhoneHidden.value = "";
         }
       });
-
-      // Cada vez que cambias la calificación, volvemos a permitir preguntar por teléfono
-      skipPhoneForThisRating = false;
-
-      // Si es buena calificación, limpiamos el teléfono opcional
-      if (value > 2) {
-        clientPhoneHidden.value = "";
-      }
     });
+  }
+
+  // FUNCIÓN GENERAL DE ENVÍO A FIRESTORE
+  async function doSubmit() {
+    const rating = parseInt(ratingValueInput.value, 10);
+    const comments = commentsInput.value.trim();
+    const advisorID = advisorIdInput.value;
+    const advisorDisplayName = asesorNameEl.textContent;
+    const phoneFromHidden = clientPhoneHidden.value.trim();
+
+    if (!advisorID) {
+      statusMessage.textContent = "Asesor inválido. Revisa el enlace.";
+      statusMessage.classList.remove("hidden");
+      statusMessage.classList.add("text-red-400");
+      return;
+    }
+
+    if (!rating || rating < 1 || rating > 5) {
+      statusMessage.textContent =
+        "Por favor selecciona una calificación de 1 a 5 estrellas.";
+      statusMessage.classList.remove("hidden");
+      statusMessage.classList.add("text-red-400");
+      return;
+    }
+
+    if (!db) {
+      statusMessage.textContent =
+        "Error interno. No se pudo conectar a la base de datos.";
+      statusMessage.classList.remove("hidden");
+      statusMessage.classList.add("text-red-400");
+      return;
+    }
+
+    submitButton.disabled = true;
+    submitButton.textContent = "Enviando...";
+    statusMessage.classList.add("hidden");
+
+    const ratingData = {
+      advisorId: advisorID,
+      advisorName: advisorDisplayName,
+      rating,
+      comments,
+      timestamp: new Date().toISOString(),
+      platform: "WhatsApp",
+      client_id: userId,
+      clientPhone: phoneFromHidden || null,
+    };
+
+    const collectionPath = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
+    const docRef = doc(collection(db, collectionPath));
+
+    try {
+      await setDoc(docRef, ratingData);
+      document.getElementById("survey-container").classList.add("hidden");
+      document.getElementById("success-message").classList.remove("hidden");
+    } catch (e) {
+      console.error("Error al guardar calificación:", e);
+      statusMessage.textContent =
+        "Hubo un error al guardar. Intenta de nuevo.";
+      statusMessage.classList.remove("hidden");
+      statusMessage.classList.add("text-red-400");
+      submitButton.disabled = false;
+      submitButton.textContent = "Enviar calificación";
+    }
+  }
+
+  // BOTÓN GUARDAR NÚMERO (modal)
+  savePhoneBtn.addEventListener("click", async () => {
+    const phone = clientPhoneInput.value.trim();
+
+    // Teléfono OPCIONAL: solo marcamos error si escribió algo muy corto
+    if (phone && phone.length < 7) {
+      phoneErrorEl.textContent =
+        "Por favor ingresa un número de teléfono válido.";
+      phoneErrorEl.classList.remove("hidden");
+      return;
+    }
+
+    clientPhoneHidden.value = phone; // puede ser vacío (no pasa nada)
+    skipPhoneForThisRating = true;   // no volver a pedir para esta calificación
+    closeLowRatingModal();
+
+    if (pendingSubmitAfterModal) {
+      pendingSubmitAfterModal = false;
+      await doSubmit(); // enviar automáticamente
+    }
   });
-}
 
+  // BOTÓN CANCELAR (modal) → no quiere dejar número, pero igual se envía
+  closePhoneBtn.addEventListener("click", async () => {
+    skipPhoneForThisRating = true;
+    clientPhoneHidden.value = ""; // explícitamente sin teléfono
+    closeLowRatingModal();
 
+    if (pendingSubmitAfterModal) {
+      pendingSubmitAfterModal = false;
+      await doSubmit(); // enviar automáticamente SIN teléfono
+    }
+  });
 
-    // MODAL TELÉFONO
-    savePhoneBtn.addEventListener("click", () => {
-      const phone = clientPhoneInput.value.trim();
-      if (phone.length < 7) {
-        phoneErrorEl.textContent =
-          "Por favor ingresa un número de teléfono válido.";
-        phoneErrorEl.classList.remove("hidden");
-        return;
-      }
-      clientPhoneHidden.value = phone;
-      closeLowRatingModal();
-    });
-    closePhoneBtn.addEventListener("click", () => {
-  skipPhoneForThisRating = true;
-  clientPhoneHidden.value = "";
-  closeLowRatingModal();
-});
+  // BOTÓN ENVIAR CALIFICACIÓN
+  submitButton.addEventListener("click", async () => {
+    const rating = parseInt(ratingValueInput.value, 10);
+    const advisorID = advisorIdInput.value;
+    const phoneFromHidden = clientPhoneHidden.value.trim();
 
+    // Validaciones rápidas antes de abrir modal
+    if (!advisorID) {
+      statusMessage.textContent = "Asesor inválido. Revisa el enlace.";
+      statusMessage.classList.remove("hidden");
+      statusMessage.classList.add("text-red-400");
+      return;
+    }
+    if (!rating || rating < 1 || rating > 5) {
+      statusMessage.textContent =
+        "Por favor selecciona una calificación de 1 a 5 estrellas.";
+      statusMessage.classList.remove("hidden");
+      statusMessage.classList.add("text-red-400");
+      return;
+    }
 
-    // ENVIAR A FIRESTORE
-    submitButton.addEventListener("click", async () => {
-      const rating = parseInt(ratingValueInput.value, 10);
-      const comments = commentsInput.value.trim();
-      const advisorID = advisorIdInput.value;
-      const advisorDisplayName = asesorNameEl.textContent;
-      const phoneFromHidden = clientPhoneHidden.value.trim();
+    // Si la calificación es baja (1–2) y aún no hemos preguntado, abrimos modal
+    if (rating <= 2 && !skipPhoneForThisRating && !phoneFromHidden) {
+      pendingSubmitAfterModal = true;
+      openLowRatingModal();
+      return;
+    }
 
-      if (!advisorID) {
-        statusMessage.textContent = "Asesor inválido. Revisa el enlace.";
-        statusMessage.classList.remove("hidden");
-        statusMessage.classList.add("text-red-400");
-        return;
-      }
+    // Si ya no hay que preguntar (o nota > 2), enviamos directo
+    await doSubmit();
+  });
 
-      if (!rating || rating < 1 || rating > 5) {
-        statusMessage.textContent =
-          "Por favor selecciona una calificación de 1 a 5 estrellas.";
-        statusMessage.classList.remove("hidden");
-        statusMessage.classList.add("text-red-400");
-        return;
-      }
-      // Si la calificación es 1 o 2 y aún no tenemos teléfono, preguntamos SOLO una vez
-      if (rating <= 2 && !phoneFromHidden && !skipPhoneForThisRating) {
-        openLowRatingModal();
-        return; // esperaremos a que el cliente ponga teléfono o pulse Cancelar
-      }
-
-
-      if (!db) {
-        statusMessage.textContent =
-          "Error interno. No se pudo conectar a la base de datos.";
-        statusMessage.classList.remove("hidden");
-        statusMessage.classList.add("text-red-400");
-        return;
-      }
-
-      submitButton.disabled = true;
-      submitButton.textContent = "Enviando...";
-
-      const ratingData = {
-        advisorId: advisorID,
-        advisorName: advisorDisplayName,
-        rating,
-        comments,
-        timestamp: new Date().toISOString(),
-        platform: "WhatsApp",
-        client_id: userId,
-        clientPhone: phoneFromHidden || null,
-      };
-
-      const collectionPath = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
-      const docRef = doc(collection(db, collectionPath));
-
-      try {
-        await setDoc(docRef, ratingData);
-        document
-          .getElementById("survey-container")
-          .classList.add("hidden");
-        document
-          .getElementById("success-message")
-          .classList.remove("hidden");
-      } catch (e) {
-        console.error("Error al guardar calificación:", e);
-        statusMessage.textContent =
-          "Hubo un error al guardar. Intenta de nuevo.";
-        statusMessage.classList.remove("hidden");
-        statusMessage.classList.add("text-red-400");
-        submitButton.disabled = false;
-        submitButton.textContent = "Enviar calificación";
-      }
-    });
-
-    // INICIAR FIREBASE
-    initFirebase();
-  </script>
+  // Iniciar Firebase al cargar
+  initFirebase();
+</script>
 </body>
 </html>
