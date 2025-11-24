@@ -15,46 +15,46 @@
       background-color: #000;
       color: #f9fafb;
     }
+
     .rating-star {
-  cursor: pointer;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 3rem;   /* tamaño del círculo */
-  height: 3rem;
-  border-radius: 9999px;           /* círculo */
-  border: 2px solid transparent;   /* sin borde por defecto */
-  background-color: #111827;       /* fondo oscuro detrás de la estrella */
-  transition: transform 0.1s ease-in-out,
-              border-color 0.15s,
-              box-shadow 0.15s,
-              background-color 0.15s;
-  filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
-}
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 3rem;
+      height: 3rem;
+      border-radius: 9999px;
+      border: 2px solid transparent;
+      background-color: #111827;
+      transition:
+        transform 0.1s ease-in-out,
+        border-color 0.15s,
+        box-shadow 0.15s,
+        background-color 0.15s;
+      filter: drop-shadow(0 0 2px rgba(255, 255, 255, 0.3));
+    }
 
-.rating-star:hover {
-  transform: scale(1.05);
-  border-color: #4B5563;
-}
+    .rating-star:hover {
+      transform: scale(1.05);
+      border-color: #4B5563;
+    }
 
-/* ⭐ ESTRELLA SELECCIONADA */
-.rating-star.active {
-  border-color: #FACC15;                      /* borde amarillo */
-  box-shadow: 0 0 0 3px rgba(250, 204, 21, .45);
-  background-color: #1f2933;
-  transform: scale(1.08);
-}
-
+    .rating-star.active {
+      border-color: #FACC15;
+      box-shadow: 0 0 0 3px rgba(250, 204, 21, .45);
+      background-color: #1f2933;
+      transform: scale(1.08);
+    }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen p-4">
 
   <!-- CONTENEDOR PRINCIPAL -->
-  <div id="survey-container" class="w-full max-w-lg p-8 rounded-2xl bg-neutral-950 border border-neutral-800 shadow-2xl">
+  <div id="survey-container"
+       class="w-full max-w-lg p-8 rounded-2xl bg-neutral-950 border border-neutral-800 shadow-2xl">
     <div class="flex justify-center mb-6">
-      <!-- Cambia el src por tu logo real -->
-      <img src="logopb.png" alt="Logo" class="h-22 object-contain rounded-lg">
-
+      <!-- Logo -->
+      <img src="logopb.png" alt="Logo" class="h-24 object-contain rounded-lg">
     </div>
 
     <h1 class="text-3xl font-extrabold text-center mb-2">¡Califica tu Experiencia!</h1>
@@ -66,34 +66,33 @@
     <!-- Mensaje de estado -->
     <p id="status-message" class="text-center text-sm mb-4 text-yellow-400 hidden"></p>
 
-    <!-- ID oculto de asesor -->
+    <!-- IDs ocultos -->
     <input type="hidden" id="advisor-id" value="">
     <input type="hidden" id="client-phone-hidden" value="">
-
 
     <!-- Estrellas -->
     <div class="mb-6 text-center">
       <label class="block text-lg font-medium text-gray-200 mb-3">
-        Cual es el nivel de satisfacción con la atención recibida?
+        ¿Cuál es el nivel de satisfacción con la atención recibida?
       </label>
       <div id="rating-stars" class="flex justify-center space-x-3 text-4xl">
-  <span class="rating-star" data-value="1">⭐</span>
-  <span class="rating-star" data-value="2">⭐</span>
-  <span class="rating-star" data-value="3">⭐</span>
-  <span class="rating-star" data-value="4">⭐</span>
-  <span class="rating-star" data-value="5">⭐</span>
-</div>
+        <span class="rating-star" data-value="1">⭐</span>
+        <span class="rating-star" data-value="2">⭐</span>
+        <span class="rating-star" data-value="3">⭐</span>
+        <span class="rating-star" data-value="4">⭐</span>
+        <span class="rating-star" data-value="5">⭐</span>
+      </div>
       <input type="hidden" id="rating-value" value="0">
     </div>
 
     <!-- Comentarios -->
     <div class="mb-6">
       <label for="comments" class="block text-sm font-medium text-gray-200 mb-2">
-        Tienes alguna sugerencia que nos ayude a mejorar?
+        ¿Tienes alguna sugerencia que nos ayude a mejorar?
       </label>
       <textarea id="comments" rows="3"
-  class="w-full p-3 border rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-sm text-black placeholder-gray-400"
-  placeholder="¿Qué podríamos mejorar o qué te gustó más?"></textarea>
+        class="w-full p-3 border rounded-lg focus:ring-yellow-500 focus:border-yellow-500 text-sm text-black placeholder-gray-400"
+        placeholder="¿Qué podríamos mejorar o qué te gustó más?"></textarea>
     </div>
 
     <!-- Botón enviar -->
@@ -104,7 +103,8 @@
   </div>
 
   <!-- MENSAJE DE ÉXITO -->
-  <div id="success-message" class="hidden w-full max-w-lg bg-emerald-600 text-white p-10 rounded-2xl shadow-2xl text-center">
+  <div id="success-message"
+       class="hidden w-full max-w-lg bg-emerald-600 text-white p-10 rounded-2xl shadow-2xl text-center">
     <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 mx-auto mb-4" fill="none"
       viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
       <path stroke-linecap="round" stroke-linejoin="round"
@@ -113,66 +113,49 @@
     <h2 class="text-2xl font-bold mb-2">¡Gracias por tu tiempo!</h2>
     <p class="text-lg">Tu calificación ha sido registrada con éxito.</p>
   </div>
-  <!-- MODAL PARA CALIFICACIONES BAJAS (1–2 ESTRELLAS) -->
-<div id="low-rating-modal"
-     class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
-  <div class="bg-neutral-950 border border-red-500/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
-    <h2 class="text-xl font-bold text-white mb-2">Lamentamos tu experiencia 😔</h2>
-    <p class="text-sm text-gray-300 mb-4">
-      Queremos comunicarnos contigo para entender mejor lo que pasó y ayudarte.
-      Por favor déjanos tu número de WhatsApp:
-    </p>
 
-    <label for="client-phone" class="block text-xs text-gray-400 mb-1">
-      Número de teléfono
-    </label>
-    <input id="client-phone" type="tel"
-           placeholder="Ej: 300 123 4567"
-           class="w-full px-3 py-2 rounded-lg border border-gray-600 bg-black text-white text-sm
-                  focus:outline-none focus:ring-2 focus:ring-red-400/70 mb-2">
+  <!-- MODAL CALIFICACIÓN BAJA -->
+  <div id="low-rating-modal"
+       class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden">
+    <div class="bg-neutral-950 border border-red-500/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl">
+      <h2 class="text-xl font-bold text-white mb-2">Lamentamos tu experiencia 😔</h2>
+      <p class="text-sm text-gray-300 mb-4">
+        Queremos comunicarnos contigo para entender mejor lo que pasó y ayudarte.
+        Por favor déjanos tu número de WhatsApp:
+      </p>
 
-    <p id="phone-error" class="text-xs text-red-400 mb-3 hidden">
-      Por favor ingresa un número de teléfono válido.
-    </p>
+      <label for="client-phone" class="block text-xs text-gray-400 mb-1">
+        Número de teléfono
+      </label>
+      <input id="client-phone" type="tel"
+             placeholder="Ej: 300 123 4567"
+             class="w-full px-3 py-2 rounded-lg border border-gray-600 bg-black text-white text-sm
+                    focus:outline-none focus:ring-2 focus:ring-red-400/70 mb-2">
 
-    <div class="flex justify-end gap-2">
-      <button id="close-phone-btn" type="button"
-              class="px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-neutral-800">
-        Cancelar
-      </button>
-      <button id="save-phone-btn" type="button"
-              class="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-xs font-semibold text-white">
-        Guardar número
-      </button>
+      <p id="phone-error" class="text-xs text-red-400 mb-3 hidden">
+        Por favor ingresa un número de teléfono válido.
+      </p>
+
+      <div class="flex justify-end gap-2">
+        <button id="close-phone-btn" type="button"
+                class="px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-neutral-800">
+          Cancelar
+        </button>
+        <button id="save-phone-btn" type="button"
+                class="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-xs font-semibold text-white">
+          Guardar número
+        </button>
+      </div>
     </div>
   </div>
-</div>
 
-
-  <!-- FIREBASE -->
+  <!-- FIREBASE + LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    // Elementos del modal de calificación baja
-    const lowRatingModal    = document.getElementById("low-rating-modal");
-    const clientPhoneInput  = document.getElementById("client-phone");
-    const clientPhoneHidden = document.getElementById("client-phone-hidden");
-    const phoneErrorEl      = document.getElementById("phone-error");
-    const savePhoneBtn      = document.getElementById("save-phone-btn");
-    const closePhoneBtn     = document.getElementById("close-phone-btn");
 
-function openLowRatingModal() {
-  phoneErrorEl.classList.add("hidden");
-  lowRatingModal.classList.remove("hidden");
-  setTimeout(() => clientPhoneInput?.focus(), 10);
-}
-
-function closeLowRatingModal() {
-  lowRatingModal.classList.add("hidden");
-}
-
-    // 🔐 Config de tu proyecto
+    // Config Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
       authDomain: "linkparabarberos.firebaseapp.com",
@@ -186,10 +169,34 @@ function closeLowRatingModal() {
     const globalAppId = firebaseConfig.projectId;
     let app, db, auth, userId;
 
-    const statusMessage = document.getElementById("status-message");
-    const submitButton  = document.getElementById("submit-button");
+    // DOM
+    const statusMessage       = document.getElementById("status-message");
+    const submitButton        = document.getElementById("submit-button");
+    const ratingStars         = document.getElementById("rating-stars");
+    const ratingValueInput    = document.getElementById("rating-value");
+    const commentsInput       = document.getElementById("comments");
+    const asesorNameEl        = document.getElementById("asesor-name");
+    const advisorIdInput      = document.getElementById("advisor-id");
+    const clientPhoneHidden   = document.getElementById("client-phone-hidden");
 
-    // ---------- 1. INICIAR FIREBASE + LOGIN ANÓNIMO ----------
+    // Modal calificación baja
+    const lowRatingModal   = document.getElementById("low-rating-modal");
+    const clientPhoneInput = document.getElementById("client-phone");
+    const phoneErrorEl     = document.getElementById("phone-error");
+    const savePhoneBtn     = document.getElementById("save-phone-btn");
+    const closePhoneBtn    = document.getElementById("close-phone-btn");
+
+    function openLowRatingModal() {
+      phoneErrorEl.classList.add("hidden");
+      lowRatingModal.classList.remove("hidden");
+      setTimeout(() => clientPhoneInput?.focus(), 10);
+    }
+
+    function closeLowRatingModal() {
+      lowRatingModal.classList.add("hidden");
+    }
+
+    // Iniciar Firebase
     async function initFirebase() {
       try {
         app  = initializeApp(firebaseConfig);
@@ -210,13 +217,10 @@ function closeLowRatingModal() {
       }
     }
 
-    // ---------- 2. LEER ASESOR DE LA URL ----------
-    const urlParams = new URLSearchParams(window.location.search);
-    const advisorIdFromUrl = urlParams.get("asesor");   // ?asesor=asesor1
-    const asesorNameEl     = document.getElementById("asesor-name");
-    const advisorIdInput   = document.getElementById("advisor-id");
+    // Leer asesor desde la URL
+    const urlParams         = new URLSearchParams(window.location.search);
+    const advisorIdFromUrl  = urlParams.get("asesor");   // ?asesor=asesor1
 
-    // Mapa simple
     const advisorMap = {
       "asesor1": "Jennifer Andrea Manzanares",
       "asesor2": "Daniela Barragan Patiño",
@@ -228,128 +232,14 @@ function closeLowRatingModal() {
 
     if (asesorNombre) {
       asesorNameEl.textContent = asesorNombre;
-      advisorIdInput.value = advisorIdFromUrl.toLowerCase();
-      submitButton.disabled = false;
+      advisorIdInput.value     = advisorIdFromUrl.toLowerCase();
+      submitButton.disabled    = false;
     } else {
       asesorNameEl.textContent = "¡Asesor desconocido!";
       asesorNameEl.classList.add("text-red-400");
-      submitButton.disabled = true;
+      submitButton.disabled    = true;
       statusMessage.textContent = "Link de calificación inválido. Revisa el enlace.";
       statusMessage.classList.remove("hidden");
     }
-    // ---------- 3. ESTRELLAS ----------
-    // Manejar selección de estrellas + mostrar modal si es 1–2
-ratingStars.querySelectorAll(".rating-star").forEach(star => {
-  star.addEventListener("click", () => {
-    const value = parseInt(star.dataset.value, 10);
-    ratingValueInput.value = value;
 
-    // Visual: marcar estrellas activas
-    ratingStars.querySelectorAll(".rating-star").forEach(s => {
-      const v = parseInt(s.dataset.value, 10);
-      if (v <= value) {
-        s.classList.add("active");
-      } else {
-        s.classList.remove("active");
-      }
-    });
-
-    // Si es 1 o 2 estrellas, pedimos el teléfono
-    if (value <= 2) {
-      openLowRatingModal();
-    } else {
-      clientPhoneHidden.value = ""; // limpiamos si vuelve a subir la calificación
-    }
-  });
-});
-savePhoneBtn.addEventListener("click", () => {
-  const phone = clientPhoneInput.value.trim();
-
-  if (phone.length < 7) {
-    phoneErrorEl.textContent = "Por favor ingresa un número de teléfono válido.";
-    phoneErrorEl.classList.remove("hidden");
-    return;
-  }
-
-  clientPhoneHidden.value = phone;
-  closeLowRatingModal();
-});
-
-closePhoneBtn.addEventListener("click", () => {
-  // Si cierra sin guardar, en el envío volvemos a exigir el número
-  closeLowRatingModal();
-});
-
-
-    // ---------- 4. ENVIAR A FIRESTORE ----------
-    submitButton.addEventListener("click", async () => {
-      const rating = parseInt(ratingValueInput.value, 10);
-      const comments = commentsInput.value.trim();
-      const advisorID = advisorIdInput.value;
-      const advisorDisplayName = asesorNameEl.textContent;
-        const phoneFromHidden = clientPhoneHidden.value.trim();
-
-  // Si es 1 o 2 estrellas y no tenemos teléfono, obligamos a pedirlo
-  if (rating <= 2 && !phoneFromHidden) {
-    openLowRatingModal();
-    return;
-  }
-
-      if (!advisorID) {
-        statusMessage.textContent = "Asesor inválido. Revisa el enlace.";
-        statusMessage.classList.remove("hidden");
-        statusMessage.classList.add("text-red-400");
-        return;
-      }
-
-      if (!rating || rating < 1 || rating > 5) {
-        statusMessage.textContent = "Por favor selecciona una calificación de 1 a 5 estrellas.";
-        statusMessage.classList.remove("hidden");
-        statusMessage.classList.add("text-red-400");
-        return;
-      }
-
-      if (!db) {
-        console.error("Firestore no está inicializado.");
-        statusMessage.textContent = "Error interno. Intenta más tarde.";
-        statusMessage.classList.remove("hidden");
-        return;
-      }
-
-      submitButton.disabled = true;
-      submitButton.textContent = "Enviando...";
-
-      const ratingData = {
-        advisorId: advisorID,
-        advisorName: advisorDisplayName,
-        rating: rating,
-        comments: comments,
-        timestamp: new Date().toISOString(), // <- AQUÍ se guarda fecha/hora
-        platform: "WhatsApp",
-        client_id: userId,
-        clientPhone: phoneFromHidden || null
-      };
-
-      const collectionPath = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
-      const docRef = doc(collection(db, collectionPath));
-
-      try {
-        await setDoc(docRef, ratingData);
-        console.log("Calificación enviada con ID:", docRef.id);
-        document.getElementById("survey-container").classList.add("hidden");
-        document.getElementById("success-message").classList.remove("hidden");
-      } catch (e) {
-        console.error("Error al guardar calificación:", e);
-        statusMessage.textContent = "Hubo un error al guardar. Intenta de nuevo.";
-        statusMessage.classList.remove("hidden");
-        statusMessage.classList.add("text-red-400");
-        submitButton.disabled = false;
-        submitButton.textContent = "Enviar calificación";
-      }
-    });
-
-    // Iniciar Firebase
-    initFirebase();
-  </script>
-</body>
-</html>
+    //
