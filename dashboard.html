@@ -18,25 +18,46 @@
   <!-- jsPDF + AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
-
   <style>
-    body {
-      font-family: "Inter", sans-serif;
-      background-color: #000000;
-      color: #f9fafb;
-    }
-    .card {
-      background-color: #050505;
-      border: 1px solid #262626;
-      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.8);
-    }
-    input,
-    select {
-      background-color: #111827 !important;
-      color: #f9fafb !important;
-      border-color: #374151 !important;
-    }
-  </style>
+  /* Fondo general claro */
+  body {
+    font-family: "Inter", sans-serif;
+    background-color: #f5f5f7;   /* gris muy claro */
+    color: #111827;              /* gris oscuro (casi negro) */
+  }
+
+  /* Tarjetas blancas, minimalistas */
+  .card {
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;   /* gris clarito */
+    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+    border-radius: 0.9rem;
+  }
+
+  /* Inputs y selects claros */
+  input,
+  select {
+    background-color: #f9fafb !important;
+    color: #111827 !important;
+    border-color: #d1d5db !important;
+  }
+
+  /* Textos dentro de las tarjetas: que no queden blancos sobre blanco */
+  .card .text-white {
+    color: #111827;
+  }
+
+  .card .text-gray-400 {
+    color: #6b7280;
+  }
+
+  .card .text-gray-500 {
+    color: #9ca3af;
+  }
+
+  /* Botones de acción se mantienen con acentos (amarillo/rojo/verde) ya definidos por Tailwind */
+</style>
+
 </head>
 <body class="min-h-screen p-4 md:p-8">
   <!-- SPINNER -->
