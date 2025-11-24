@@ -12,10 +12,14 @@
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
+  <!-- jsPDF + AutoTable para PDF -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
   <style>
     body {
       font-family: "Inter", sans-serif;
-      background-color: #000000; /* negro */
+      background-color: #000000;
       color: #f9fafb;
     }
     .card {
@@ -99,7 +103,7 @@
     <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
       <div class="flex items-center mb-4 md:mb-0">
         <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center mr-3 shadow-xl">
-          <img src="logopb.png" alt="Logo" class="h-26 object-contain rounded-lg">
+          <img src="logopb.png" alt="Logo" class="h-10 object-contain rounded-lg">
         </div>
         <div>
           <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
@@ -121,10 +125,6 @@
           Cerrar sesión
         </button>
       </div>
-      <!-- jsPDF + AutoTable para exportar a PDF -->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
-
     </header>
 
     <!-- FILTROS -->
@@ -194,22 +194,22 @@
       </div>
     </div>
 
-    <!-- LISTA -->
-<div class="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-  <h2 class="text-lg font-semibold text-white">Calificaciones recientes</h2>
+    <!-- LISTA + EXPORT -->
+    <div class="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+      <h2 class="text-lg font-semibold text-white">Calificaciones recientes</h2>
 
-  <div class="flex items-center gap-2">
-    <button id="export-excel-button"
-      class="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-black transition">
-      Descargar Excel
-    </button>
-    <button id="export-pdf-button"
-      class="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-xs font-semibold text-white transition">
-      Descargar PDF
-    </button>
-  </div>
-</div>
-    
+      <div class="flex items-center gap-2">
+        <button id="export-excel-button"
+          class="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-black transition">
+          Descargar Excel
+        </button>
+        <button id="export-pdf-button"
+          class="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-xs font-semibold text-white transition">
+          Descargar PDF
+        </button>
+      </div>
+    </div>
+
     <div class="card rounded-2xl p-4 overflow-hidden">
       <div
         class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 border-b border-zinc-700 pb-2 mb-2 uppercase tracking-wide">
@@ -221,71 +221,30 @@
       </div>
 
       <div id="ratings-list-container" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
-        <!-- Aquí se insertan los items o el mensaje de "no hay datos" -->
+        <!-- Items -->
       </div>
     </div>
-  </div>
-  <!-- SECCIÓN CASOS CRÍTICOS -->
-<div class="mt-10">
-  <div class="flex items-center justify-between mb-3">
-    <h2 class="text-lg font-semibold text-white">Casos para contactar (1–2 estrellas)</h2>
-    <p class="text-[11px] text-gray-500">
-      Muestra clientes con calificaciones bajas y su número de teléfono.
-    </p>
-  </div>
-  <div id="critical-container" class="card rounded-2xl p-4">
-    <!-- Se rellena con JS -->
-  </div>
-</div>
 
+    <!-- CASOS CRÍTICOS -->
+    <div class="mt-10">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-white">Casos para contactar (1–2 estrellas)</h2>
+        <p class="text-[11px] text-gray-500">
+          Muestra clientes con calificaciones bajas y su número de teléfono.
+        </p>
+      </div>
+      <div id="critical-container" class="card rounded-2xl p-4">
+        <!-- Se rellena con JS -->
+      </div>
+    </div>
+
+  </div>
 
   <!-- FIREBASE + LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-    function renderCriticalList(ratings) {
-  const container = document.getElementById("critical-container");
-  if (!container) return;
-
-  container.innerHTML = "";
-
-  // Solo críticas: 1 o 2 estrellas
-  const critical = ratings.filter(r => (r.rating || 0) <= 2);
-
-  if (!critical.length) {
-    container.innerHTML = "<p class='text-center text-gray-500 text-sm'>No hay calificaciones críticas con los filtros actuales.</p>";
-    return;
-  }
-
-  critical.forEach(r => {
-    const date = r.timestamp
-      ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })
-      : "-";
-
-    const phone = r.clientPhone || r.client_phone || "";
-
-    const row = document.createElement("div");
-    row.className = "flex flex-col md:flex-row md:items-center md:justify-between gap-2 border border-red-500/40 rounded-xl px-3 py-2 bg-red-950/30";
-
-    row.innerHTML = `
-      <div>
-        <p class="text-sm font-semibold text-white">
-          ${r.advisorName || r.advisorId || "Asesor"}
-          <span class="text-xs font-normal text-gray-400">(${r.rating} ★)</span>
-        </p>
-        <p class="text-xs text-gray-300 mt-1">${r.comments || "— Sin comentarios —"}</p>
-      </div>
-      <div class="text-right text-xs text-gray-300">
-        <p><span class="font-semibold text-red-300">Tel:</span> ${phone || "No proporcionado"}</p>
-        <p class="mt-1 text-[11px] text-gray-400">${date}</p>
-      </div>
-    `;
-
-    container.appendChild(row);
-  });
-}
-
 
     const firebaseConfig = {
       apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
@@ -304,20 +263,20 @@
     let chartInstance = null;
     let currentFilteredRatings = [];
 
-    const authScreen = document.getElementById("auth-screen");
-    const profileSetupScreen = document.getElementById("profile-setup-screen");
-    const dashboardContent = document.getElementById("dashboard-content");
-    const loadingSpinner = document.getElementById("loading-spinner");
-    const authErrorMessage = document.getElementById("auth-error-message");
-    const profileNameInput = document.getElementById("profile-name");
-
-    const advisorFilter = document.getElementById("advisor-filter");
-    const monthFilter  = document.getElementById("month-filter");
-    const dateFilter   = document.getElementById("date-filter");
-    const applyFiltersButton = document.getElementById("apply-filters-button");
+    // DOM
+    const authScreen          = document.getElementById("auth-screen");
+    const profileSetupScreen  = document.getElementById("profile-setup-screen");
+    const dashboardContent    = document.getElementById("dashboard-content");
+    const loadingSpinner      = document.getElementById("loading-spinner");
+    const authErrorMessage    = document.getElementById("auth-error-message");
+    const profileNameInput    = document.getElementById("profile-name");
+    const advisorFilter       = document.getElementById("advisor-filter");
+    const monthFilter         = document.getElementById("month-filter");
+    const dateFilter          = document.getElementById("date-filter");
+    const applyFiltersButton  = document.getElementById("apply-filters-button");
 
     const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
-    const ADMIN_PROFILE_COLLECTION = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
+    const ADMIN_PROFILE_COLLECTION  = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
 
     function showScreen(id) {
       authScreen.classList.add("hidden");
@@ -364,6 +323,7 @@
       }
     }
 
+    // Login
     document.getElementById("login-button").addEventListener("click", async () => {
       const email    = document.getElementById("auth-email").value;
       const password = document.getElementById("auth-password").value;
@@ -386,6 +346,7 @@
       }
     });
 
+    // Logout
     document.getElementById("logout-button").addEventListener("click", async () => {
       try {
         await signOut(auth);
@@ -394,6 +355,7 @@
       }
     });
 
+    // Guardar perfil
     document.getElementById("save-profile-button").addEventListener("click", async () => {
       const name = profileNameInput.value.trim();
       const errorEl = document.getElementById("profile-error-message");
@@ -435,15 +397,16 @@
       });
     }
 
-    // BOTÓN APLICAR
+    // Eventos filtros
     applyFiltersButton.addEventListener("click", () => filterAndDisplayRatings());
 
-    // También al cambiar (comodidad)
     advisorFilter.addEventListener("change", () => filterAndDisplayRatings());
+
     monthFilter.addEventListener("change", () => {
       if (monthFilter.value) dateFilter.value = "";
       filterAndDisplayRatings();
     });
+
     dateFilter.addEventListener("change", () => {
       if (dateFilter.value) monthFilter.value = "";
       filterAndDisplayRatings();
@@ -477,15 +440,13 @@
           return ymd === day;
         });
       }
+
       filtered.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
-      
+
       renderRatingsList(filtered);
       updateStatsAndChart(filtered);
-      currentFilteredRatings = filtered;
       renderCriticalList(filtered);
       currentFilteredRatings = filtered;
-
-
     }
 
     function calculateStats(ratings) {
@@ -499,8 +460,8 @@
         };
       }
 
-      const totalRatingSum = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
-      const uniqueAdvisors = new Set(ratings.map(r => r.advisorId));
+      const totalRatingSum  = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
+      const uniqueAdvisors  = new Set(ratings.map(r => r.advisorId));
       const lowRatingsCount = ratings.filter(r => r.rating <= 2).length;
 
       const dist = [0, 0, 0, 0, 0];
@@ -520,10 +481,10 @@
     function updateStatsAndChart(ratings) {
       const stats = calculateStats(ratings);
 
-      document.getElementById("total-ratings").textContent = stats.totalRatings;
-      document.getElementById("avg-rating").textContent = stats.totalRatings ? stats.avgRating.toFixed(1) : "N/A";
-      document.getElementById("total-advisors").textContent = stats.totalAdvisors;
-      document.getElementById("low-ratings").textContent = stats.lowRatings;
+      document.getElementById("total-ratings").textContent  = stats.totalRatings;
+      document.getElementById("avg-rating").textContent      = stats.totalRatings ? stats.avgRating.toFixed(1) : "N/A";
+      document.getElementById("total-advisors").textContent  = stats.totalAdvisors;
+      document.getElementById("low-ratings").textContent     = stats.lowRatings;
 
       renderChart(stats.ratingDistribution);
     }
@@ -578,96 +539,12 @@
         }
       });
     }
-    function exportToCSV() {
-  if (!currentFilteredRatings.length) {
-    alert("No hay calificaciones para exportar con los filtros actuales.");
-    return;
-  }
-      const rows = [
-  ["Asesor", "Rating", "Comentario", "Fecha", "Teléfono"]
-];
-
-currentFilteredRatings.forEach(r => {
-  const nombre = r.advisorName || r.advisorId || "";
-  const rating = r.rating != null ? String(r.rating) : "";
-  const comentario = (r.comments || "").replace(/\r?\n/g, " ");
-  const fecha = r.timestamp
-    ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
-    : "";
-  const phone = r.clientPhone || r.client_phone || "";
-
-  rows.push([nombre, rating, comentario, fecha, phone]);
-});
-
-  // Armamos CSV; usamos ; para que Excel en español lo trague mejor
-  const csv = rows
-    .map(row => row
-      .map(field => `"${String(field).replace(/"/g, '""')}"`)
-      .join(";")
-    )
-    .join("\r\n");
-
-  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "reporte_calificaciones.csv";
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  URL.revokeObjectURL(url);
-}
-    function exportToPDF() {
-  if (!currentFilteredRatings.length) {
-    alert("No hay calificaciones para exportar con los filtros actuales.");
-    return;
-  }
-      const body = currentFilteredRatings.map(r => [
-  r.advisorName || r.advisorId || "",
-  r.rating != null ? String(r.rating) : "",
-  (r.comments || "").replace(/\r?\n/g, " "),
-  r.timestamp
-    ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
-    : "",
-  r.clientPhone || r.client_phone || ""
-]);
-
-doc.autoTable({
-  startY: 30,
-  head: [["Asesor", "Rating", "Comentario", "Fecha", "Teléfono"]],
-  body,
-  styles: { fontSize: 8, cellPadding: 2 },
-  headStyles: { fillColor: [15, 23, 42] }
-});
-
-
-  const body = currentFilteredRatings.map(r => [
-    r.advisorName || r.advisorId || "",
-    r.rating != null ? String(r.rating) : "",
-    (r.comments || "").replace(/\r?\n/g, " "),
-    r.timestamp
-      ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
-      : ""
-  ]);
-
-  doc.autoTable({
-    startY: 30,
-    head: [["Asesor", "Rating", "Comentario", "Fecha"]],
-    body,
-    styles: { fontSize: 8, cellPadding: 2 },
-    headStyles: { fillColor: [15, 23, 42] } // azul oscuro
-  });
-
-  doc.save("reporte_calificaciones.pdf");
-}
-
 
     function renderRatingsList(ratings) {
       const container = document.getElementById("ratings-list-container");
       container.innerHTML = "";
 
       if (!ratings.length) {
-        // mostramos mensaje simple, SIN usar id ni classList
         const msg = document.createElement("p");
         msg.textContent = "No hay calificaciones registradas o no coinciden con los filtros.";
         msg.className = "text-center text-gray-500 text-sm mt-6";
@@ -728,13 +605,130 @@ doc.autoTable({
       });
     }
 
+    function renderCriticalList(ratings) {
+      const container = document.getElementById("critical-container");
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      const critical = ratings.filter(r => (r.rating || 0) <= 2);
+
+      if (!critical.length) {
+        container.innerHTML = "<p class='text-center text-gray-500 text-sm'>No hay calificaciones críticas con los filtros actuales.</p>";
+        return;
+      }
+
+      critical.forEach(r => {
+        const date = r.timestamp
+          ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })
+          : "-";
+
+        const phone = r.clientPhone || r.client_phone || "";
+
+        const row = document.createElement("div");
+        row.className = "flex flex-col md:flex-row md:items-center md:justify-between gap-2 border border-red-500/40 rounded-xl px-3 py-2 bg-red-950/30";
+
+        row.innerHTML = `
+          <div>
+            <p class="text-sm font-semibold text-white">
+              ${r.advisorName || r.advisorId || "Asesor"}
+              <span class="text-xs font-normal text-gray-400">(${r.rating} ★)</span>
+            </p>
+            <p class="text-xs text-gray-300 mt-1">${r.comments || "— Sin comentarios —"}</p>
+          </div>
+          <div class="text-right text-xs text-gray-300">
+            <p><span class="font-semibold text-red-300">Tel:</span> ${phone || "No proporcionado"}</p>
+            <p class="mt-1 text-[11px] text-gray-400">${date}</p>
+          </div>
+        `;
+
+        container.appendChild(row);
+      });
+    }
+
+    function exportToCSV() {
+      if (!currentFilteredRatings.length) {
+        alert("No hay calificaciones para exportar con los filtros actuales.");
+        return;
+      }
+
+      const rows = [
+        ["Asesor", "Rating", "Comentario", "Fecha", "Teléfono"]
+      ];
+
+      currentFilteredRatings.forEach(r => {
+        const nombre = r.advisorName || r.advisorId || "";
+        const rating = r.rating != null ? String(r.rating) : "";
+        const comentario = (r.comments || "").replace(/\r?\n/g, " ");
+        const fecha = r.timestamp
+          ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
+          : "";
+        const phone = r.clientPhone || r.client_phone || "";
+
+        rows.push([nombre, rating, comentario, fecha, phone]);
+      });
+
+      const csv = rows
+        .map(row => row
+          .map(field => `"${String(field).replace(/"/g, '""')}"`)
+          .join(";")
+        )
+        .join("\r\n");
+
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url  = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = "reporte_calificaciones.csv";
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
+
+    function exportToPDF() {
+      if (!currentFilteredRatings.length) {
+        alert("No hay calificaciones para exportar con los filtros actuales.");
+        return;
+      }
+
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+
+      doc.setFontSize(14);
+      doc.text("Reporte de calificaciones - Barbero Pro", 14, 18);
+      doc.setFontSize(10);
+      doc.text(`Generado: ${new Date().toLocaleString("es-ES")}`, 14, 24);
+
+      const body = currentFilteredRatings.map(r => [
+        r.advisorName || r.advisorId || "",
+        r.rating != null ? String(r.rating) : "",
+        (r.comments || "").replace(/\r?\n/g, " "),
+        r.timestamp
+          ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
+          : "",
+        r.clientPhone || r.client_phone || ""
+      ]);
+
+      doc.autoTable({
+        startY: 30,
+        head: [["Asesor", "Rating", "Comentario", "Fecha", "Teléfono"]],
+        body,
+        styles: { fontSize: 8, cellPadding: 2 },
+        headStyles: { fillColor: [15, 23, 42] }
+      });
+
+      doc.save("reporte_calificaciones.pdf");
+    }
+
+    // Inicializar
     initFirebase();
+
     document.getElementById("export-excel-button")
       .addEventListener("click", exportToCSV);
-    
+
     document.getElementById("export-pdf-button")
       .addEventListener("click", exportToPDF);
-
   </script>
 </body>
 </html>
