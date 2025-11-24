@@ -18,47 +18,41 @@
   <!-- jsPDF + AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
+
   <style>
-  /* Fondo general claro */
-  body {
-    font-family: "Inter", sans-serif;
-    background-color: #f5f5f7;   /* gris muy claro */
-    color: #111827;              /* gris oscuro (casi negro) */
-  }
+    /* Fondo general claro */
+    body {
+      font-family: "Inter", sans-serif;
+      background-color: #f5f5f7;   /* gris muy claro */
+      color: #111827;              /* gris oscuro (casi negro) */
+    }
 
-  /* Tarjetas blancas, minimalistas */
-  .card {
-    background-color: #ffffff;
-    border: 1px solid #e5e7eb;   /* gris clarito */
-    box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
-    border-radius: 0.9rem;
-  }
+    /* Tarjetas blancas, minimalistas */
+    .card {
+      background-color: #ffffff;
+      border: 1px solid #e5e7eb;   /* gris clarito */
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
+      border-radius: 0.9rem;
+    }
 
-  /* Inputs y selects claros */
-  input,
-  select {
-    background-color: #f9fafb !important;
-    color: #111827 !important;
-    border-color: #d1d5db !important;
-  }
+    /* Inputs y selects claros */
+    input,
+    select {
+      background-color: #f9fafb !important;
+      color: #111827 !important;
+      border-color: #d1d5db !important;
+    }
 
-  /* Textos dentro de las tarjetas: que no queden blancos sobre blanco */
-  .card .text-white {
-    color: #111827;
-  }
+    .card .text-gray-400 {
+      color: #6b7280;
+    }
 
-  .card .text-gray-400 {
-    color: #6b7280;
-  }
-
-  .card .text-gray-500 {
-    color: #9ca3af;
-  }
-
-  /* Botones de acción se mantienen con acentos (amarillo/rojo/verde) ya definidos por Tailwind */
-</style>
-
+    .card .text-gray-500 {
+      color: #9ca3af;
+    }
+  </style>
 </head>
+
 <body class="min-h-screen p-4 md:p-8">
   <!-- SPINNER -->
   <div
@@ -83,10 +77,10 @@
           <span class="text-black font-extrabold text-xl">✂</span>
         </div>
         <div>
-          <h1 class="text-xl font-extrabold text-white leading-tight">
+          <h1 class="text-xl font-extrabold text-gray-900 leading-tight">
             Panel de Control
           </h1>
-          <p class="text-[11px] text-gray-400 mt-1">
+          <p class="text-[11px] text-gray-500 mt-1">
             Análisis de atención al cliente en tiempo real
           </p>
         </div>
@@ -129,23 +123,23 @@
     <header
       class="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
     >
-      <div class="flex items-center mb-4 md:mb-0">
+      <div class="flex items-center mb-4 md:mb-0 gap-4">
         <div
-          class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center mr-3 shadow-xl"
+          class="w-16 h-16 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center shadow-xl"
         >
           <img
             src="logopb.png"
             alt="Logo Parabarberos"
-            class="h-10 object-contain rounded-lg"
+            class="h-14 object-contain rounded-lg"
           />
         </div>
         <div>
           <h1
-            class="text-3xl md:text-4xl font-extrabold text-white tracking-tight"
+            class="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight leading-tight"
           >
             Panel de Control
           </h1>
-          <p class="text-xs md:text-sm text-gray-400 mt-1">
+          <p class="text-xs md:text-sm text-gray-500 mt-1">
             Análisis de rendimiento de asesores en tiempo real
           </p>
         </div>
@@ -153,16 +147,16 @@
 
       <div class="flex items-center space-x-4">
         <div class="text-right">
-          <p class="text-[11px] text-gray-400 uppercase tracking-wide">
+          <p class="text-[11px] text-gray-500 uppercase tracking-wide">
             Administrador
           </p>
-          <p id="admin-name" class="text-sm font-semibold text-white">
+          <p id="admin-name" class="text-sm font-semibold text-gray-900">
             Cargando...
           </p>
         </div>
         <button
           id="logout-button"
-          class="text-xs font-semibold text-red-400 hover:text-red-500 transition"
+          class="text-xs font-semibold text-red-500 hover:text-red-600 transition"
         >
           Cerrar sesión
         </button>
@@ -170,11 +164,9 @@
     </header>
 
     <!-- FILTROS -->
-    <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
+    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p
-          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
-        >
+        <p class="text-[12px] text-gray-500 mb-1 uppercase tracking-wide">
           Filtrar por asesor
         </p>
         <select
@@ -186,9 +178,7 @@
       </div>
 
       <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p
-          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
-        >
+        <p class="text-[12px] text-gray-500 mb-1 uppercase tracking-wide">
           Filtrar por mes
         </p>
         <input
@@ -199,9 +189,7 @@
       </div>
 
       <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p
-          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
-        >
+        <p class="text-[12px] text-gray-500 mb-1 uppercase tracking-wide">
           Filtrar por fecha (día)
         </p>
         <input
@@ -212,35 +200,19 @@
       </div>
 
       <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
-        <p
-          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
-        >
+        <p class="text-[12px] text-gray-500 mb-1 uppercase tracking-wide">
           Vista actual
         </p>
-        <p class="text-sm text-white font-semibold">
+        <p class="text-sm text-gray-900 font-semibold">
           Análisis de desempeño de asesores
         </p>
-      </div>
-
-      <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
-        <p
-          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
-        >
-          Acción
-        </p>
-        <button
-          id="apply-filters-button"
-          class="mt-1 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-gray-200 transition"
-        >
-          Aplicar filtros
-        </button>
       </div>
     </div>
 
     <!-- MÉTRICAS -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
       <div class="card rounded-xl px-5 py-4 text-center">
-        <p class="text-xs text-gray-400 uppercase tracking-wide">
+        <p class="text-xs text-gray-500 uppercase tracking-wide">
           Calificación promedio
         </p>
         <p
@@ -251,18 +223,18 @@
         </p>
       </div>
       <div class="card rounded-xl px-5 py-4 text-center">
-        <p class="text-xs text-gray-400 uppercase tracking-wide">
+        <p class="text-xs text-gray-500 uppercase tracking-wide">
           Total de respuestas
         </p>
         <p
           id="total-ratings"
-          class="mt-2 text-4xl font-extrabold text-white"
+          class="mt-2 text-4xl font-extrabold text-gray-900"
         >
           0
         </p>
       </div>
       <div class="card rounded-xl px-5 py-4 text-center">
-        <p class="text-xs text-gray-400 uppercase tracking-wide">
+        <p class="text-xs text-gray-500 uppercase tracking-wide">
           Asesores activos
         </p>
         <p
@@ -273,7 +245,7 @@
         </p>
       </div>
       <div class="card rounded-xl px-5 py-4 text-center">
-        <p class="text-xs text-gray-400 uppercase tracking-wide">
+        <p class="text-xs text-gray-500 uppercase tracking-wide">
           Comentarios negativos (1–2)
         </p>
         <p
@@ -288,7 +260,7 @@
     <!-- GRÁFICO -->
     <div class="card rounded-2xl px-6 py-6 mb-10">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-white">
+        <h2 class="text-lg font-semibold text-gray-900">
           Distribución de puntuaciones (1–5 estrellas)
         </h2>
         <p class="text-xs text-gray-500">Actualizado en tiempo real</p>
@@ -302,7 +274,7 @@
     <div
       class="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
     >
-      <h2 class="text-lg font-semibold text-white">
+      <h2 class="text-lg font-semibold text-gray-900">
         Calificaciones recientes
       </h2>
 
@@ -324,7 +296,7 @@
 
     <div class="card rounded-2xl p-4 overflow-hidden">
       <div
-        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 border-b border-zinc-700 pb-2 mb-2 uppercase tracking-wide"
+        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-500 border-b border-zinc-200 pb-2 mb-2 uppercase tracking-wide"
       >
         <span>Asesor</span>
         <span>Calificación</span>
@@ -344,7 +316,7 @@
     <!-- CASOS CRÍTICOS -->
     <div class="mt-10">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-white">
+        <h2 class="text-lg font-semibold text-gray-900">
           Casos para contactar (1–2 estrellas)
         </h2>
         <p class="text-[11px] text-gray-500">
@@ -355,11 +327,11 @@
         <!-- Se rellena con JS -->
       </div>
     </div>
-  </div>
-      <!-- CASOS SOLUCIONADOS -->
+
+    <!-- CASOS SOLUCIONADOS -->
     <div class="mt-6">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-white">
+        <h2 class="text-lg font-semibold text-gray-900">
           Casos solucionados
         </h2>
         <p class="text-[11px] text-gray-500">
@@ -370,7 +342,9 @@
         <!-- Se rellena con JS -->
       </div>
     </div>
-    <!-- MODAL: MARCAR CASO COMO SOLUCIONADO -->
+  </div>
+
+  <!-- MODAL: MARCAR CASO COMO SOLUCIONADO -->
   <div
     id="resolve-modal"
     class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden"
@@ -435,7 +409,6 @@
     </div>
   </div>
 
-
   <!-- FIREBASE + LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -446,14 +419,14 @@
       signOut,
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
-  getFirestore,
-  doc,
-  collection,
-  query,
-  onSnapshot,
-  deleteDoc,
-  setDoc,
-} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+      getFirestore,
+      doc,
+      collection,
+      query,
+      onSnapshot,
+      deleteDoc,
+      setDoc,
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
@@ -480,10 +453,9 @@
     const advisorFilter = document.getElementById("advisor-filter");
     const monthFilter = document.getElementById("month-filter");
     const dateFilter = document.getElementById("date-filter");
-    const applyFiltersButton = document.getElementById("apply-filters-button");
 
     const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
-        
+
     let resolveTargetId = null;
 
     const resolveModal = document.getElementById("resolve-modal");
@@ -492,7 +464,6 @@
     const resolveErrorEl = document.getElementById("resolve-error");
     const cancelResolveBtn = document.getElementById("cancel-resolve-btn");
     const saveResolveBtn = document.getElementById("save-resolve-btn");
-
 
     function showScreen(id) {
       authScreen.classList.add("hidden");
@@ -577,8 +548,8 @@
         q,
         (snapshot) => {
           allRatings = [];
-          snapshot.forEach((doc) => {
-            allRatings.push({ id: doc.id, ...doc.data() });
+          snapshot.forEach((docSnap) => {
+            allRatings.push({ id: docSnap.id, ...docSnap.data() });
           });
 
           updateFilterOptions(allRatings);
@@ -594,11 +565,7 @@
       );
     }
 
-    // Eventos filtros
-    applyFiltersButton.addEventListener("click", () => {
-      filterAndDisplayRatings();
-    });
-
+    // Eventos filtros (se aplican automáticamente al cambiar)
     advisorFilter.addEventListener("change", () => filterAndDisplayRatings());
 
     monthFilter.addEventListener("change", () => {
@@ -759,11 +726,11 @@
           scales: {
             y: {
               beginAtZero: true,
-              ticks: { color: "#e5e7eb", precision: 0 },
-              grid: { color: "#27272a" },
+              ticks: { color: "#4b5563", precision: 0 },
+              grid: { color: "#e5e7eb" },
             },
             x: {
-              ticks: { color: "#e5e7eb" },
+              ticks: { color: "#4b5563" },
               grid: { display: false },
             },
           },
@@ -800,34 +767,34 @@
 
         const ratingCard = document.createElement("div");
         ratingCard.className =
-          "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-zinc-800/80 rounded-xl px-3 py-2 bg-zinc-950/80";
+          "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-gray-700 rounded-xl px-3 py-2 bg-gray-700 text-white";
 
         ratingCard.innerHTML = `
           <div class="flex items-center justify-between md:block">
-            <p class="text-sm font-semibold text-white">${
-              rating.advisorName || rating.advisorId || "Asesor"
-            }</p>
-            <p class="md:hidden text-xs text-gray-500 mt-0.5">${date}</p>
+            <p class="text-sm font-semibold">
+              ${rating.advisorName || rating.advisorId || "Asesor"}
+            </p>
+            <p class="md:hidden text-xs text-gray-200 mt-0.5">${date}</p>
           </div>
           <div class="flex items-center md:justify-start justify-between">
             <span class="text-base font-bold ${
-              isNegative ? "text-red-400" : "text-yellow-300"
+              isNegative ? "text-red-300" : "text-yellow-300"
             }">
               ${rating.rating ?? "-"} / 5
             </span>
           </div>
-          <div class="text-xs text-gray-200 md:pr-4">
+          <div class="text-xs text-gray-100 md:pr-4">
             ${
               rating.comments
                 ? rating.comments.replace(/\n/g, "<br>")
                 : "— Sin comentarios —"
             }
           </div>
-          <div class="hidden md:block text-xs text-gray-400">${date}</div>
+          <div class="hidden md:block text-xs text-gray-200">${date}</div>
           <div class="flex justify-end">
             <button data-id="${
               rating.id
-            }" class="delete-button text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-zinc-800 transition">
+            }" class="delete-button text-red-300 hover:text-red-200 p-2 rounded-full hover:bg-gray-800 transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                 viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -867,7 +834,7 @@
       });
     }
 
-        function renderCriticalList(ratings) {
+    function renderCriticalList(ratings) {
       const container = document.getElementById("critical-container");
       if (!container) return;
 
@@ -895,24 +862,24 @@
 
         const row = document.createElement("div");
         row.className =
-          "flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-red-500/40 rounded-xl px-3 py-3 bg-red-950/30";
+          "flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-xl px-3 py-3 border border-red-500 bg-red-100";
 
         row.innerHTML = `
           <div>
-            <p class="text-sm font-semibold text-white">
+            <p class="text-sm font-semibold text-gray-900">
               ${r.advisorName || r.advisorId || "Asesor"}
-              <span class="text-xs font-normal text-gray-400">(${r.rating} ★)</span>
+              <span class="text-xs font-normal text-gray-600">(${r.rating} ★)</span>
             </p>
-            <p class="text-xs text-gray-300 mt-1">
+            <p class="text-xs text-gray-700 mt-1">
               ${r.comments || "— Sin comentarios —"}
             </p>
-            <p class="mt-1 text-[11px] text-gray-400 md:hidden">${date}</p>
+            <p class="mt-1 text-[11px] text-gray-500 md:hidden">${date}</p>
           </div>
-          <div class="flex flex-col items-end text-xs text-gray-300 gap-1">
-            <p><span class="font-semibold text-red-300">Tel:</span> ${
+          <div class="flex flex-col items-end text-xs text-gray-700 gap-1">
+            <p><span class="font-semibold text-red-600">Tel:</span> ${
               phone || "No proporcionado"
             }</p>
-            <p class="hidden md:block text-[11px] text-gray-400">${date}</p>
+            <p class="hidden md:block text-[11px] text-gray-500">${date}</p>
             <button
               class="mt-1 px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-[11px] font-semibold text-black transition resolve-button"
               data-id="${r.id}"
@@ -939,7 +906,7 @@
       });
     }
 
-        function renderResolvedList(ratings) {
+    function renderResolvedList(ratings) {
       const container = document.getElementById("resolved-container");
       if (!container) return;
 
@@ -974,35 +941,35 @@
 
         const row = document.createElement("div");
         row.className =
-          "flex flex-col md:flex-row md:items-center md:justify-between gap-2 border border-emerald-500/40 rounded-xl px-3 py-3 bg-emerald-950/30";
+          "flex flex-col md:flex-row md:items-center md:justify-between gap-2 border border-emerald-500 rounded-xl px-3 py-3 bg-emerald-50";
 
         row.innerHTML = `
           <div>
-            <p class="text-sm font-semibold text-white">
+            <p class="text-sm font-semibold text-gray-900">
               ${r.advisorName || r.advisorId || "Asesor"}
-              <span class="text-xs font-normal text-gray-400">(${r.rating} ★)</span>
+              <span class="text-xs font-normal text-gray-600">(${r.rating} ★)</span>
             </p>
-            <p class="text-xs text-gray-300 mt-1">
+            <p class="text-xs text-gray-700 mt-1">
               ${r.comments || "— Sin comentarios del cliente —"}
             </p>
-            <p class="text-[11px] text-emerald-300 mt-1">
+            <p class="text-[11px] text-emerald-700 mt-1">
               <span class="font-semibold">Solución:</span>
               ${r.resolution || "— Sin detalle de solución —"}
             </p>
           </div>
-          <div class="text-right text-xs text-gray-300">
-            <p><span class="font-semibold text-emerald-300">Atendido por:</span> ${
+          <div class="text-right text-xs text-gray-700">
+            <p><span class="font-semibold text-emerald-700">Atendido por:</span> ${
               r.resolvedBy || "No registrado"
             }</p>
-            <p><span class="font-semibold text-emerald-300">Tel:</span> ${
+            <p><span class="font-semibold text-emerald-700">Tel:</span> ${
               phone || "No proporcionado"
             }</p>
-            <p class="mt-1 text-[11px] text-gray-400">
+            <p class="mt-1 text-[11px] text-gray-500">
               Recibido: ${date}
             </p>
             ${
               resolvedAt
-                ? `<p class="text-[11px] text-gray-400">Solucionado: ${resolvedAt}</p>`
+                ? `<p class="text-[11px] text-gray-500">Solucionado: ${resolvedAt}</p>`
                 : ""
             }
           </div>
@@ -1097,7 +1064,8 @@
 
       docPdf.save("reporte_calificaciones.pdf");
     }
-        // BOTONES DEL MODAL DE SOLUCIÓN
+
+    // BOTONES DEL MODAL DE SOLUCIÓN
     cancelResolveBtn.addEventListener("click", () => {
       resolveTargetId = null;
       resolveModal.classList.add("hidden");
@@ -1140,7 +1108,6 @@
         resolveErrorEl.classList.remove("hidden");
       }
     });
-
 
     // Inicializar
     initFirebase();
