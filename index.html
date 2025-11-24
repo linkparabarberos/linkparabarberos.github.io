@@ -239,6 +239,8 @@
     const phoneErrorEl = document.getElementById("phone-error");
     const savePhoneBtn = document.getElementById("save-phone-btn");
     const closePhoneBtn = document.getElementById("close-phone-btn");
+    let skipPhoneForThisRating = false;
+
 
     function openLowRatingModal() {
       phoneErrorEl.classList.add("hidden");
@@ -301,7 +303,6 @@
       statusMessage.classList.remove("hidden");
       statusMessage.classList.add("text-red-400");
     }
-
     // ESTRELLAS
 if (ratingStars) {
   ratingStars.querySelectorAll(".rating-star").forEach((star) => {
@@ -319,13 +320,17 @@ if (ratingStars) {
         }
       });
 
-      // NO abrir modal aquí; solo limpiamos el teléfono si la nota es buena
+      // Cada vez que cambias la calificación, volvemos a permitir preguntar por teléfono
+      skipPhoneForThisRating = false;
+
+      // Si es buena calificación, limpiamos el teléfono opcional
       if (value > 2) {
         clientPhoneHidden.value = "";
       }
     });
   });
 }
+
 
 
     // MODAL TELÉFONO
@@ -340,10 +345,12 @@ if (ratingStars) {
       clientPhoneHidden.value = phone;
       closeLowRatingModal();
     });
-
     closePhoneBtn.addEventListener("click", () => {
-      closeLowRatingModal();
-    });
+  skipPhoneForThisRating = true;
+  clientPhoneHidden.value = "";
+  closeLowRatingModal();
+});
+
 
     // ENVIAR A FIRESTORE
     submitButton.addEventListener("click", async () => {
@@ -367,11 +374,12 @@ if (ratingStars) {
         statusMessage.classList.add("text-red-400");
         return;
       }
-
-      if (rating <= 2 && !phoneFromHidden) {
+      // Si la calificación es 1 o 2 y aún no tenemos teléfono, preguntamos SOLO una vez
+      if (rating <= 2 && !phoneFromHidden && !skipPhoneForThisRating) {
         openLowRatingModal();
-        return;
+        return; // esperaremos a que el cliente ponga teléfono o pulse Cancelar
       }
+
 
       if (!db) {
         statusMessage.textContent =
