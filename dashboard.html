@@ -1,18 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dashboard</title>
 
   <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
+    rel="stylesheet"
+  />
 
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-  <!-- jsPDF + AutoTable para PDF -->
+  <!-- jsPDF + AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
@@ -27,7 +30,8 @@
       border: 1px solid #262626;
       box-shadow: 0 18px 35px rgba(0, 0, 0, 0.8);
     }
-    input, select {
+    input,
+    select {
       background-color: #111827 !important;
       color: #f9fafb !important;
       border-color: #374151 !important;
@@ -35,22 +39,31 @@
   </style>
 </head>
 <body class="min-h-screen p-4 md:p-8">
-
   <!-- SPINNER -->
-  <div id="loading-spinner" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50">
-    <div class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"></div>
+  <div
+    id="loading-spinner"
+    class="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
+  >
+    <div
+      class="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-yellow-400"
+    ></div>
   </div>
 
   <!-- LOGIN -->
-  <div id="auth-screen" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-40 hidden">
+  <div
+    id="auth-screen"
+    class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-40 hidden"
+  >
     <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
       <div class="flex items-center justify-center mb-6">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center mr-3">
-          <img src="logopb.png" alt="Logo Parabarberos"class="h-14 w-14 object-contain">
+        <div
+          class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center mr-3"
+        >
+          <span class="text-black font-extrabold text-xl">✂</span>
         </div>
         <div>
           <h1 class="text-xl font-extrabold text-white leading-tight">
-            Panel de Control<br>
+            Panel de Control
           </h1>
           <p class="text-[11px] text-gray-400 mt-1">
             Análisis de atención al cliente en tiempo real
@@ -58,55 +71,58 @@
         </div>
       </div>
 
-      <input id="auth-email" type="email" placeholder="Correo electrónico"
-        class="w-full p-3 mb-4 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
+      <input
+        id="auth-email"
+        type="email"
+        placeholder="Correo electrónico"
+        class="w-full p-3 mb-4 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm"
+      />
 
-      <input id="auth-password" type="password" placeholder="Contraseña"
-        class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
+      <input
+        id="auth-password"
+        type="password"
+        placeholder="Contraseña"
+        class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm"
+      />
 
-      <button id="login-button"
-        class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition text-sm">
+      <button
+        id="login-button"
+        class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition text-sm"
+      >
         Iniciar sesión
       </button>
 
-      <p id="auth-error-message" class="text-red-400 text-xs text-center mt-4"></p>
+      <p
+        id="auth-error-message"
+        class="text-red-400 text-xs text-center mt-4"
+      ></p>
       <p class="text-gray-500 text-[11px] text-center mt-6">
+        Acceso solo para cuentas creadas en Firebase.
       </p>
-    </div>
-  </div>
-
-  <!-- CONFIG PERFIL -->
-  <div id="profile-setup-screen" class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-40 hidden">
-    <div class="w-full max-w-sm card rounded-2xl px-8 py-10">
-      <h1 class="text-2xl font-bold text-center mb-2 text-white">¡Bienvenido!</h1>
-      <p class="text-center text-gray-400 mb-6 text-sm">
-        Completa tu perfil de administrador.
-      </p>
-
-      <input id="profile-name" type="text" placeholder="Tu nombre o rol"
-        class="w-full p-3 mb-6 rounded-lg border focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60 text-sm">
-
-      <button id="save-profile-button"
-        class="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-3 rounded-xl shadow-md transition text-sm">
-        Guardar perfil y continuar
-      </button>
-
-      <p id="profile-error-message" class="text-red-400 text-xs text-center mt-3"></p>
     </div>
   </div>
 
   <!-- DASHBOARD -->
   <div id="dashboard-content" class="max-w-7xl mx-auto hidden">
-
     <!-- HEADER -->
-    <header class="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
+    <header
+      class="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
+    >
       <div class="flex items-center mb-4 md:mb-0">
-        <div class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center mr-3 shadow-xl">
-          <img src="logopb.png" alt="Logo" class="h-10 object-contain rounded-lg">
+        <div
+          class="w-12 h-12 rounded-2xl bg-gradient-to-br from-yellow-400 via-amber-500 to-orange-500 flex items-center justify-center mr-3 shadow-xl"
+        >
+          <img
+            src="logopb.png"
+            alt="Logo Parabarberos"
+            class="h-10 object-contain rounded-lg"
+          />
         </div>
         <div>
-          <h1 class="text-3xl md:text-4xl font-extrabold text-white tracking-tight">
-            Panel de Control
+          <h1
+            class="text-3xl md:text-4xl font-extrabold text-white tracking-tight"
+          >
+            Panel de Control Barbero Pro
           </h1>
           <p class="text-xs md:text-sm text-gray-400 mt-1">
             Análisis de rendimiento de asesores en tiempo real
@@ -116,11 +132,17 @@
 
       <div class="flex items-center space-x-4">
         <div class="text-right">
-          <p class="text-[11px] text-gray-400 uppercase tracking-wide">Administrador</p>
-          <p id="admin-name" class="text-sm font-semibold text-white">Cargando...</p>
+          <p class="text-[11px] text-gray-400 uppercase tracking-wide">
+            Administrador
+          </p>
+          <p id="admin-name" class="text-sm font-semibold text-white">
+            Cargando...
+          </p>
         </div>
-        <button id="logout-button"
-          class="text-xs font-semibold text-red-400 hover:text-red-500 transition">
+        <button
+          id="logout-button"
+          class="text-xs font-semibold text-red-400 hover:text-red-500 transition"
+        >
           Cerrar sesión
         </button>
       </div>
@@ -129,34 +151,66 @@
     <!-- FILTROS -->
     <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
       <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por asesor</p>
-        <select id="advisor-filter"
-          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+        <p
+          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
+        >
+          Filtrar por asesor
+        </p>
+        <select
+          id="advisor-filter"
+          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60"
+        >
           <option value="">Todos los asesores</option>
         </select>
       </div>
 
       <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por mes</p>
-        <input id="month-filter" type="month"
-          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+        <p
+          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
+        >
+          Filtrar por mes
+        </p>
+        <input
+          id="month-filter"
+          type="month"
+          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60"
+        />
       </div>
 
       <div class="card rounded-xl px-5 py-4 flex flex-col">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Filtrar por fecha (día)</p>
-        <input id="date-filter" type="date"
-          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60">
+        <p
+          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
+        >
+          Filtrar por fecha (día)
+        </p>
+        <input
+          id="date-filter"
+          type="date"
+          class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60"
+        />
       </div>
 
       <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Vista actual</p>
-        <p class="text-sm text-white font-semibold">Análisis de desempeño de asesores</p>
+        <p
+          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
+        >
+          Vista actual
+        </p>
+        <p class="text-sm text-white font-semibold">
+          Análisis de desempeño de asesores
+        </p>
       </div>
 
       <div class="card rounded-xl px-5 py-4 flex flex-col justify-center">
-        <p class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide">Acción</p>
-        <button id="apply-filters-button"
-          class="mt-1 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-gray-200 transition">
+        <p
+          class="text-[12px] text-gray-400 mb-1 uppercase tracking-wide"
+        >
+          Acción
+        </p>
+        <button
+          id="apply-filters-button"
+          class="mt-1 px-4 py-2 rounded-lg bg-white text-black font-semibold text-sm hover:bg-gray-200 transition"
+        >
           Aplicar filtros
         </button>
       </div>
@@ -165,27 +219,57 @@
     <!-- MÉTRICAS -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
       <div class="card rounded-xl px-5 py-4 text-center">
-        <p class="text-xs text-gray-400 uppercase tracking-wide">Calificación promedio</p>
-        <p id="avg-rating" class="mt-2 text-4xl font-extrabold text-yellow-400">N/A</p>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Calificación promedio
+        </p>
+        <p
+          id="avg-rating"
+          class="mt-2 text-4xl font-extrabold text-yellow-400"
+        >
+          N/A
+        </p>
       </div>
       <div class="card rounded-xl px-5 py-4 text-center">
-        <p class="text-xs text-gray-400 uppercase tracking-wide">Total de respuestas</p>
-        <p id="total-ratings" class="mt-2 text-4xl font-extrabold text-white">0</p>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Total de respuestas
+        </p>
+        <p
+          id="total-ratings"
+          class="mt-2 text-4xl font-extrabold text-white"
+        >
+          0
+        </p>
       </div>
       <div class="card rounded-xl px-5 py-4 text-center">
-        <p class="text-xs text-gray-400 uppercase tracking-wide">Asesores activos</p>
-        <p id="total-advisors" class="mt-2 text-4xl font-extrabold text-emerald-400">0</p>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Asesores activos
+        </p>
+        <p
+          id="total-advisors"
+          class="mt-2 text-4xl font-extrabold text-emerald-400"
+        >
+          0
+        </p>
       </div>
       <div class="card rounded-xl px-5 py-4 text-center">
-        <p class="text-xs text-gray-400 uppercase tracking-wide">Comentarios negativos (1–2)</p>
-        <p id="low-ratings" class="mt-2 text-4xl font-extrabold text-red-400">0</p>
+        <p class="text-xs text-gray-400 uppercase tracking-wide">
+          Comentarios negativos (1–2)
+        </p>
+        <p
+          id="low-ratings"
+          class="mt-2 text-4xl font-extrabold text-red-400"
+        >
+          0
+        </p>
       </div>
     </div>
 
     <!-- GRÁFICO -->
     <div class="card rounded-2xl px-6 py-6 mb-10">
       <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg font-semibold text-white">Distribución de puntuaciones (1–5 estrellas)</h2>
+        <h2 class="text-lg font-semibold text-white">
+          Distribución de puntuaciones (1–5 estrellas)
+        </h2>
         <p class="text-xs text-gray-500">Actualizado en tiempo real</p>
       </div>
       <div class="h-64 md:h-72">
@@ -194,16 +278,24 @@
     </div>
 
     <!-- LISTA + EXPORT -->
-    <div class="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-      <h2 class="text-lg font-semibold text-white">Calificaciones recientes</h2>
+    <div
+      class="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
+    >
+      <h2 class="text-lg font-semibold text-white">
+        Calificaciones recientes
+      </h2>
 
       <div class="flex items-center gap-2">
-        <button id="export-excel-button"
-          class="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-black transition">
+        <button
+          id="export-excel-button"
+          class="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-black transition"
+        >
           Descargar Excel
         </button>
-        <button id="export-pdf-button"
-          class="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-xs font-semibold text-white transition">
+        <button
+          id="export-pdf-button"
+          class="px-3 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-xs font-semibold text-white transition"
+        >
           Descargar PDF
         </button>
       </div>
@@ -211,7 +303,8 @@
 
     <div class="card rounded-2xl p-4 overflow-hidden">
       <div
-        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 border-b border-zinc-700 pb-2 mb-2 uppercase tracking-wide">
+        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 border-b border-zinc-700 pb-2 mb-2 uppercase tracking-wide"
+      >
         <span>Asesor</span>
         <span>Calificación</span>
         <span>Comentario</span>
@@ -219,7 +312,10 @@
         <span class="text-center">Acción</span>
       </div>
 
-      <div id="ratings-list-container" class="space-y-3 max-h-[380px] overflow-y-auto pr-1">
+      <div
+        id="ratings-list-container"
+        class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
+      >
         <!-- Items -->
       </div>
     </div>
@@ -227,7 +323,9 @@
     <!-- CASOS CRÍTICOS -->
     <div class="mt-10">
       <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-white">Casos para contactar</h2>
+        <h2 class="text-lg font-semibold text-white">
+          Casos para contactar (1–2 estrellas)
+        </h2>
         <p class="text-[11px] text-gray-500">
           Muestra clientes con calificaciones bajas y su número de teléfono.
         </p>
@@ -236,14 +334,25 @@
         <!-- Se rellena con JS -->
       </div>
     </div>
-
   </div>
 
   <!-- FIREBASE + LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, query, onSnapshot, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import {
+      getAuth,
+      signInWithEmailAndPassword,
+      onAuthStateChanged,
+      signOut,
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import {
+      getFirestore,
+      doc,
+      collection,
+      query,
+      onSnapshot,
+      deleteDoc,
+    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
@@ -252,7 +361,7 @@
       storageBucket: "linkparabarberos.firebasestorage.app",
       messagingSenderId: "237275244830",
       appId: "1:237275244830:web:51c5a95a81c1287512810f",
-      measurementId: "G-SX4F2EL0C0"
+      measurementId: "G-SX4F2EL0C0",
     };
 
     const globalAppId = firebaseConfig.projectId;
@@ -263,27 +372,22 @@
     let currentFilteredRatings = [];
 
     // DOM
-    const authScreen          = document.getElementById("auth-screen");
-    const profileSetupScreen  = document.getElementById("profile-setup-screen");
-    const dashboardContent    = document.getElementById("dashboard-content");
-    const loadingSpinner      = document.getElementById("loading-spinner");
-    const authErrorMessage    = document.getElementById("auth-error-message");
-    const profileNameInput    = document.getElementById("profile-name");
-    const advisorFilter       = document.getElementById("advisor-filter");
-    const monthFilter         = document.getElementById("month-filter");
-    const dateFilter          = document.getElementById("date-filter");
-    const applyFiltersButton  = document.getElementById("apply-filters-button");
+    const authScreen = document.getElementById("auth-screen");
+    const dashboardContent = document.getElementById("dashboard-content");
+    const loadingSpinner = document.getElementById("loading-spinner");
+    const authErrorMessage = document.getElementById("auth-error-message");
+    const advisorFilter = document.getElementById("advisor-filter");
+    const monthFilter = document.getElementById("month-filter");
+    const dateFilter = document.getElementById("date-filter");
+    const applyFiltersButton = document.getElementById("apply-filters-button");
 
     const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
-    const ADMIN_PROFILE_COLLECTION  = (uid) => `artifacts/${globalAppId}/users/${uid}/admin_profile`;
 
     function showScreen(id) {
       authScreen.classList.add("hidden");
-      profileSetupScreen.classList.add("hidden");
       dashboardContent.classList.add("hidden");
 
-      if (id === "auth")      authScreen.classList.remove("hidden");
-      if (id === "profile")   profileSetupScreen.classList.remove("hidden");
+      if (id === "auth") authScreen.classList.remove("hidden");
       if (id === "dashboard") dashboardContent.classList.remove("hidden");
 
       loadingSpinner.classList.add("hidden");
@@ -291,113 +395,98 @@
 
     async function initFirebase() {
       loadingSpinner.classList.remove("hidden");
-      app  = initializeApp(firebaseConfig);
+      app = initializeApp(firebaseConfig);
       auth = getAuth(app);
-      db   = getFirestore(app);
+      db = getFirestore(app);
 
-      onAuthStateChanged(auth, async (user) => {
+      onAuthStateChanged(auth, (user) => {
         if (user) {
           currentUserId = user.uid;
-          await checkProfileAndLoadDashboard(user.uid);
+          const email = user.email || "Administrador";
+          const name = email.split("@")[0];
+          document.getElementById("admin-name").textContent = name;
+          startRealtimeDataListener();
+          showScreen("dashboard");
         } else {
           showScreen("auth");
         }
       });
     }
 
-    async function checkProfileAndLoadDashboard(uid) {
-      const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(uid), "data");
-      try {
-        const snap = await getDoc(profileRef);
-        if (snap.exists()) {
-          document.getElementById("admin-name").textContent = snap.data().name;
-          startRealtimeDataListener();
-          showScreen("dashboard");
-        } else {
-          showScreen("profile");
+    // LOGIN
+    document
+      .getElementById("login-button")
+      .addEventListener("click", async () => {
+        const email = document.getElementById("auth-email").value;
+        const password = document.getElementById("auth-password").value;
+        authErrorMessage.textContent = "";
+
+        if (!email || !password) {
+          authErrorMessage.textContent =
+            "Por favor, ingresa correo y contraseña.";
+          return;
         }
-      } catch (e) {
-        console.error("Error al leer perfil:", e);
-        showScreen("profile");
-      }
-    }
 
-    // Login
-    document.getElementById("login-button").addEventListener("click", async () => {
-      const email    = document.getElementById("auth-email").value;
-      const password = document.getElementById("auth-password").value;
-      authErrorMessage.textContent = "";
+        try {
+          await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+          console.error("Error de autenticación:", error);
+          let message =
+            "Error de credenciales. Asegúrate de que el correo existe y la contraseña es correcta.";
+          if (
+            error.code === "auth/wrong-password" ||
+            error.code === "auth/user-not-found"
+          ) {
+            message = "Credenciales inválidas. Revisa el correo y la contraseña.";
+          } else if (error.code === "auth/invalid-email") {
+            message = "El formato del correo es inválido.";
+          } else if (error.code === "auth/network-request-failed") {
+            message = "Error de red. Revisa tu conexión.";
+          }
+          authErrorMessage.textContent = message;
+        }
+      });
 
-      if (!email || !password) {
-        authErrorMessage.textContent = "Ingresa correo y contraseña.";
-        return;
-      }
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        console.error("Error de login:", error);
-        let msg = "Error de credenciales.";
-        if (error.code === "auth/wrong-password" || error.code === "auth/user-not-found") msg = "Correo o contraseña incorrectos.";
-        else if (error.code === "auth/invalid-email") msg = "Correo inválido.";
-        else if (error.code === "auth/network-request-failed") msg = "Error de red.";
-        authErrorMessage.textContent = msg;
-      }
-    });
-
-    // Logout
-    document.getElementById("logout-button").addEventListener("click", async () => {
-      try {
-        await signOut(auth);
-      } catch (e) {
-        console.error("Error al cerrar sesión:", e);
-      }
-    });
-
-    // Guardar perfil
-    document.getElementById("save-profile-button").addEventListener("click", async () => {
-      const name = profileNameInput.value.trim();
-      const errorEl = document.getElementById("profile-error-message");
-      errorEl.textContent = "";
-
-      if (name.length < 2) {
-        errorEl.textContent = "Ingresa tu nombre o rol.";
-        return;
-      }
-
-      const profileRef = doc(db, ADMIN_PROFILE_COLLECTION(currentUserId), "data");
-      try {
-        await setDoc(profileRef, { name, created: new Date().toISOString() });
-        document.getElementById("admin-name").textContent = name;
-        startRealtimeDataListener();
-        showScreen("dashboard");
-      } catch (e) {
-        console.error("Error al guardar perfil:", e);
-        errorEl.textContent = "No se pudo guardar.";
-      }
-    });
+    // LOGOUT
+    document
+      .getElementById("logout-button")
+      .addEventListener("click", async () => {
+        try {
+          await signOut(auth);
+        } catch (error) {
+          console.error("Error al cerrar sesión:", error);
+        }
+      });
 
     function startRealtimeDataListener() {
-      const col = collection(db, PUBLIC_RATINGS_COLLECTION);
-      const q   = query(col);
+      const ratingsCollection = collection(db, PUBLIC_RATINGS_COLLECTION);
+      const q = query(ratingsCollection);
 
-      onSnapshot(q, (snapshot) => {
-        allRatings = [];
-        snapshot.forEach(docSnap => {
-          allRatings.push({ id: docSnap.id, ...docSnap.data() });
-        });
+      onSnapshot(
+        q,
+        (snapshot) => {
+          allRatings = [];
+          snapshot.forEach((doc) => {
+            allRatings.push({ id: doc.id, ...doc.data() });
+          });
 
-        updateFilterOptions(allRatings);
-        filterAndDisplayRatings();
-      }, (error) => {
-        console.error("Error al escuchar calificaciones:", error);
-        const container = document.getElementById("ratings-list-container");
-        container.innerHTML = "<p class='text-center text-red-400 text-sm mt-4'>Error cargando datos.</p>";
-      });
+          updateFilterOptions(allRatings);
+          filterAndDisplayRatings();
+        },
+        (error) => {
+          console.error("Error al escuchar calificaciones:", error);
+          const container =
+            document.getElementById("ratings-list-container");
+          container.innerHTML =
+            "<p class='text-center text-red-400 text-sm mt-4'>Error cargando datos.</p>";
+        }
+      );
     }
 
     // Eventos filtros
-    applyFiltersButton.addEventListener("click", () => filterAndDisplayRatings());
+    applyFiltersButton.addEventListener("click", () => {
+      filterAndDisplayRatings();
+    });
 
     advisorFilter.addEventListener("change", () => filterAndDisplayRatings());
 
@@ -414,29 +503,33 @@
     function filterAndDisplayRatings() {
       let filtered = [...allRatings];
 
-      const advisor = advisorFilter.value;
-      const month   = monthFilter.value;  // "YYYY-MM"
-      const day     = dateFilter.value;   // "YYYY-MM-DD"
+      const selectedAdvisor = advisorFilter.value;
+      const selectedMonth = monthFilter.value; // YYYY-MM
+      const selectedDay = dateFilter.value; // YYYY-MM-DD
 
-      if (advisor) {
-        filtered = filtered.filter(r => r.advisorId === advisor);
+      if (selectedAdvisor) {
+        filtered = filtered.filter((r) => r.advisorId === selectedAdvisor);
       }
 
-      if (month) {
-        filtered = filtered.filter(r => {
+      if (selectedMonth) {
+        filtered = filtered.filter((r) => {
           if (!r.timestamp) return false;
           const d = new Date(r.timestamp);
           if (isNaN(d)) return false;
-          const ym = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
-          return ym === month;
+          const ym = `${d.getFullYear()}-${String(
+            d.getMonth() + 1
+          ).padStart(2, "0")}`;
+          return ym === selectedMonth;
         });
-      } else if (day) {
-        filtered = filtered.filter(r => {
+      } else if (selectedDay) {
+        filtered = filtered.filter((r) => {
           if (!r.timestamp) return false;
           const d = new Date(r.timestamp);
           if (isNaN(d)) return false;
-          const ymd = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-          return ymd === day;
+          const ymd = `${d.getFullYear()}-${String(
+            d.getMonth() + 1
+          ).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          return ymd === selectedDay;
         });
       }
 
@@ -455,17 +548,22 @@
           avgRating: 0,
           totalAdvisors: 0,
           lowRatings: 0,
-          ratingDistribution: [0, 0, 0, 0, 0]
+          ratingDistribution: [0, 0, 0, 0, 0],
         };
       }
 
-      const totalRatingSum  = ratings.reduce((sum, r) => sum + (r.rating || 0), 0);
-      const uniqueAdvisors  = new Set(ratings.map(r => r.advisorId));
-      const lowRatingsCount = ratings.filter(r => r.rating <= 2).length;
+      const totalRatingSum = ratings.reduce(
+        (sum, r) => sum + (r.rating || 0),
+        0
+      );
+      const uniqueAdvisors = new Set(ratings.map((r) => r.advisorId));
+      const lowRatingsCount = ratings.filter((r) => r.rating <= 2).length;
 
-      const dist = [0, 0, 0, 0, 0];
-      ratings.forEach(r => {
-        if (r.rating >= 1 && r.rating <= 5) dist[r.rating - 1]++;
+      const distribution = [0, 0, 0, 0, 0];
+      ratings.forEach((r) => {
+        if (r.rating >= 1 && r.rating <= 5) {
+          distribution[r.rating - 1]++;
+        }
       });
 
       return {
@@ -473,52 +571,75 @@
         avgRating: totalRatingSum / ratings.length,
         totalAdvisors: uniqueAdvisors.size,
         lowRatings: lowRatingsCount,
-        ratingDistribution: dist
+        ratingDistribution: distribution,
       };
     }
 
     function updateStatsAndChart(ratings) {
       const stats = calculateStats(ratings);
 
-      document.getElementById("total-ratings").textContent  = stats.totalRatings;
-      document.getElementById("avg-rating").textContent      = stats.totalRatings ? stats.avgRating.toFixed(1) : "N/A";
-      document.getElementById("total-advisors").textContent  = stats.totalAdvisors;
-      document.getElementById("low-ratings").textContent     = stats.lowRatings;
+      document.getElementById("total-ratings").textContent =
+        stats.totalRatings;
+      document.getElementById("avg-rating").textContent = stats.totalRatings
+        ? stats.avgRating.toFixed(1)
+        : "N/A";
+      document.getElementById("total-advisors").textContent =
+        stats.totalAdvisors;
+      document.getElementById("low-ratings").textContent = stats.lowRatings;
 
       renderChart(stats.ratingDistribution);
     }
 
     function updateFilterOptions(ratings) {
-      const advisors = [...new Set(
-        ratings.map(r => JSON.stringify({ id: r.advisorId, name: r.advisorName }))
-      )].map(str => JSON.parse(str));
+      const advisors = [
+        ...new Set(
+          ratings.map((r) =>
+            JSON.stringify({ id: r.advisorId, name: r.advisorName })
+          )
+        ),
+      ].map((str) => JSON.parse(str));
 
-      const current = advisorFilter.value;
-      advisorFilter.innerHTML = '<option value="">Todos los asesores</option>';
+      const currentFilter = advisorFilter.value;
 
-      advisors.forEach(a => {
-        if (!a.id) return;
-        const opt = document.createElement("option");
-        opt.value = a.id;
-        opt.textContent = a.name || a.id;
-        if (a.id === current) opt.selected = true;
-        advisorFilter.appendChild(opt);
+      advisorFilter.innerHTML =
+        '<option value="">Todos los asesores</option>';
+
+      advisors.forEach((advisor) => {
+        if (!advisor.id) return;
+        const option = document.createElement("option");
+        option.value = advisor.id;
+        option.textContent = advisor.name || advisor.id;
+        if (advisor.id === currentFilter) option.selected = true;
+        advisorFilter.appendChild(option);
       });
     }
 
-    function renderChart(data) {
-      const ctx = document.getElementById("rating-distribution-chart").getContext("2d");
-      if (chartInstance) chartInstance.destroy();
+    function renderChart(distributionData) {
+      const ctx = document
+        .getElementById("rating-distribution-chart")
+        .getContext("2d");
+
+      if (chartInstance) {
+        chartInstance.destroy();
+      }
 
       chartInstance = new Chart(ctx, {
         type: "bar",
         data: {
           labels: ["1 ★", "2 ★", "3 ★", "4 ★", "5 ★"],
-          datasets: [{
-            data,
-            backgroundColor: ["#DC2626", "#F97316", "#4B5563", "#3B82F6", "#10B981"],
-            borderRadius: 6
-          }]
+          datasets: [
+            {
+              data: distributionData,
+              backgroundColor: [
+                "#DC2626",
+                "#F97316",
+                "#4B5563",
+                "#3B82F6",
+                "#10B981",
+              ],
+              borderRadius: 6,
+            },
+          ],
         },
         options: {
           responsive: true,
@@ -527,55 +648,74 @@
             y: {
               beginAtZero: true,
               ticks: { color: "#e5e7eb", precision: 0 },
-              grid: { color: "#27272a" }
+              grid: { color: "#27272a" },
             },
             x: {
               ticks: { color: "#e5e7eb" },
-              grid: { display: false }
-            }
+              grid: { display: false },
+            },
           },
-          plugins: { legend: { display: false } }
-        }
+          plugins: {
+            legend: { display: false },
+          },
+        },
       });
     }
 
     function renderRatingsList(ratings) {
-      const container = document.getElementById("ratings-list-container");
+      const container = document.getElementById(
+        "ratings-list-container"
+      );
       container.innerHTML = "";
 
       if (!ratings.length) {
         const msg = document.createElement("p");
-        msg.textContent = "No hay calificaciones registradas o no coinciden con los filtros.";
+        msg.textContent =
+          "No hay calificaciones registradas o no coinciden con los filtros.";
         msg.className = "text-center text-gray-500 text-sm mt-6";
         container.appendChild(msg);
         return;
       }
 
-      ratings.forEach(r => {
-        const isNegative = r.rating <= 2;
-        const date = r.timestamp
-          ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })
+      ratings.forEach((rating) => {
+        const isNegative = rating.rating <= 2;
+        const date = rating.timestamp
+          ? new Date(rating.timestamp).toLocaleString("es-ES", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })
           : "-";
 
-        const row = document.createElement("div");
-        row.className = "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-zinc-800/80 rounded-xl px-3 py-2 bg-zinc-950/80";
+        const ratingCard = document.createElement("div");
+        ratingCard.className =
+          "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-zinc-800/80 rounded-xl px-3 py-2 bg-zinc-950/80";
 
-        row.innerHTML = `
+        ratingCard.innerHTML = `
           <div class="flex items-center justify-between md:block">
-            <p class="text-sm font-semibold text-white">${r.advisorName || r.advisorId || "Asesor"}</p>
+            <p class="text-sm font-semibold text-white">${
+              rating.advisorName || rating.advisorId || "Asesor"
+            }</p>
             <p class="md:hidden text-xs text-gray-500 mt-0.5">${date}</p>
           </div>
           <div class="flex items-center md:justify-start justify-between">
-            <span class="text-base font-bold ${isNegative ? "text-red-400" : "text-yellow-300"}">
-              ${r.rating ?? "-"} / 5
+            <span class="text-base font-bold ${
+              isNegative ? "text-red-400" : "text-yellow-300"
+            }">
+              ${rating.rating ?? "-"} / 5
             </span>
           </div>
           <div class="text-xs text-gray-200 md:pr-4">
-            ${r.comments ? r.comments.replace(/\n/g, "<br>") : "— Sin comentarios —"}
+            ${
+              rating.comments
+                ? rating.comments.replace(/\n/g, "<br>")
+                : "— Sin comentarios —"
+            }
           </div>
           <div class="hidden md:block text-xs text-gray-400">${date}</div>
           <div class="flex justify-end">
-            <button data-id="${r.id}" class="delete-button text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-zinc-800 transition">
+            <button data-id="${
+              rating.id
+            }" class="delete-button text-red-400 hover:text-red-500 p-2 rounded-full hover:bg-zinc-800 transition">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
                 viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -585,19 +725,30 @@
           </div>
         `;
 
-        container.appendChild(row);
+        container.appendChild(ratingCard);
       });
 
-      document.querySelectorAll(".delete-button").forEach(btn => {
-        btn.addEventListener("click", async (e) => {
-          const id = e.currentTarget.dataset.id;
-          if (confirm("¿Eliminar esta calificación?")) {
-            const ref = doc(db, PUBLIC_RATINGS_COLLECTION, id);
+      document.querySelectorAll(".delete-button").forEach((button) => {
+        button.addEventListener("click", async (e) => {
+          const ratingId = e.currentTarget.dataset.id;
+          if (
+            confirm(
+              "¿Estás seguro de que quieres eliminar esta calificación?"
+            )
+          ) {
+            const ratingRef = doc(
+              db,
+              PUBLIC_RATINGS_COLLECTION,
+              ratingId
+            );
             try {
-              await deleteDoc(ref);
-            } catch (err) {
-              console.error("Error al eliminar:", err);
-              alert("No se pudo eliminar. Revisa permisos.");
+              await deleteDoc(ratingRef);
+              console.log("Calificación eliminada:", ratingId);
+            } catch (e) {
+              console.error("Error al eliminar calificación:", e);
+              alert(
+                "Error: No se pudo eliminar la calificación. Verifica permisos."
+              );
             }
           }
         });
@@ -610,22 +761,27 @@
 
       container.innerHTML = "";
 
-      const critical = ratings.filter(r => (r.rating || 0) <= 2);
+      const critical = ratings.filter((r) => (r.rating || 0) <= 2);
 
       if (!critical.length) {
-        container.innerHTML = "<p class='text-center text-gray-500 text-sm'>No hay calificaciones críticas con los filtros actuales.</p>";
+        container.innerHTML =
+          "<p class='text-center text-gray-500 text-sm'>No hay calificaciones críticas con los filtros actuales.</p>";
         return;
       }
 
-      critical.forEach(r => {
+      critical.forEach((r) => {
         const date = r.timestamp
-          ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "medium", timeStyle: "short" })
+          ? new Date(r.timestamp).toLocaleString("es-ES", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })
           : "-";
 
         const phone = r.clientPhone || r.client_phone || "";
 
         const row = document.createElement("div");
-        row.className = "flex flex-col md:flex-row md:items-center md:justify-between gap-2 border border-red-500/40 rounded-xl px-3 py-2 bg-red-950/30";
+        row.className =
+          "flex flex-col md:flex-row md:items-center md:justify-between gap-2 border border-red-500/40 rounded-xl px-3 py-2 bg-red-950/30";
 
         row.innerHTML = `
           <div>
@@ -633,10 +789,14 @@
               ${r.advisorName || r.advisorId || "Asesor"}
               <span class="text-xs font-normal text-gray-400">(${r.rating} ★)</span>
             </p>
-            <p class="text-xs text-gray-300 mt-1">${r.comments || "— Sin comentarios —"}</p>
+            <p class="text-xs text-gray-300 mt-1">${
+              r.comments || "— Sin comentarios —"
+            }</p>
           </div>
           <div class="text-right text-xs text-gray-300">
-            <p><span class="font-semibold text-red-300">Tel:</span> ${phone || "No proporcionado"}</p>
+            <p><span class="font-semibold text-red-300">Tel:</span> ${
+              phone || "No proporcionado"
+            }</p>
             <p class="mt-1 text-[11px] text-gray-400">${date}</p>
           </div>
         `;
@@ -651,16 +811,17 @@
         return;
       }
 
-      const rows = [
-        ["Asesor", "Rating", "Comentario", "Fecha", "Teléfono"]
-      ];
+      const rows = [["Asesor", "Rating", "Comentario", "Fecha", "Teléfono"]];
 
-      currentFilteredRatings.forEach(r => {
+      currentFilteredRatings.forEach((r) => {
         const nombre = r.advisorName || r.advisorId || "";
         const rating = r.rating != null ? String(r.rating) : "";
         const comentario = (r.comments || "").replace(/\r?\n/g, " ");
         const fecha = r.timestamp
-          ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
+          ? new Date(r.timestamp).toLocaleString("es-ES", {
+              dateStyle: "short",
+              timeStyle: "short",
+            })
           : "";
         const phone = r.clientPhone || r.client_phone || "";
 
@@ -668,14 +829,17 @@
       });
 
       const csv = rows
-        .map(row => row
-          .map(field => `"${String(field).replace(/"/g, '""')}"`)
-          .join(";")
+        .map((row) =>
+          row
+            .map((field) => `"${String(field).replace(/"/g, '""')}"`)
+            .join(";")
         )
         .join("\r\n");
 
-      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-      const url  = URL.createObjectURL(blob);
+      const blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
       link.download = "reporte_calificaciones.csv";
@@ -692,41 +856,49 @@
       }
 
       const { jsPDF } = window.jspdf;
-      const doc = new jsPDF();
+      const docPdf = new jsPDF();
 
-      doc.setFontSize(14);
-      doc.text("Reporte de calificaciones", 14, 18);
-      doc.setFontSize(10);
-      doc.text(`Generado: ${new Date().toLocaleString("es-ES")}`, 14, 24);
+      docPdf.setFontSize(14);
+      docPdf.text("Reporte de calificaciones - Barbero Pro", 14, 18);
+      docPdf.setFontSize(10);
+      docPdf.text(
+        `Generado: ${new Date().toLocaleString("es-ES")}`,
+        14,
+        24
+      );
 
-      const body = currentFilteredRatings.map(r => [
+      const body = currentFilteredRatings.map((r) => [
         r.advisorName || r.advisorId || "",
         r.rating != null ? String(r.rating) : "",
         (r.comments || "").replace(/\r?\n/g, " "),
         r.timestamp
-          ? new Date(r.timestamp).toLocaleString("es-ES", { dateStyle: "short", timeStyle: "short" })
+          ? new Date(r.timestamp).toLocaleString("es-ES", {
+              dateStyle: "short",
+              timeStyle: "short",
+            })
           : "",
-        r.clientPhone || r.client_phone || ""
+        r.clientPhone || r.client_phone || "",
       ]);
 
-      doc.autoTable({
+      docPdf.autoTable({
         startY: 30,
         head: [["Asesor", "Rating", "Comentario", "Fecha", "Teléfono"]],
         body,
         styles: { fontSize: 8, cellPadding: 2 },
-        headStyles: { fillColor: [15, 23, 42] }
+        headStyles: { fillColor: [15, 23, 42] },
       });
 
-      doc.save("reporte_calificaciones.pdf");
+      docPdf.save("reporte_calificaciones.pdf");
     }
 
     // Inicializar
     initFirebase();
 
-    document.getElementById("export-excel-button")
+    document
+      .getElementById("export-excel-button")
       .addEventListener("click", exportToCSV);
-
-    document.getElementById("export-pdf-button")
+    document
+      .getElementById("export-pdf-button")
       .addEventListener("click", exportToPDF);
   </script>
 </body>
