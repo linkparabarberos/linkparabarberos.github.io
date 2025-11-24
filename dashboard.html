@@ -859,7 +859,7 @@
       const docPdf = new jsPDF();
 
       docPdf.setFontSize(14);
-      docPdf.text("Reporte de calificaciones - Barbero Pro", 14, 18);
+      docPdf.text("Reporte de calificaciones", 14, 18);
       docPdf.setFontSize(10);
       docPdf.text(
         `Generado: ${new Date().toLocaleString("es-ES")}`,
@@ -882,7 +882,7 @@
 
       docPdf.autoTable({
         startY: 30,
-        head: [["Asesor", "Rating", "Comentario", "Fecha", "Teléfono"]],
+        head: [["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono"]],
         body,
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [15, 23, 42] },
