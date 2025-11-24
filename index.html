@@ -303,29 +303,30 @@
     }
 
     // ESTRELLAS
-    if (ratingStars) {
-      ratingStars.querySelectorAll(".rating-star").forEach((star) => {
-        star.addEventListener("click", () => {
-          const value = parseInt(star.dataset.value, 10);
-          ratingValueInput.value = value;
+if (ratingStars) {
+  ratingStars.querySelectorAll(".rating-star").forEach((star) => {
+    star.addEventListener("click", () => {
+      const value = parseInt(star.dataset.value, 10);
+      ratingValueInput.value = value;
 
-          ratingStars.querySelectorAll(".rating-star").forEach((s) => {
-            const v = parseInt(s.dataset.value, 10);
-            if (v <= value) {
-              s.classList.add("active");
-            } else {
-              s.classList.remove("active");
-            }
-          });
-
-          if (value <= 2) {
-            openLowRatingModal();
-          } else {
-            clientPhoneHidden.value = "";
-          }
-        });
+      // Pintar / despintar estrellas
+      ratingStars.querySelectorAll(".rating-star").forEach((s) => {
+        const v = parseInt(s.dataset.value, 10);
+        if (v <= value) {
+          s.classList.add("active");
+        } else {
+          s.classList.remove("active");
+        }
       });
-    }
+
+      // NO abrir modal aquí; solo limpiamos el teléfono si la nota es buena
+      if (value > 2) {
+        clientPhoneHidden.value = "";
+      }
+    });
+  });
+}
+
 
     // MODAL TELÉFONO
     savePhoneBtn.addEventListener("click", () => {
