@@ -335,6 +335,85 @@
       </div>
     </div>
   </div>
+      <!-- CASOS SOLUCIONADOS -->
+    <div class="mt-6">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-white">
+          Casos solucionados
+        </h2>
+        <p class="text-[11px] text-gray-500">
+          Historial de casos críticos que ya fueron atendidos.
+        </p>
+      </div>
+      <div id="resolved-container" class="card rounded-2xl p-4">
+        <!-- Se rellena con JS -->
+      </div>
+    </div>
+    <!-- MODAL: MARCAR CASO COMO SOLUCIONADO -->
+  <div
+    id="resolve-modal"
+    class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden"
+  >
+    <div
+      class="bg-neutral-950 border border-emerald-500/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
+    >
+      <h2 class="text-xl font-bold text-white mb-2">
+        Marcar caso como solucionado
+      </h2>
+      <p class="text-sm text-gray-300 mb-4">
+        Registra quién dio solución y qué acciones se realizaron.
+      </p>
+
+      <label
+        for="resolver-name"
+        class="block text-xs text-gray-400 mb-1"
+      >
+        Nombre de quien lo solucionó
+      </label>
+      <input
+        id="resolver-name"
+        type="text"
+        placeholder="Ej: Jahan Michelle"
+        class="w-full px-3 py-2 mb-3 rounded-lg border border-gray-600 bg-black text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/70"
+      />
+
+      <label
+        for="resolution-text"
+        class="block text-xs text-gray-400 mb-1"
+      >
+        Solución aplicada
+      </label>
+      <textarea
+        id="resolution-text"
+        rows="3"
+        placeholder="Describe brevemente la solución aplicada..."
+        class="w-full px-3 py-2 mb-3 rounded-lg border border-gray-600 bg-black text-white text-sm focus:outline-none focus:ring-2 focus:ring-emerald-400/70"
+      ></textarea>
+
+      <p
+        id="resolve-error"
+        class="text-xs text-red-400 mb-3 hidden"
+      ></p>
+
+      <div class="flex justify-end gap-2">
+        <button
+          id="cancel-resolve-btn"
+          type="button"
+          class="px-3 py-2 rounded-lg text-xs text-gray-300 hover:bg-neutral-800"
+        >
+          Cancelar
+        </button>
+        <button
+          id="save-resolve-btn"
+          type="button"
+          class="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-xs font-semibold text-black"
+        >
+          Guardar solución
+        </button>
+      </div>
+    </div>
+  </div>
+
 
   <!-- FIREBASE + LÓGICA -->
   <script type="module">
@@ -346,13 +425,14 @@
       signOut,
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import {
-      getFirestore,
-      doc,
-      collection,
-      query,
-      onSnapshot,
-      deleteDoc,
-    } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  getFirestore,
+  doc,
+  collection,
+  query,
+  onSnapshot,
+  deleteDoc,
+  setDoc,
+} from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyBzlULX6R3zu_7HxLYUWG4WFIqrKXpeLSg",
@@ -382,6 +462,16 @@
     const applyFiltersButton = document.getElementById("apply-filters-button");
 
     const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
+        
+    let resolveTargetId = null;
+
+    const resolveModal = document.getElementById("resolve-modal");
+    const resolverNameInput = document.getElementById("resolver-name");
+    const resolutionTextInput = document.getElementById("resolution-text");
+    const resolveErrorEl = document.getElementById("resolve-error");
+    const cancelResolveBtn = document.getElementById("cancel-resolve-btn");
+    const saveResolveBtn = document.getElementById("save-resolve-btn");
+
 
     function showScreen(id) {
       authScreen.classList.add("hidden");
@@ -538,6 +628,7 @@
       renderRatingsList(filtered);
       updateStatsAndChart(filtered);
       renderCriticalList(filtered);
+      renderResolvedList(filtered);
       currentFilteredRatings = filtered;
     }
 
@@ -755,17 +846,19 @@
       });
     }
 
-    function renderCriticalList(ratings) {
+        function renderCriticalList(ratings) {
       const container = document.getElementById("critical-container");
       if (!container) return;
 
       container.innerHTML = "";
 
-      const critical = ratings.filter((r) => (r.rating || 0) <= 2);
+      const critical = ratings.filter(
+        (r) => (r.rating || 0) <= 2 && !r.resolved
+      );
 
       if (!critical.length) {
         container.innerHTML =
-          "<p class='text-center text-gray-500 text-sm'>No hay calificaciones críticas con los filtros actuales.</p>";
+          "<p class='text-center text-gray-500 text-sm'>No hay calificaciones críticas pendientes con los filtros actuales.</p>";
         return;
       }
 
@@ -781,7 +874,7 @@
 
         const row = document.createElement("div");
         row.className =
-          "flex flex-col md:flex-row md:items-center md:justify-between gap-2 border border-red-500/40 rounded-xl px-3 py-2 bg-red-950/30";
+          "flex flex-col md:flex-row md:items-center md:justify-between gap-3 border border-red-500/40 rounded-xl px-3 py-3 bg-red-950/30";
 
         row.innerHTML = `
           <div>
@@ -789,15 +882,108 @@
               ${r.advisorName || r.advisorId || "Asesor"}
               <span class="text-xs font-normal text-gray-400">(${r.rating} ★)</span>
             </p>
-            <p class="text-xs text-gray-300 mt-1">${
-              r.comments || "— Sin comentarios —"
-            }</p>
+            <p class="text-xs text-gray-300 mt-1">
+              ${r.comments || "— Sin comentarios —"}
+            </p>
+            <p class="mt-1 text-[11px] text-gray-400 md:hidden">${date}</p>
           </div>
-          <div class="text-right text-xs text-gray-300">
+          <div class="flex flex-col items-end text-xs text-gray-300 gap-1">
             <p><span class="font-semibold text-red-300">Tel:</span> ${
               phone || "No proporcionado"
             }</p>
-            <p class="mt-1 text-[11px] text-gray-400">${date}</p>
+            <p class="hidden md:block text-[11px] text-gray-400">${date}</p>
+            <button
+              class="mt-1 px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-[11px] font-semibold text-black transition resolve-button"
+              data-id="${r.id}"
+            >
+              Marcar como solucionado
+            </button>
+          </div>
+        `;
+
+        container.appendChild(row);
+      });
+
+      // Listeners de los botones "Marcar como solucionado"
+      document.querySelectorAll(".resolve-button").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          resolveTargetId = e.currentTarget.dataset.id;
+          if (!resolveTargetId) return;
+          resolveErrorEl.classList.add("hidden");
+          resolverNameInput.value = "";
+          resolutionTextInput.value = "";
+          resolveModal.classList.remove("hidden");
+          setTimeout(() => resolverNameInput?.focus(), 10);
+        });
+      });
+    }
+
+        function renderResolvedList(ratings) {
+      const container = document.getElementById("resolved-container");
+      if (!container) return;
+
+      container.innerHTML = "";
+
+      const resolved = ratings.filter(
+        (r) => (r.rating || 0) <= 2 && r.resolved
+      );
+
+      if (!resolved.length) {
+        container.innerHTML =
+          "<p class='text-center text-gray-500 text-sm'>Aún no hay casos solucionados con los filtros actuales.</p>";
+        return;
+      }
+
+      resolved.forEach((r) => {
+        const date = r.timestamp
+          ? new Date(r.timestamp).toLocaleString("es-ES", {
+              dateStyle: "medium",
+              timeStyle: "short",
+            })
+          : "-";
+
+        const resolvedAt = r.resolvedAt
+          ? new Date(r.resolvedAt).toLocaleString("es-ES", {
+              dateStyle: "short",
+              timeStyle: "short",
+            })
+          : "";
+
+        const phone = r.clientPhone || r.client_phone || "";
+
+        const row = document.createElement("div");
+        row.className =
+          "flex flex-col md:flex-row md:items-center md:justify-between gap-2 border border-emerald-500/40 rounded-xl px-3 py-3 bg-emerald-950/30";
+
+        row.innerHTML = `
+          <div>
+            <p class="text-sm font-semibold text-white">
+              ${r.advisorName || r.advisorId || "Asesor"}
+              <span class="text-xs font-normal text-gray-400">(${r.rating} ★)</span>
+            </p>
+            <p class="text-xs text-gray-300 mt-1">
+              ${r.comments || "— Sin comentarios del cliente —"}
+            </p>
+            <p class="text-[11px] text-emerald-300 mt-1">
+              <span class="font-semibold">Solución:</span>
+              ${r.resolution || "— Sin detalle de solución —"}
+            </p>
+          </div>
+          <div class="text-right text-xs text-gray-300">
+            <p><span class="font-semibold text-emerald-300">Atendido por:</span> ${
+              r.resolvedBy || "No registrado"
+            }</p>
+            <p><span class="font-semibold text-emerald-300">Tel:</span> ${
+              phone || "No proporcionado"
+            }</p>
+            <p class="mt-1 text-[11px] text-gray-400">
+              Recibido: ${date}
+            </p>
+            ${
+              resolvedAt
+                ? `<p class="text-[11px] text-gray-400">Solucionado: ${resolvedAt}</p>`
+                : ""
+            }
           </div>
         `;
 
@@ -890,6 +1076,50 @@
 
       docPdf.save("reporte_calificaciones.pdf");
     }
+        // BOTONES DEL MODAL DE SOLUCIÓN
+    cancelResolveBtn.addEventListener("click", () => {
+      resolveTargetId = null;
+      resolveModal.classList.add("hidden");
+      resolveErrorEl.classList.add("hidden");
+    });
+
+    saveResolveBtn.addEventListener("click", async () => {
+      if (!resolveTargetId) return;
+
+      const name = resolverNameInput.value.trim();
+      const resolution = resolutionTextInput.value.trim();
+
+      if (name.length < 2 || resolution.length < 5) {
+        resolveErrorEl.textContent =
+          "Por favor ingresa el nombre y una breve descripción de la solución.";
+        resolveErrorEl.classList.remove("hidden");
+        return;
+      }
+
+      resolveErrorEl.classList.add("hidden");
+
+      const ref = doc(db, PUBLIC_RATINGS_COLLECTION, resolveTargetId);
+      try {
+        await setDoc(
+          ref,
+          {
+            resolved: true,
+            resolvedBy: name,
+            resolution: resolution,
+            resolvedAt: new Date().toISOString(),
+          },
+          { merge: true }
+        );
+        resolveModal.classList.add("hidden");
+        resolveTargetId = null;
+      } catch (e) {
+        console.error("Error al guardar solución:", e);
+        resolveErrorEl.textContent =
+          "No se pudo guardar la solución. Revisa la consola.";
+        resolveErrorEl.classList.remove("hidden");
+      }
+    });
+
 
     // Inicializar
     initFirebase();
