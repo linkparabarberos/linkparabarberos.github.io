@@ -845,88 +845,84 @@
         });
       });
     }
-
     function renderCriticalList(ratings) {
-      const container = document.getElementById("critical-container");
-      if (!container) return;
+  const container = document.getElementById("critical-container");
+  container.innerHTML = "";
 
-      container.innerHTML = "";
+  if (!ratings || ratings.length === 0) {
+    container.innerHTML =
+      '<p class="text-xs text-gray-500">No hay casos pendientes para contactar.</p>';
+    return;
+  }
 
-      const critical = ratings.filter(
-        (r) => (r.rating || 0) <= 2 && !r.resolved
-      );
+  ratings.forEach((r) => {
+    const phone =
+      r.phone ||
+      r.whatsappPhone ||
+      r.clientPhone ||
+      r.telefono ||
+      r.phoneNumber ||
+      null;
 
-      if (!critical.length) {
-        container.innerHTML =
-          "<p class='text-center text-gray-500 text-sm'>No hay calificaciones críticas pendientes con los filtros actuales.</p>";
-        return;
-      }
+    const date = r.timestamp
+      ? new Date(r.timestamp).toLocaleString("es-ES", {
+          dateStyle: "medium",
+          timeStyle: "short",
+        })
+      : "";
 
-      critical.forEach((r) => {
-        const date = r.timestamp
-          ? new Date(r.timestamp).toLocaleString("es-ES", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })
-          : "-";
+    // MISMA ESTRUCTURA DE GRID Y PADDING QUE CALIFICACIONES RECIENTES
+    const row = document.createElement("div");
+    row.className =
+      "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-red-300 rounded-xl px-3 py-2 bg-red-50";
 
-        const phone = r.clientPhone || r.client_phone || "";
-        const row = document.createElement("div");
-row.className =
-  "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-red-300 rounded-xl px-3 py-2 bg-red-50";
+    row.innerHTML = `
+      <!-- Columna 1: Asesor + rating + comentario -->
+      <div>
+        <p class="text-sm font-semibold text-gray-900">
+          ${r.advisorName || r.advisorId || "Asesor"}
+          <span class="text-xs font-normal text-gray-500">(${r.rating} ★)</span>
+        </p>
+        <p class="text-xs text-gray-800 mt-1">
+          ${r.comments || "— Sin comentarios —"}
+        </p>
+      </div>
 
-row.innerHTML = `
-  <!-- Columna 1: Asesor + rating + comentario -->
-  <div>
-    <p class="text-sm font-semibold text-gray-900">
-      ${r.advisorName || r.advisorId || "Asesor"}
-      <span class="text-xs font-normal text-gray-500">(${r.rating} ★)</span>
-    </p>
-    <p class="text-xs text-gray-800 mt-1">
-      ${r.comments || "— Sin comentarios —"}
-    </p>
-  </div>
+      <!-- Columna 2: Teléfono -->
+      <div class="text-xs text-gray-800 md:text-center">
+        <p>
+          <span class="font-semibold text-red-500">Tel:</span>
+          ${phone || "No proporcionado"}
+        </p>
+      </div>
 
-  <!-- Columna 2: Teléfono -->
-  <div class="text-xs text-gray-800 md:text-center">
-    <p>
-      <span class="font-semibold text-red-500">Tel:</span>
-      ${phone || "No proporcionado"}
-    </p>
-  </div>
+      <!-- Columna 3: Fecha -->
+      <div class="hidden md:block text-xs text-gray-600">
+        ${date}
+      </div>
 
-  <!-- Columna 3: Fecha (solo en escritorio) -->
-  <div class="hidden md:block text-xs text-gray-600">
-    ${date}
-  </div>
+      <!-- Columna 4: Botón (CUADRADO, no óvalo) -->
+      <div class="flex justify-end">
+        <button
+          class="resolve-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-lg shadow-sm transition"
+          data-id="${r.id}"
+        >
+          Marcar como solucionado
+        </button>
+      </div>
+    `;
 
-  <!-- Columna 4: Botón -->
-  <div class="flex justify-end">
-    <button
-      class="resolve-button text-xs bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-3 py-1 rounded-full transition"
-      data-id="${r.id}"
-    >
-      Marcar como solucionado
-    </button>
-  </div>
-`;
+    container.appendChild(row);
+  });
 
-container.appendChild(row);
-      });
-
-      // Listeners de los botones "Marcar como solucionado"
-      document.querySelectorAll(".resolve-button").forEach((btn) => {
-        btn.addEventListener("click", (e) => {
-          resolveTargetId = e.currentTarget.dataset.id;
-          if (!resolveTargetId) return;
-          resolveErrorEl.classList.add("hidden");
-          resolverNameInput.value = "";
-          resolutionTextInput.value = "";
-          resolveModal.classList.remove("hidden");
-          setTimeout(() => resolverNameInput?.focus(), 10);
-        });
-      });
-    }
+  // Volvemos a enganchar los listeners del botón
+  container.querySelectorAll(".resolve-button").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const id = e.currentTarget.dataset.id;
+      openResolveModal(id);
+    });
+  });
+}
 
     function renderResolvedList(ratings) {
       const container = document.getElementById("resolved-container");
