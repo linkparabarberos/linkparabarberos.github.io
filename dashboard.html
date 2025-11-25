@@ -314,21 +314,38 @@
     </div>
 
     <!-- CASOS CRÍTICOS -->
-<div class="mt-10">
-  <div class="flex items-center justify-between mb-3">
-    <h2 class="text-lg font-semibold text-black">
+    <div class="mt-10">
+      <div class="flex items-center justify-between mb-3">
+        <h2 class="text-lg font-semibold text-gray-900">
       Casos para contactar (1–2 estrellas)
     </h2>
     <p class="text-[11px] text-gray-500">
       Muestra clientes con calificaciones bajas y su número de teléfono.
     </p>
   </div>
-  <div
-    id="critical-container"
-    class="card rounded-2xl p-4 space-y-3 max-h-[380px] overflow-y-auto pr-1"
-  >
+
+  <!-- Card que envuelve cabecera + lista (igual estilo que calificaciones recientes) -->
+  <div class="card rounded-2xl p-4">
+    <!-- Cabecera tipo tabla -->
+    <div
+      class="hidden md:grid md:grid-cols-[2fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-500 uppercase tracking-wide mb-2 px-1"
+    >
+      <span>Asesor</span>
+      <span class="text-center">Teléfono proporcionado</span>
+      <span>Fecha del reporte</span>
+      <span class="text-center">Acción</span>
+    </div>
+
+    <!-- Lista con scroll, igual que “Calificaciones recientes” -->
+    <div
+      id="critical-container"
+      class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
+    >
+      <!-- Se rellena con JS -->
+    </div>
   </div>
 </div>
+
 
     <!-- CASOS SOLUCIONADOS -->
     <div class="mt-6">
@@ -845,21 +862,31 @@
         });
       });
     }
+
     function renderCriticalList(ratings) {
   const container = document.getElementById("critical-container");
+  if (!container) return;
+
   container.innerHTML = "";
 
-  if (!ratings || ratings.length === 0) {
+  // ✅ SOLO casos con 1 o 2 estrellas y que NO estén marcados como resueltos
+  const critical = (ratings || []).filter(
+    (r) => (r.rating || 0) <= 2 && !r.resolved
+  );
+
+  if (!critical.length) {
     container.innerHTML =
-      '<p class="text-xs text-gray-500">No hay casos pendientes para contactar.</p>';
+      '<p class="text-xs text-gray-500">No hay casos pendientes con los filtros actuales.</p>';
     return;
   }
 
-  ratings.forEach((r) => {
+  critical.forEach((r) => {
+    // Intentamos encontrar un teléfono con distintos nombres de campo
     const phone =
       r.phone ||
       r.whatsappPhone ||
       r.clientPhone ||
+      r.client_phone ||
       r.telefono ||
       r.phoneNumber ||
       null;
@@ -871,13 +898,15 @@
         })
       : "";
 
-    // MISMA ESTRUCTURA DE GRID Y PADDING QUE CALIFICACIONES RECIENTES
     const row = document.createElement("div");
+
+    // 📐 Mismo estilo de “fila” que Calificaciones recientes,
+    // pero con fondo rojo suave
     row.className =
-      "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-red-300 rounded-xl px-3 py-2 bg-red-50";
+      "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,40px] gap-2 items-center border border-red-200 rounded-xl px-3 py-2 bg-red-50";
 
     row.innerHTML = `
-      <!-- Columna 1: Asesor + rating + comentario -->
+      <!-- Columna Asesor + comentario -->
       <div>
         <p class="text-sm font-semibold text-gray-900">
           ${r.advisorName || r.advisorId || "Asesor"}
@@ -886,9 +915,10 @@
         <p class="text-xs text-gray-800 mt-1">
           ${r.comments || "— Sin comentarios —"}
         </p>
+        <p class="mt-1 text-[11px] text-gray-500 md:hidden">${date}</p>
       </div>
 
-      <!-- Columna 2: Teléfono -->
+      <!-- Columna Teléfono -->
       <div class="text-xs text-gray-800 md:text-center">
         <p>
           <span class="font-semibold text-red-500">Tel:</span>
@@ -896,12 +926,12 @@
         </p>
       </div>
 
-      <!-- Columna 3: Fecha -->
-      <div class="hidden md:block text-xs text-gray-600">
+      <!-- Columna Fecha (solo desktop) -->
+      <div class="hidden md:block text-xs text-gray-500">
         ${date}
       </div>
 
-      <!-- Columna 4: Botón (CUADRADO, no óvalo) -->
+      <!-- Columna Acción -->
       <div class="flex justify-end">
         <button
           class="resolve-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-lg shadow-sm transition"
@@ -915,11 +945,12 @@
     container.appendChild(row);
   });
 
-  // Volvemos a enganchar los listeners del botón
+  // Listeners del botón "Marcar como solucionado"
   container.querySelectorAll(".resolve-button").forEach((btn) => {
     btn.addEventListener("click", (e) => {
       const id = e.currentTarget.dataset.id;
-      openResolveModal(id);
+      if (!id) return;
+      openResolveModal(id); // usa tu misma función del modal de solución
     });
   });
 }
