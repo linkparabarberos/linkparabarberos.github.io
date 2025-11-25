@@ -20,22 +20,19 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
   <style>
-    /* Fondo general claro */
     body {
       font-family: "Inter", sans-serif;
-      background-color: #f5f5f7;   /* gris muy claro */
-      color: #111827;              /* gris oscuro (casi negro) */
+      background-color: #f5f5f7;
+      color: #111827;
     }
 
-    /* Tarjetas blancas, minimalistas */
     .card {
       background-color: #ffffff;
-      border: 1px solid #e5e7eb;   /* gris clarito */
+      border: 1px solid #e5e7eb;
       box-shadow: 0 10px 25px rgba(15, 23, 42, 0.06);
       border-radius: 0.9rem;
     }
 
-    /* Inputs y selects claros */
     input,
     select {
       background-color: #f9fafb !important;
@@ -116,7 +113,6 @@
       </p>
     </div>
   </div>
-  
 
   <!-- DASHBOARD -->
   <div id="dashboard-content" class="max-w-7xl mx-auto hidden">
@@ -296,56 +292,51 @@
     </div>
 
     <div class="card rounded-2xl p-4 overflow-hidden">
-      <div class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100">
-  <span>ASESOR</span>
-  <span>CALIFICACIÓN</span>
-  <span>COMENTARIO</span>
-  <span>FECHA</span>
-  <span class="text-right">ACCIÓN</span>
-</div>
+      <!-- Cabecera tabla -->
+      <div
+        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100"
+      >
+        <span>ASESOR</span>
+        <span>CALIFICACIÓN</span>
+        <span>COMENTARIO</span>
+        <span>FECHA</span>
+        <span class="text-right">ACCIÓN</span>
+      </div>
 
-
+      <!-- Lista -->
       <div
         id="ratings-list-container"
         class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
-      >
-        <!-- Items -->
-      </div>
+      ></div>
     </div>
 
     <!-- CASOS CRÍTICOS -->
     <div class="mt-10">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold text-gray-900">
-      Casos para contactar (1–2 estrellas)
-    </h2>
-    <p class="text-[11px] text-gray-500">
-      Muestra clientes con calificaciones bajas y su número de teléfono.
-    </p>
-  </div>
+          Casos para contactar (1–2 estrellas)
+        </h2>
+        <p class="text-[11px] text-gray-500">
+          Muestra clientes con calificaciones bajas y su número de teléfono.
+        </p>
+      </div>
 
-  <!-- Card que envuelve cabecera + lista (igual estilo que calificaciones recientes) -->
-  <div class="card rounded-2xl p-4">
-    <!-- Cabecera tipo tabla -->
-    <div class="hidden md:grid grid-cols-[2fr,1.7fr,1.5fr,1.1fr] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-red-100">
-  <span>ASESOR</span>
-  <span>TELÉFONO PROPORCIONADO</span>
-  <span>FECHA DEL REPORTE</span>
-  <span class="text-right">ACCIÓN</span>
-</div>
+      <div class="card rounded-2xl p-4">
+        <div
+          class="hidden md:grid grid-cols-[2fr,1.7fr,1.5fr,1.1fr] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-red-100"
+        >
+          <span>ASESOR</span>
+          <span>TELÉFONO PROPORCIONADO</span>
+          <span>FECHA DEL REPORTE</span>
+          <span class="text-right">ACCIÓN</span>
+        </div>
 
-
-
-    <!-- Lista con scroll, igual que “Calificaciones recientes” -->
-    <div
-      id="critical-container"
-      class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
-    >
-      <!-- Se rellena con JS -->
+        <div
+          id="critical-container"
+          class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
+        ></div>
+      </div>
     </div>
-  </div>
-</div>
-
 
     <!-- CASOS SOLUCIONADOS -->
     <div class="mt-6">
@@ -358,9 +349,9 @@
         </p>
       </div>
       <div
-  id="resolved-container"
-  class="card rounded-2xl p-4 space-y-3 max-h-[380px] overflow-y-auto pr-1">
-</div>
+        id="resolved-container"
+        class="card rounded-2xl p-4 space-y-3 max-h-[380px] overflow-y-auto pr-1"
+      ></div>
     </div>
   </div>
 
@@ -428,56 +419,55 @@
       </div>
     </div>
   </div>
+
   <!-- MODAL: VER DETALLE DE CALIFICACIÓN -->
-<div
-  id="view-rating-modal"
-  class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center px-4"
->
   <div
-    class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative"
+    id="view-rating-modal"
+    class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center px-4"
   >
-    <!-- Botón cerrar -->
-    <button
-      type="button"
-      id="close-view-rating-modal"
-      class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+    <div
+      class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative"
     >
-      ✕
-    </button>
+      <button
+        type="button"
+        id="close-view-rating-modal"
+        class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+      >
+        ✕
+      </button>
 
-    <h2 class="text-xl font-bold text-gray-900 mb-4">
-      Detalle de calificación
-    </h2>
+      <h2 class="text-xl font-bold text-gray-900 mb-4">
+        Detalle de calificación
+      </h2>
 
-    <div class="space-y-3 text-sm">
-      <p>
-        <span class="font-semibold text-gray-700">Asesor:</span>
-        <span id="view-rating-advisor" class="text-gray-900"></span>
-      </p>
+      <div class="space-y-3 text-sm">
+        <p>
+          <span class="font-semibold text-gray-700">Asesor:</span>
+          <span id="view-rating-advisor" class="text-gray-900"></span>
+        </p>
 
-      <p>
-        <span class="font-semibold text-gray-700">Calificación:</span>
-        <span id="view-rating-score" class="text-gray-900"></span>
-      </p>
+        <p>
+          <span class="font-semibold text-gray-700">Calificación:</span>
+          <span id="view-rating-score" class="text-gray-900"></span>
+        </p>
 
-      <p>
-        <span class="font-semibold text-gray-700">Comentario:</span>
-        <span id="view-rating-comment" class="text-gray-900"></span>
-      </p>
+        <p>
+          <span class="font-semibold text-gray-700">Comentario:</span>
+          <span id="view-rating-comment" class="text-gray-900"></span>
+        </p>
 
-      <p>
-        <span class="font-semibold text-gray-700">Fecha:</span>
-        <span id="view-rating-date" class="text-gray-900"></span>
-      </p>
+        <p>
+          <span class="font-semibold text-gray-700">Fecha:</span>
+          <span id="view-rating-date" class="text-gray-900"></span>
+        </p>
 
-      <p>
-        <span class="font-semibold text-gray-700">Teléfono proporcionado:</span>
-        <span id="view-rating-phone" class="text-gray-900"></span>
-      </p>
+        <p>
+          <span class="font-semibold text-gray-700">Teléfono proporcionado:</span>
+          <span id="view-rating-phone" class="text-gray-900"></span>
+        </p>
+      </div>
     </div>
   </div>
-</div>
-
 
   <!-- FIREBASE + LÓGICA -->
   <script type="module">
@@ -494,7 +484,6 @@
       collection,
       query,
       onSnapshot,
-      deleteDoc,
       setDoc,
     } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
@@ -515,7 +504,6 @@
     let chartInstance = null;
     let currentFilteredRatings = [];
 
-    // DOM
     const authScreen = document.getElementById("auth-screen");
     const dashboardContent = document.getElementById("dashboard-content");
     const loadingSpinner = document.getElementById("loading-spinner");
@@ -635,7 +623,7 @@
       );
     }
 
-    // Eventos filtros (se aplican automáticamente al cambiar)
+    // Filtros
     advisorFilter.addEventListener("change", () => filterAndDisplayRatings());
 
     monthFilter.addEventListener("change", () => {
@@ -652,8 +640,8 @@
       let filtered = [...allRatings];
 
       const selectedAdvisor = advisorFilter.value;
-      const selectedMonth = monthFilter.value; // YYYY-MM
-      const selectedDay = dateFilter.value; // YYYY-MM-DD
+      const selectedMonth = monthFilter.value;
+      const selectedDay = dateFilter.value;
 
       if (selectedAdvisor) {
         filtered = filtered.filter((r) => r.advisorId === selectedAdvisor);
@@ -763,6 +751,17 @@
       });
     }
 
+    // ---- Helper para fechas (FALTABA) ----
+    function formatDate(timestamp) {
+      if (!timestamp) return "";
+      const d = new Date(timestamp);
+      if (isNaN(d)) return "";
+      return d.toLocaleString("es-ES", {
+        dateStyle: "medium",
+        timeStyle: "short",
+      });
+    }
+
     function renderChart(distributionData) {
       const ctx = document
         .getElementById("rating-distribution-chart")
@@ -811,224 +810,217 @@
       });
     }
 
+    // -------- LISTA PRINCIPAL + LUPA --------
     function renderRatingsList(ratings) {
-  const container = document.getElementById('ratings-list-container');
-  const emptyMsg = document.getElementById('no-ratings-message');
+      const container = document.getElementById("ratings-list-container");
+      const emptyMsg = document.getElementById("no-ratings-message");
 
-  container.innerHTML = '';
+      container.innerHTML = "";
 
-  if (!ratings || ratings.length === 0) {
-    if (emptyMsg) emptyMsg.classList.remove('hidden');
-    return;
-  }
-  if (emptyMsg) emptyMsg.classList.add('hidden');
+      if (!ratings || ratings.length === 0) {
+        if (emptyMsg) emptyMsg.classList.remove("hidden");
+        return;
+      }
+      if (emptyMsg) emptyMsg.classList.add("hidden");
 
-  ratings.forEach(rating => {
-    const row = document.createElement('div');
-    row.className =
-      'rounded-2xl bg-[#FFF5EB] border border-orange-200 px-4 py-3 shadow-sm';
+      ratings.forEach((rating) => {
+        const row = document.createElement("div");
+        row.className =
+          "rounded-2xl bg-[#FFF5EB] border border-orange-200 px-4 py-3 shadow-sm";
 
-    row.innerHTML = `
-      <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,auto] gap-3 md:items-center">
-        <!-- Asesor -->
-        <div class="font-semibold text-gray-900">
-          ${rating.advisorName || '—'}
-        </div>
+        row.innerHTML = `
+          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,auto] gap-3 md:items-center">
+            <div class="font-semibold text-gray-900">
+              ${rating.advisorName || "—"}
+            </div>
 
-        <!-- Calificación -->
-        <div class="text-sm font-semibold ${
-          rating.rating <= 2
-            ? 'text-red-500'
-            : rating.rating === 3
-            ? 'text-orange-500'
-            : 'text-yellow-500'
-        }">
-          ${rating.rating ?? '—'} / 5
-        </div>
+            <div class="text-sm font-semibold ${
+              rating.rating <= 2
+                ? "text-red-500"
+                : rating.rating === 3
+                ? "text-orange-500"
+                : "text-yellow-500"
+            }">
+              ${rating.rating ?? "—"} / 5
+            </div>
 
-        <!-- Comentario -->
-        <div class="text-sm text-gray-700">
-          ${rating.comments && rating.comments.trim()
-            ? rating.comments
-            : '— Sin comentarios —'}
-        </div>
+            <div class="text-sm text-gray-700">
+              ${
+                rating.comments && rating.comments.trim()
+                  ? rating.comments
+                  : "— Sin comentarios —"
+              }
+            </div>
 
-        <!-- Fecha -->
-        <div class="text-sm text-gray-500">
-          ${formatDate(rating.timestamp)}
-        </div>
+            <div class="text-sm text-gray-500">
+              ${formatDate(rating.timestamp)}
+            </div>
 
-        <!-- Acción: botón lupa -->
-        <div class="flex justify-end">
-          <button
-            type="button"
-            class="view-rating-button inline-flex items-center justify-center p-2 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition"
-          >
-            <!-- Icono lupa -->
-            <svg xmlns="http://www.w3.org/2000/svg"
-                 class="h-5 w-5"
-                 viewBox="0 0 20 20"
-                 fill="currentColor">
-              <path fill-rule="evenodd"
-                    d="M8.5 3a5.5 5.5 0 014.384 8.844l3.136 3.136a1 1 0 01-1.414 1.414l-3.136-3.136A5.5 5.5 0 118.5 3zm0 2a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"
-                    clip-rule="evenodd" />
-            </svg>
-          </button>
-        </div>
-      </div>
-    `;
+            <div class="flex justify-end">
+              <button
+                type="button"
+                class="view-rating-button inline-flex items-center justify-center p-2 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg"
+                     class="h-5 w-5"
+                     viewBox="0 0 20 20"
+                     fill="currentColor">
+                  <path fill-rule="evenodd"
+                        d="M8.5 3a5.5 5.5 0 014.384 8.844l3.136 3.136a1 1 0 01-1.414 1.414l-3.136-3.136A5.5 5.5 0 118.5 3zm0 2a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"
+                        clip-rule="evenodd" />
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
 
-    // botón lupa que abre el modal
-    row.querySelector('.view-rating-button').addEventListener('click', () => {
-      openViewRatingModal(rating);
-    });
+        row
+          .querySelector(".view-rating-button")
+          .addEventListener("click", () => {
+            openViewRatingModal(rating);
+          });
 
-    container.appendChild(row);
-  });
-}
-    // ---------- MODAL VER CALIFICACIÓN ----------
-
-const viewRatingModal = document.getElementById('view-rating-modal');
-const closeViewRatingModalBtn = document.getElementById('close-view-rating-modal');
-
-const viewAdvisorEl = document.getElementById('view-rating-advisor');
-const viewScoreEl = document.getElementById('view-rating-score');
-const viewCommentEl = document.getElementById('view-rating-comment');
-const viewDateEl = document.getElementById('view-rating-date');
-const viewPhoneEl = document.getElementById('view-rating-phone');
-
-function openViewRatingModal(rating) {
-  if (!viewRatingModal) return;
-
-  viewAdvisorEl.textContent = rating.advisorName || '—';
-  viewScoreEl.textContent = `${rating.rating ?? '—'} / 5`;
-  viewCommentEl.textContent =
-    rating.comments && rating.comments.trim()
-      ? rating.comments
-      : '— Sin comentarios —';
-  viewDateEl.textContent = formatDate(rating.timestamp);
-
-  const phone =
-    rating.clientPhone && rating.clientPhone.trim()
-      ? rating.clientPhone
-      : 'No proporcionado';
-  viewPhoneEl.textContent = phone;
-
-  viewRatingModal.classList.remove('hidden');
-  viewRatingModal.classList.add('flex');
-}
-
-function closeViewRatingModal() {
-  if (!viewRatingModal) return;
-  viewRatingModal.classList.add('hidden');
-  viewRatingModal.classList.remove('flex');
-}
-
-if (closeViewRatingModalBtn) {
-  closeViewRatingModalBtn.addEventListener('click', closeViewRatingModal);
-}
-
-// cerrar si se hace clic fuera de la tarjeta
-if (viewRatingModal) {
-  viewRatingModal.addEventListener('click', (e) => {
-    if (e.target === viewRatingModal) {
-      closeViewRatingModal();
+        container.appendChild(row);
+      });
     }
-  });
-}
 
+    // ---------- MODAL VER CALIFICACIÓN ----------
+    const viewRatingModal = document.getElementById("view-rating-modal");
+    const closeViewRatingModalBtn = document.getElementById(
+      "close-view-rating-modal"
+    );
+
+    const viewAdvisorEl = document.getElementById("view-rating-advisor");
+    const viewScoreEl = document.getElementById("view-rating-score");
+    const viewCommentEl = document.getElementById("view-rating-comment");
+    const viewDateEl = document.getElementById("view-rating-date");
+    const viewPhoneEl = document.getElementById("view-rating-phone");
+
+    function openViewRatingModal(rating) {
+      if (!viewRatingModal) return;
+
+      viewAdvisorEl.textContent = rating.advisorName || "—";
+      viewScoreEl.textContent = `${rating.rating ?? "—"} / 5`;
+      viewCommentEl.textContent =
+        rating.comments && rating.comments.trim()
+          ? rating.comments
+          : "— Sin comentarios —";
+      viewDateEl.textContent = formatDate(rating.timestamp);
+
+      const phone =
+        rating.clientPhone && rating.clientPhone.trim()
+          ? rating.clientPhone
+          : "No proporcionado";
+      viewPhoneEl.textContent = phone;
+
+      viewRatingModal.classList.remove("hidden");
+      viewRatingModal.classList.add("flex");
+    }
+
+    function closeViewRatingModal() {
+      if (!viewRatingModal) return;
+      viewRatingModal.classList.add("hidden");
+      viewRatingModal.classList.remove("flex");
+    }
+
+    if (closeViewRatingModalBtn) {
+      closeViewRatingModalBtn.addEventListener("click", closeViewRatingModal);
+    }
+
+    if (viewRatingModal) {
+      viewRatingModal.addEventListener("click", (e) => {
+        if (e.target === viewRatingModal) {
+          closeViewRatingModal();
+        }
+      });
+    }
+
+    // ---------- CASOS CRÍTICOS (1–2 ESTRELLAS) ----------
+    // helper para abrir modal de solución (FALTABA)
+    function openResolveModal(ratingId) {
+      resolveTargetId = ratingId;
+      resolverNameInput.value = "";
+      resolutionTextInput.value = "";
+      resolveErrorEl.classList.add("hidden");
+      resolveModal.classList.remove("hidden");
+    }
 
     function renderCriticalList(ratings) {
-  const container = document.getElementById("critical-container");
-  if (!container) return;
+      const container = document.getElementById("critical-container");
+      if (!container) return;
 
-  container.innerHTML = "";
+      container.innerHTML = "";
 
-  // ✅ SOLO casos con 1 o 2 estrellas y que NO estén marcados como resueltos
-  const critical = (ratings || []).filter(
-    (r) => (r.rating || 0) <= 2 && !r.resolved
-  );
+      const critical = (ratings || []).filter(
+        (r) => (r.rating || 0) <= 2 && !r.resolved
+      );
 
-  if (!critical.length) {
-    container.innerHTML =
-      '<p class="text-xs text-gray-500">No hay casos pendientes con los filtros actuales.</p>';
-    return;
-  }
+      if (!critical.length) {
+        container.innerHTML =
+          '<p class="text-xs text-gray-500">No hay casos pendientes con los filtros actuales.</p>';
+        return;
+      }
 
-  critical.forEach((r) => {
-    // Intentamos encontrar un teléfono con distintos nombres de campo
-    const phone =
-      r.phone ||
-      r.whatsappPhone ||
-      r.clientPhone ||
-      r.client_phone ||
-      r.telefono ||
-      r.phoneNumber ||
-      null;
+      critical.forEach((r) => {
+        const phone =
+          r.phone ||
+          r.whatsappPhone ||
+          r.clientPhone ||
+          r.client_phone ||
+          r.telefono ||
+          r.phoneNumber ||
+          null;
 
-    const date = r.timestamp
-      ? new Date(r.timestamp).toLocaleString("es-ES", {
-          dateStyle: "medium",
-          timeStyle: "short",
-        })
-      : "";
+        const date = formatDate(r.timestamp);
 
-    const row = document.createElement("div");
+        const row = document.createElement("div");
+        row.className =
+          "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,40px] gap-2 items-center border border-red-200 rounded-xl px-3 py-2 bg-red-50";
 
-    // 📐 Mismo estilo de “fila” que Calificaciones recientes,
-    // pero con fondo rojo suave
-    row.className =
-      "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,40px] gap-2 items-center border border-red-200 rounded-xl px-3 py-2 bg-red-50";
+        row.innerHTML = `
+          <div>
+            <p class="text-sm font-semibold text-gray-900">
+              ${r.advisorName || r.advisorId || "Asesor"}
+              <span class="text-xs font-normal text-gray-500">(${r.rating} ★)</span>
+            </p>
+            <p class="text-xs text-gray-800 mt-1">
+              ${r.comments || "— Sin comentarios —"}
+            </p>
+            <p class="mt-1 text-[11px] text-gray-500 md:hidden">${date}</p>
+          </div>
 
-    row.innerHTML = `
-      <!-- Columna Asesor + comentario -->
-      <div>
-        <p class="text-sm font-semibold text-gray-900">
-          ${r.advisorName || r.advisorId || "Asesor"}
-          <span class="text-xs font-normal text-gray-500">(${r.rating} ★)</span>
-        </p>
-        <p class="text-xs text-gray-800 mt-1">
-          ${r.comments || "— Sin comentarios —"}
-        </p>
-        <p class="mt-1 text-[11px] text-gray-500 md:hidden">${date}</p>
-      </div>
+          <div class="text-xs text-gray-800 md:text-center">
+            <p>
+              <span class="font-semibold text-red-500">Tel:</span>
+              ${phone || "No proporcionado"}
+            </p>
+          </div>
 
-      <!-- Columna Teléfono -->
-      <div class="text-xs text-gray-800 md:text-center">
-        <p>
-          <span class="font-semibold text-red-500">Tel:</span>
-          ${phone || "No proporcionado"}
-        </p>
-      </div>
+          <div class="hidden md:block text-xs text-gray-500">
+            ${date}
+          </div>
 
-      <!-- Columna Fecha (solo desktop) -->
-      <div class="hidden md:block text-xs text-gray-500">
-        ${date}
-      </div>
+          <div class="flex justify-end">
+            <button
+              class="resolve-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-lg shadow-sm transition"
+              data-id="${r.id}"
+            >
+              Marcar como solucionado
+            </button>
+          </div>
+        `;
 
-      <!-- Columna Acción -->
-      <div class="flex justify-end">
-        <button
-          class="resolve-button bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-3 py-1 rounded-lg shadow-sm transition"
-          data-id="${r.id}"
-        >
-          Marcar como solucionado
-        </button>
-      </div>
-    `;
+        container.appendChild(row);
+      });
 
-    container.appendChild(row);
-  });
-
-  // Listeners del botón "Marcar como solucionado"
-  container.querySelectorAll(".resolve-button").forEach((btn) => {
-    btn.addEventListener("click", (e) => {
-      const id = e.currentTarget.dataset.id;
-      if (!id) return;
-      openResolveModal(id); // usa tu misma función del modal de solución
-    });
-  });
-}
+      container.querySelectorAll(".resolve-button").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const id = e.currentTarget.dataset.id;
+          if (!id) return;
+          openResolveModal(id);
+        });
+      });
+    }
 
     function renderResolvedList(ratings) {
       const container = document.getElementById("resolved-container");
@@ -1047,18 +1039,10 @@ if (viewRatingModal) {
       }
 
       resolved.forEach((r) => {
-        const date = r.timestamp
-          ? new Date(r.timestamp).toLocaleString("es-ES", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })
-          : "-";
+        const date = formatDate(r.timestamp);
 
         const resolvedAt = r.resolvedAt
-          ? new Date(r.resolvedAt).toLocaleString("es-ES", {
-              dateStyle: "short",
-              timeStyle: "short",
-            })
+          ? formatDate(r.resolvedAt)
           : "";
 
         const phone = r.clientPhone || r.client_phone || "";
@@ -1103,24 +1087,22 @@ if (viewRatingModal) {
       });
     }
 
+    // EXPORTAR CSV / PDF
     function exportToCSV() {
       if (!currentFilteredRatings.length) {
         alert("No hay calificaciones para exportar con los filtros actuales.");
         return;
       }
 
-      const rows = [["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono"]];
+      const rows = [
+        ["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono"],
+      ];
 
       currentFilteredRatings.forEach((r) => {
         const nombre = r.advisorName || r.advisorId || "";
         const rating = r.rating != null ? String(r.rating) : "";
         const comentario = (r.comments || "").replace(/\r?\n/g, " ");
-        const fecha = r.timestamp
-          ? new Date(r.timestamp).toLocaleString("es-ES", {
-              dateStyle: "short",
-              timeStyle: "short",
-            })
-          : "";
+        const fecha = formatDate(r.timestamp);
         const phone = r.clientPhone || r.client_phone || "";
 
         rows.push([nombre, rating, comentario, fecha, phone]);
@@ -1169,12 +1151,7 @@ if (viewRatingModal) {
         r.advisorName || r.advisorId || "",
         r.rating != null ? String(r.rating) : "",
         (r.comments || "").replace(/\r?\n/g, " "),
-        r.timestamp
-          ? new Date(r.timestamp).toLocaleString("es-ES", {
-              dateStyle: "short",
-              timeStyle: "short",
-            })
-          : "",
+        formatDate(r.timestamp),
         r.clientPhone || r.client_phone || "",
       ]);
 
@@ -1189,7 +1166,7 @@ if (viewRatingModal) {
       docPdf.save("reporte_calificaciones.pdf");
     }
 
-    // BOTONES DEL MODAL DE SOLUCIÓN
+    // BOTONES MODAL SOLUCIÓN
     cancelResolveBtn.addEventListener("click", () => {
       resolveTargetId = null;
       resolveModal.classList.add("hidden");
