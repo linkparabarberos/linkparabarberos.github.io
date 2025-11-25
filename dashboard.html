@@ -314,21 +314,21 @@
     </div>
 
     <!-- CASOS CRÍTICOS -->
-    <div class="mt-10">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-gray-900">
-          Casos para contactar
-        </h2>
-        <p class="text-[11px] text-gray-500">
-          Muestra clientes con calificaciones bajas y su número de teléfono.
-        </p>
-      </div>
-      <div
-  id="critical-container"
-  class="card rounded-2xl p-4 space-y-3 max-h-[380px] overflow-y-auto pr-1">
+<div class="mt-10">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-lg font-semibold text-black">
+      Casos para contactar (1–2 estrellas)
+    </h2>
+    <p class="text-[11px] text-gray-500">
+      Muestra clientes con calificaciones bajas y su número de teléfono.
+    </p>
+  </div>
+  <div
+    id="critical-container"
+    class="card rounded-2xl p-4 space-y-3 max-h-[380px] overflow-y-auto pr-1"
+  >
+  </div>
 </div>
-
-    </div>
 
     <!-- CASOS SOLUCIONADOS -->
     <div class="mt-6">
@@ -871,37 +871,47 @@
           : "-";
 
         const phone = r.clientPhone || r.client_phone || "";
-
         const row = document.createElement("div");
-        row.className =
-          "flex flex-col md:flex-row md:items-center md:justify-between gap-3 rounded-xl px-3 py-3 border border-red-500 bg-red-100";
+row.className =
+  "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-red-300 rounded-xl px-3 py-2 bg-red-50";
 
-        row.innerHTML = `
-          <div>
-            <p class="text-sm font-semibold text-gray-900">
-              ${r.advisorName || r.advisorId || "Asesor"}
-              <span class="text-xs font-normal text-gray-600">(${r.rating} ★)</span>
-            </p>
-            <p class="text-xs text-gray-700 mt-1">
-              ${r.comments || "— Sin comentarios —"}
-            </p>
-            <p class="mt-1 text-[11px] text-gray-500 md:hidden">${date}</p>
-          </div>
-          <div class="flex flex-col items-end text-xs text-gray-700 gap-1">
-            <p><span class="font-semibold text-red-600">Tel:</span> ${
-              phone || "No proporcionado"
-            }</p>
-            <p class="hidden md:block text-[11px] text-gray-500">${date}</p>
-            <button
-              class="mt-1 px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-[11px] font-semibold text-black transition resolve-button"
-              data-id="${r.id}"
-            >
-              Marcar como solucionado
-            </button>
-          </div>
-        `;
+row.innerHTML = `
+  <!-- Columna 1: Asesor + rating + comentario -->
+  <div>
+    <p class="text-sm font-semibold text-gray-900">
+      ${r.advisorName || r.advisorId || "Asesor"}
+      <span class="text-xs font-normal text-gray-500">(${r.rating} ★)</span>
+    </p>
+    <p class="text-xs text-gray-800 mt-1">
+      ${r.comments || "— Sin comentarios —"}
+    </p>
+  </div>
 
-        container.appendChild(row);
+  <!-- Columna 2: Teléfono -->
+  <div class="text-xs text-gray-800 md:text-center">
+    <p>
+      <span class="font-semibold text-red-500">Tel:</span>
+      ${phone || "No proporcionado"}
+    </p>
+  </div>
+
+  <!-- Columna 3: Fecha (solo en escritorio) -->
+  <div class="hidden md:block text-xs text-gray-600">
+    ${date}
+  </div>
+
+  <!-- Columna 4: Botón -->
+  <div class="flex justify-end">
+    <button
+      class="resolve-button text-xs bg-emerald-500 hover:bg-emerald-600 text-white font-semibold px-3 py-1 rounded-full transition"
+      data-id="${r.id}"
+    >
+      Marcar como solucionado
+    </button>
+  </div>
+`;
+
+container.appendChild(row);
       });
 
       // Listeners de los botones "Marcar como solucionado"
