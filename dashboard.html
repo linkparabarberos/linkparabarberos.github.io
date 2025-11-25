@@ -355,54 +355,52 @@
     </div>
   </div>
 
-  <!-- MODAL: MARCAR CASO COMO SOLUCIONADO -->
+  <!-- MODAL: MARCAR CASO COMO SOLUCIONADO (BLANCO) -->
   <div id="solution-modal"
-     class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
-  <!-- Caja del modal en BLANCO -->
-  <div class="bg-white text-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6">
-    <h2 class="text-2xl font-bold mb-4">Marcar caso como solucionado</h2>
-    <p class="text-sm text-gray-600 mb-4">
-      Registra quién dio solución y qué acciones se realizaron.
-    </p>
+       class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
+    <div class="bg-white text-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6">
+      <h2 class="text-2xl font-bold mb-4">Marcar caso como solucionado</h2>
+      <p class="text-sm text-gray-600 mb-4">
+        Registra quién dio solución y qué acciones se realizaron.
+      </p>
 
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-      Nombre de quien lo solucionó
-    </label>
-    <input
-      id="solution-solver-name"
-      type="text"
-      placeholder="Ej: Jahan Michelle"
-      class="w-full mb-4 px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-400"
-    />
+      <label class="block text-sm font-medium text-gray-700 mb-1">
+        Nombre de quien lo solucionó
+      </label>
+      <input
+        id="solution-solver-name"
+        type="text"
+        placeholder="Ej: Jahan Michelle"
+        class="w-full mb-4 px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-400"
+      />
 
-    <label class="block text-sm font-medium text-gray-700 mb-1">
-      Solución aplicada
-    </label>
-    <textarea
-      id="solution-description"
-      rows="4"
-      placeholder="Describe brevemente la solución aplicada..."
-      class="w-full mb-6 px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
-    ></textarea>
+      <label class="block text-sm font-medium text-gray-700 mb-1">
+        Solución aplicada
+      </label>
+      <textarea
+        id="solution-description"
+        rows="4"
+        placeholder="Describe brevemente la solución aplicada..."
+        class="w-full mb-6 px-3 py-2 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-amber-400 resize-none"
+      ></textarea>
 
-    <p id="solution-error"
-       class="hidden text-sm text-red-500 mb-4">
-       No se pudo guardar la solución. Intenta de nuevo.
-    </p>
+      <p id="solution-error"
+         class="hidden text-sm text-red-500 mb-4">
+         No se pudo guardar la solución. Intenta de nuevo.
+      </p>
 
-    <div class="flex justify-end space-x-3">
-      <button id="solution-cancel-button"
-              class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100">
-        Cancelar
-      </button>
-      <button id="solution-save-button"
-              class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold">
-        Guardar solución
-      </button>
+      <div class="flex justify-end space-x-3">
+        <button id="solution-cancel-button"
+                class="px-4 py-2 rounded-xl border border-gray-300 text-gray-700 hover:bg-gray-100">
+          Cancelar
+        </button>
+        <button id="solution-save-button"
+                class="px-4 py-2 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-semibold">
+          Guardar solución
+        </button>
+      </div>
     </div>
   </div>
-</div>
-
 
   <!-- MODAL: VER DETALLE DE CALIFICACIÓN -->
   <div
@@ -498,14 +496,15 @@
 
     const PUBLIC_RATINGS_COLLECTION = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
 
+    // Referencias correctas al modal de solución (IDs nuevos)
     let resolveTargetId = null;
 
-    const resolveModal = document.getElementById("resolve-modal");
-    const resolverNameInput = document.getElementById("resolver-name");
-    const resolutionTextInput = document.getElementById("resolution-text");
-    const resolveErrorEl = document.getElementById("resolve-error");
-    const cancelResolveBtn = document.getElementById("cancel-resolve-btn");
-    const saveResolveBtn = document.getElementById("save-resolve-btn");
+    const resolveModal = document.getElementById("solution-modal");
+    const resolverNameInput = document.getElementById("solution-solver-name");
+    const resolutionTextInput = document.getElementById("solution-description");
+    const resolveErrorEl = document.getElementById("solution-error");
+    const cancelResolveBtn = document.getElementById("solution-cancel-button");
+    const saveResolveBtn = document.getElementById("solution-save-button");
 
     function showScreen(id) {
       authScreen.classList.add("hidden");
@@ -735,7 +734,7 @@
       });
     }
 
-    // ---- Helper para fechas (FALTABA) ----
+    // ---- Helper para fechas ----
     function formatDate(timestamp) {
       if (!timestamp) return "";
       const d = new Date(timestamp);
@@ -920,13 +919,22 @@
     }
 
     // ---------- CASOS CRÍTICOS (1–2 ESTRELLAS) ----------
-    // helper para abrir modal de solución (FALTABA)
     function openResolveModal(ratingId) {
       resolveTargetId = ratingId;
-      resolverNameInput.value = "";
-      resolutionTextInput.value = "";
-      resolveErrorEl.classList.add("hidden");
+      if (!resolveModal) return;
+      if (resolverNameInput) resolverNameInput.value = "";
+      if (resolutionTextInput) resolutionTextInput.value = "";
+      if (resolveErrorEl) resolveErrorEl.classList.add("hidden");
       resolveModal.classList.remove("hidden");
+      resolveModal.classList.add("flex");
+    }
+
+    function closeResolveModal() {
+      resolveTargetId = null;
+      if (!resolveModal) return;
+      resolveModal.classList.add("hidden");
+      resolveModal.classList.remove("flex");
+      if (resolveErrorEl) resolveErrorEl.classList.add("hidden");
     }
 
     function renderCriticalList(ratings) {
@@ -1150,49 +1158,54 @@
       docPdf.save("reporte_calificaciones.pdf");
     }
 
-    // BOTONES MODAL SOLUCIÓN
-    cancelResolveBtn.addEventListener("click", () => {
-      resolveTargetId = null;
-      resolveModal.classList.add("hidden");
-      resolveErrorEl.classList.add("hidden");
-    });
+    // BOTONES MODAL SOLUCIÓN (con null-check por seguridad)
+    if (cancelResolveBtn) {
+      cancelResolveBtn.addEventListener("click", () => {
+        closeResolveModal();
+      });
+    }
 
-    saveResolveBtn.addEventListener("click", async () => {
-      if (!resolveTargetId) return;
+    if (saveResolveBtn) {
+      saveResolveBtn.addEventListener("click", async () => {
+        if (!resolveTargetId) return;
 
-      const name = resolverNameInput.value.trim();
-      const resolution = resolutionTextInput.value.trim();
+        const name = (resolverNameInput?.value || "").trim();
+        const resolution = (resolutionTextInput?.value || "").trim();
 
-      if (name.length < 2 || resolution.length < 5) {
-        resolveErrorEl.textContent =
-          "Por favor ingresa el nombre y una breve descripción de la solución.";
-        resolveErrorEl.classList.remove("hidden");
-        return;
-      }
+        if (name.length < 2 || resolution.length < 5) {
+          if (resolveErrorEl) {
+            resolveErrorEl.textContent =
+              "Por favor ingresa el nombre y una breve descripción de la solución.";
+            resolveErrorEl.classList.remove("hidden");
+          }
+          return;
+        }
 
-      resolveErrorEl.classList.add("hidden");
+        if (resolveErrorEl) resolveErrorEl.classList.add("hidden");
 
-      const ref = doc(db, PUBLIC_RATINGS_COLLECTION, resolveTargetId);
-      try {
-        await setDoc(
-          ref,
-          {
-            resolved: true,
-            resolvedBy: name,
-            resolution: resolution,
-            resolvedAt: new Date().toISOString(),
-          },
-          { merge: true }
-        );
-        resolveModal.classList.add("hidden");
-        resolveTargetId = null;
-      } catch (e) {
-        console.error("Error al guardar solución:", e);
-        resolveErrorEl.textContent =
-          "No se pudo guardar la solución. Revisa la consola.";
-        resolveErrorEl.classList.remove("hidden");
-      }
-    });
+        const ref = doc(db, PUBLIC_RATINGS_COLLECTION, resolveTargetId);
+        try {
+          await setDoc(
+            ref,
+            {
+              resolved: true,
+              resolvedBy: name,
+              resolution: resolution,
+              resolvedAt: new Date().toISOString(),
+            },
+            { merge: true }
+          );
+          closeResolveModal();
+        } catch (e) {
+          console.error("Error al guardar solución:", e);
+          if (resolveErrorEl) {
+            resolveErrorEl.textContent =
+              "No se pudo guardar la solución. Revisa la consola.";
+            resolveErrorEl.classList.remove("hidden");
+          }
+        }
+      });
+    }
 
     // Inicializar
     initFirebase();
