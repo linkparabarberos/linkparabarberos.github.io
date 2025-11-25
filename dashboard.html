@@ -116,6 +116,7 @@
       </p>
     </div>
   </div>
+  
 
   <!-- DASHBOARD -->
   <div id="dashboard-content" class="max-w-7xl mx-auto hidden">
@@ -427,6 +428,56 @@
       </div>
     </div>
   </div>
+  <!-- MODAL: VER DETALLE DE CALIFICACIÓN -->
+<div
+  id="view-rating-modal"
+  class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center px-4"
+>
+  <div
+    class="bg-white rounded-2xl shadow-2xl max-w-lg w-full p-6 relative"
+  >
+    <!-- Botón cerrar -->
+    <button
+      type="button"
+      id="close-view-rating-modal"
+      class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
+    >
+      ✕
+    </button>
+
+    <h2 class="text-xl font-bold text-gray-900 mb-4">
+      Detalle de calificación
+    </h2>
+
+    <div class="space-y-3 text-sm">
+      <p>
+        <span class="font-semibold text-gray-700">Asesor:</span>
+        <span id="view-rating-advisor" class="text-gray-900"></span>
+      </p>
+
+      <p>
+        <span class="font-semibold text-gray-700">Calificación:</span>
+        <span id="view-rating-score" class="text-gray-900"></span>
+      </p>
+
+      <p>
+        <span class="font-semibold text-gray-700">Comentario:</span>
+        <span id="view-rating-comment" class="text-gray-900"></span>
+      </p>
+
+      <p>
+        <span class="font-semibold text-gray-700">Fecha:</span>
+        <span id="view-rating-date" class="text-gray-900"></span>
+      </p>
+
+      <p>
+        <span class="font-semibold text-gray-700">Teléfono proporcionado:</span>
+        <span id="view-rating-phone" class="text-gray-900"></span>
+      </p>
+    </div>
+  </div>
+</div>
+
 
   <!-- FIREBASE + LÓGICA -->
   <script type="module">
@@ -761,106 +812,131 @@
     }
 
     function renderRatingsList(ratings) {
-      const container = document.getElementById(
-        "ratings-list-container"
-      );
-      container.innerHTML = "";
+  const container = document.getElementById('ratings-list-container');
+  const emptyMsg = document.getElementById('no-ratings-message');
 
-      if (!ratings.length) {
-        const msg = document.createElement("p");
-        msg.textContent =
-          "No hay calificaciones registradas o no coinciden con los filtros.";
-        msg.className = "text-center text-gray-500 text-sm mt-6";
-        container.appendChild(msg);
-        return;
-      }
+  container.innerHTML = '';
 
-      ratings.forEach((rating) => {
-        const isNegative = rating.rating <= 2;
-        const date = rating.timestamp
-          ? new Date(rating.timestamp).toLocaleString("es-ES", {
-              dateStyle: "medium",
-              timeStyle: "short",
-            })
-          : "-";
+  if (!ratings || ratings.length === 0) {
+    if (emptyMsg) emptyMsg.classList.remove('hidden');
+    return;
+  }
+  if (emptyMsg) emptyMsg.classList.add('hidden');
 
-        const ratingCard = document.createElement("div");
-        ratingCard.className =
-  "grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,40px] gap-1 md:gap-3 items-center border border-orange-200 rounded-xl px-3 py-2 bg-orange-50 text-gray-900 shadow-sm";
+  ratings.forEach(rating => {
+    const row = document.createElement('div');
+    row.className =
+      'rounded-2xl bg-[#FFF5EB] border border-orange-200 px-4 py-3 shadow-sm';
 
-        ratingCard.innerHTML = `
-  <div class="flex items-center justify-between md:block">
-    <p class="text-sm font-semibold">
-      ${rating.advisorName || rating.advisorId || "Asesor"}
-    </p>
-    <!-- Fecha en móvil: gris oscuro -->
-    <p class="md:hidden text-xs text-gray-600 mt-0.5">${date}</p>
-  </div>
+    row.innerHTML = `
+      <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,auto] gap-3 md:items-center">
+        <!-- Asesor -->
+        <div class="font-semibold text-gray-900">
+          ${rating.advisorName || '—'}
+        </div>
 
-  <div class="flex items-center md:justify-start justify-between">
-    <!-- NÚMERO DE ESTRELLAS: colores más fuertes -->
-    <span class="text-base font-extrabold ${
-      isNegative ? "text-red-500" : "text-yellow-500"
-    }">
-      ${rating.rating ?? "-"} / 5
-    </span>
-  </div>
+        <!-- Calificación -->
+        <div class="text-sm font-semibold ${
+          rating.rating <= 2
+            ? 'text-red-500'
+            : rating.rating === 3
+            ? 'text-orange-500'
+            : 'text-yellow-500'
+        }">
+          ${rating.rating ?? '—'} / 5
+        </div>
 
-  <!-- Comentario: gris oscuro -->
-  <div class="text-xs text-gray-800 md:pr-4">
-    ${
-      rating.comments
-        ? rating.comments.replace(/\n/g, "<br>")
-        : "— Sin comentarios —"
+        <!-- Comentario -->
+        <div class="text-sm text-gray-700">
+          ${rating.comments && rating.comments.trim()
+            ? rating.comments
+            : '— Sin comentarios —'}
+        </div>
+
+        <!-- Fecha -->
+        <div class="text-sm text-gray-500">
+          ${formatDate(rating.timestamp)}
+        </div>
+
+        <!-- Acción: botón lupa -->
+        <div class="flex justify-end">
+          <button
+            type="button"
+            class="view-rating-button inline-flex items-center justify-center p-2 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition"
+          >
+            <!-- Icono lupa -->
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5"
+                 viewBox="0 0 20 20"
+                 fill="currentColor">
+              <path fill-rule="evenodd"
+                    d="M8.5 3a5.5 5.5 0 014.384 8.844l3.136 3.136a1 1 0 01-1.414 1.414l-3.136-3.136A5.5 5.5 0 118.5 3zm0 2a3.5 3.5 0 100 7 3.5 3.5 0 000-7z"
+                    clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    `;
+
+    // botón lupa que abre el modal
+    row.querySelector('.view-rating-button').addEventListener('click', () => {
+      openViewRatingModal(rating);
+    });
+
+    container.appendChild(row);
+  });
+}
+    // ---------- MODAL VER CALIFICACIÓN ----------
+
+const viewRatingModal = document.getElementById('view-rating-modal');
+const closeViewRatingModalBtn = document.getElementById('close-view-rating-modal');
+
+const viewAdvisorEl = document.getElementById('view-rating-advisor');
+const viewScoreEl = document.getElementById('view-rating-score');
+const viewCommentEl = document.getElementById('view-rating-comment');
+const viewDateEl = document.getElementById('view-rating-date');
+const viewPhoneEl = document.getElementById('view-rating-phone');
+
+function openViewRatingModal(rating) {
+  if (!viewRatingModal) return;
+
+  viewAdvisorEl.textContent = rating.advisorName || '—';
+  viewScoreEl.textContent = `${rating.rating ?? '—'} / 5`;
+  viewCommentEl.textContent =
+    rating.comments && rating.comments.trim()
+      ? rating.comments
+      : '— Sin comentarios —';
+  viewDateEl.textContent = formatDate(rating.timestamp);
+
+  const phone =
+    rating.clientPhone && rating.clientPhone.trim()
+      ? rating.clientPhone
+      : 'No proporcionado';
+  viewPhoneEl.textContent = phone;
+
+  viewRatingModal.classList.remove('hidden');
+  viewRatingModal.classList.add('flex');
+}
+
+function closeViewRatingModal() {
+  if (!viewRatingModal) return;
+  viewRatingModal.classList.add('hidden');
+  viewRatingModal.classList.remove('flex');
+}
+
+if (closeViewRatingModalBtn) {
+  closeViewRatingModalBtn.addEventListener('click', closeViewRatingModal);
+}
+
+// cerrar si se hace clic fuera de la tarjeta
+if (viewRatingModal) {
+  viewRatingModal.addEventListener('click', (e) => {
+    if (e.target === viewRatingModal) {
+      closeViewRatingModal();
     }
-  </div>
+  });
+}
 
-  <!-- Fecha en escritorio: gris oscuro -->
-  <div class="hidden md:block text-xs text-gray-600">${date}</div>
-
-  <div class="flex justify-end">
-    <button data-id="${
-      rating.id
-    }" class="delete-button text-red-500 hover:text-red-600 p-2 rounded-full hover:bg-orange-100 transition">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none"
-        viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-      </svg>
-    </button>
-  </div>
-`;
-
-
-        container.appendChild(ratingCard);
-      });
-
-      document.querySelectorAll(".delete-button").forEach((button) => {
-        button.addEventListener("click", async (e) => {
-          const ratingId = e.currentTarget.dataset.id;
-          if (
-            confirm(
-              "¿Estás seguro de que quieres eliminar esta calificación?"
-            )
-          ) {
-            const ratingRef = doc(
-              db,
-              PUBLIC_RATINGS_COLLECTION,
-              ratingId
-            );
-            try {
-              await deleteDoc(ratingRef);
-              console.log("Calificación eliminada:", ratingId);
-            } catch (e) {
-              console.error("Error al eliminar calificación:", e);
-              alert(
-                "Error: No se pudo eliminar la calificación. Verifica permisos."
-              );
-            }
-          }
-        });
-      });
-    }
 
     function renderCriticalList(ratings) {
   const container = document.getElementById("critical-container");
