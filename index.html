@@ -78,9 +78,9 @@
 
   <p class="text-sm md:text-base text-gray-300 leading-snug mb-1 max-w-xl mx-auto">
     Cuéntanos en 3 segundos cómo fue tu atención con
-    <span id="asesor-name" class="font-semibold text-white">
-      ...
-    </span>.
+    <span id="context-label" class="font-semibold text-white">asesor</span>:
+    <br />
+    <span id="asesor-name" class="font-semibold text-white">...</span>
   </p>
 </div>
 
@@ -303,29 +303,48 @@
   const urlParams = new URLSearchParams(window.location.search);
   const advisorIdFromUrl = urlParams.get("asesor"); // ?asesor=asesor1
 
-  const advisorMap = {
-    asesor1: "Jennifer Andrea Manzanares",
-    asesor2: "Daniela Barragan Patiño",
-    asesor3: "Jorge Leonardo Bedoya",
-    asesor4: "Javier Francisco Mamian",
-  };
+    const advisorMap = {
+  // Asesores (WhatsApp)
+  asesor1: { nombre: 'Jennifer Andrea Manzanares', tipo: 'asesor' },
+  asesor2: { nombre: 'Daniela Barragan Patiño', tipo: 'asesor' },
+  asesor3: { nombre: 'Jorge Leonardo Bedoya', tipo: 'asesor' },
+  asesor4: { nombre: 'Javier Francisco Mamián', tipo: 'asesor' },
+
+  // Puntos de venta (presencial)
+  punto1: { nombre: 'Punto de venta Cali Centro', tipo: 'punto' },
+  punto2: { nombre: 'Punto de venta Cali Sur', tipo: 'punto' },
+  punto3: { nombre: 'Punto de venta Pasto', tipo: 'punto' },
+  punto4: { nombre: 'Punto de venta Tuluá', tipo: 'punto' },
+  punto5: { nombre: 'Punto de venta Medellín', tipo: 'punto' },
+};
 
   const asesorNombre =
     advisorMap[advisorIdFromUrl?.toLowerCase()] || null;
+    const rawAdvisor = advisorMap[advisorId ? advisorId.toLowerCase() : ''];
+    const contextLabelEl = document.getElementById('context-label');
 
-  if (asesorNombre) {
-    asesorNameEl.textContent = asesorNombre;
-    advisorIdInput.value = advisorIdFromUrl.toLowerCase();
-    submitButton.disabled = false;
-  } else {
-    asesorNameEl.textContent = "¡Asesor desconocido!";
-    asesorNameEl.classList.add("text-red-400");
-    submitButton.disabled = true;
-    statusMessage.textContent =
-      "Link de calificación inválido. Revisa el enlace.";
-    statusMessage.classList.remove("hidden");
-    statusMessage.classList.add("text-red-400");
-  }
+if (rawAdvisor) {
+  // Nombre visible (asesor o punto de venta)
+  asesorNameEl.textContent = rawAdvisor.nombre;
+  advisorIdInput.value = advisorId.toLowerCase();
+
+  // Texto “asesor” o “punto de venta”
+  const label =
+    rawAdvisor.tipo === 'punto' ? 'punto de venta' : 'asesor';
+  contextLabelEl.textContent = label;
+
+  submitButton.disabled = false;
+} else {
+  asesorNameEl.textContent = '¡Destino desconocido!';
+  contextLabelEl.textContent = 'destino';
+  asesorNameEl.classList.remove('text-white');
+  asesorNameEl.classList.add('text-red-500');
+  submitButton.disabled = true;
+  const status = document.getElementById('status-message');
+  status.textContent =
+    'Link de calificación inválido. Por favor, revisa el enlace.';
+  status.classList.remove('hidden');
+}
 
   // ESTRELLAS (solo marcan visual, no abren modal)
   if (ratingStars) {
