@@ -310,8 +310,9 @@
         <span>COMENTARIO</span>
         <span class="text-center">FECHA</span>
         <span class="text-center">ESTADO</span>
-        <span class="text-right">ACCIÓN</span>
+        <span class="text-center">ACCIÓN</span>
       </div>
+
       <div
         id="ratings-list-container"
         class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
@@ -821,7 +822,7 @@
               ${rating.advisorName || "—"}
             </div>
 
-            <div class="text-sm font-semibold text-center ${ // <-- CAMBIO: Se agrega text-center
+            <div class="text-sm font-semibold text-center ${
               rating.rating <= 2
                 ? "text-red-500"
                 : rating.rating === 3
@@ -850,7 +851,7 @@
                 : "SIN NOVEDAD"}
             </div>
 
-            <div class="flex justify-end">
+            <div class="flex justify-center">
               <button
                 type="button"
                 class="view-rating-button inline-flex items-center justify-center p-2 rounded-full border border-gray-300 text-gray-600 hover:bg-gray-100 hover:text-gray-900 transition"
@@ -1223,7 +1224,6 @@
         (r.comments || "").replace(/\r?\n/g, " "),
         formatDate(r.timestamp),
         r.clientPhone || r.client_phone || "",
-        // LÓGICA CORREGIDA PARA EL PDF:
         (r.rating || 0) <= 2 
             ? (r.resolved ? "SOLUCIONADO" : "PENDIENTE") 
             : "SIN NOVEDAD",
