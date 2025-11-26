@@ -306,13 +306,12 @@
         class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100 gap-2"
       >
         <span>ASESOR</span>
-        <span>CALIFICACIÓN</span>
+        <span class="text-center">CALIFICACIÓN</span>
         <span>COMENTARIO</span>
-        <span>FECHA</span>
+        <span class="text-center">FECHA</span>
         <span class="text-center">ESTADO</span>
         <span class="text-right">ACCIÓN</span>
       </div>
-
       <div
         id="ratings-list-container"
         class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
@@ -822,7 +821,7 @@
               ${rating.advisorName || "—"}
             </div>
 
-            <div class="text-sm font-semibold ${
+            <div class="text-sm font-semibold text-center ${ // <-- CAMBIO: Se agrega text-center
               rating.rating <= 2
                 ? "text-red-500"
                 : rating.rating === 3
