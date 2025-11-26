@@ -4,10 +4,9 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ATENCIÓN AL CLIENTE</title>
-    <link rel="icon" type="image/png" sizes="32x32" href="./logopb.png">
-<link rel="icon" type="image/png" sizes="16x16" href="./logopb.png">
-<link rel="apple-touch-icon" href="./logopb.png">
-
+  <link rel="icon" type="image/png" sizes="32x32" href="./logopb.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="./logopb.png">
+  <link rel="apple-touch-icon" href="./logopb.png">
 
   <script src="https://cdn.tailwindcss.com"></script>
   <link
@@ -48,18 +47,18 @@
     .card .text-gray-500 {
       color: #9ca3af;
     }
-    
-.low-cases-grid {
-  /* ¡Alineado con la estructura de las filas de datos críticas! */
-  display: grid;
-  grid-template-columns:
-    minmax(0, 2fr)     /* ASESOR */
-    minmax(0, 3fr)     /* TELÉFONO PROPORCIONADO */
-    minmax(0, 1.5fr)   /* FECHA DEL REPORTE */
-    40px;              /* ACCIÓN (botón) */
-  align-items: center;
-  column-gap: 0.5rem; /* Reduzco el gap para un mejor ajuste */
-}
+
+    .low-cases-grid {
+      /* alineado con la estructura de las filas de datos críticas */
+      display: grid;
+      grid-template-columns:
+        minmax(0, 2fr)     /* ASESOR */
+        minmax(0, 3fr)     /* TELÉFONO PROPORCIONADO */
+        minmax(0, 1.5fr)   /* FECHA DEL REPORTE */
+        40px;              /* ACCIÓN (botón) */
+      align-items: center;
+      column-gap: 0.5rem;
+    }
   </style>
 </head>
 
@@ -128,8 +127,9 @@
   </div>
 
   <div
-  id="dashboard-content"
-  class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 hidden">
+    id="dashboard-content"
+    class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 hidden"
+  >
 
     <header
       class="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
@@ -301,22 +301,25 @@
       </div>
     </div>
 
+    <!-- TARJETA LISTA DE CALIFICACIONES, HEADER + FILAS EN EL MISMO CONTENEDOR SCROLL -->
     <div class="card rounded-2xl p-4 overflow-hidden">
-      <div
-        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,80px,50px] text-[11px] font-semibold text-gray-400 px-2 pb-2 border-b border-amber-100"
-      >
-        <span>ASESOR</span>
-        <span class="text-center">CALIFICACIÓN</span>
-        <span>COMENTARIO</span>
-        <span class="text-center">FECHA</span>
-        <span class="text-center">ESTADO</span>
-        <span class="text-center">ACCIÓN</span>
-      </div>
+      <div class="max-h-[380px] overflow-y-auto">
+        <div
+          class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100 sticky top-0 bg-white z-10"
+        >
+          <span>ASESOR</span>
+          <span class="text-center">CALIFICACIÓN</span>
+          <span>COMENTARIO</span>
+          <span class="text-center">FECHA</span>
+          <span class="text-center">ESTADO</span>
+          <span class="text-center">ACCIÓN</span>
+        </div>
 
-      <div
-        id="ratings-list-container"
-        class="space-y-3 max-h-[380px] overflow-y-auto"
-      ></div>
+        <div
+          id="ratings-list-container"
+          class="space-y-3 pr-1 pb-2"
+        ></div>
+      </div>
     </div>
 
     <section class="mt-10">
@@ -329,23 +332,24 @@
         </p>
       </div>
 
+      <!-- CASOS PARA CONTACTAR: HEADER + FILAS EN MISMO CONTENEDOR SCROLL -->
       <div class="card rounded-2xl p-4">
-        <div
-          class="low-cases-grid text-[11px] font-semibold text-slate-500 px-4 pb-2 border-b border-slate-200"
-        >
-          <span>ASESOR</span>
-          <span>TELÉFONO PROPORCIONADO</span>
-          <span>FECHA DEL REPORTE</span>
-          <span class="text-right pr-2">ACCIÓN</span>
-        </div>
+        <div class="max-h-[380px] overflow-y-auto">
+          <div
+            class="low-cases-grid text-[11px] font-semibold text-slate-500 px-4 pb-2 border-b border-slate-200 sticky top-0 bg-white z-10"
+          >
+            <span>ASESOR</span>
+            <span>TELÉFONO PROPORCIONADO</span>
+            <span>FECHA DEL REPORTE</span>
+            <span class="text-right pr-2">ACCIÓN</span>
+          </div>
 
-        <div class="max-h-[380px] overflow-y-auto pr-1 px-4">
-          <div id="critical-container" class="py-3 space-y-3"></div>
+          <div class="pr-1 px-4">
+            <div id="critical-container" class="py-3 space-y-3"></div>
+          </div>
         </div>
       </div>
     </section>
-
-
 
     <div class="mt-6">
       <div class="flex items-center justify-between mb-3">
@@ -814,10 +818,10 @@
       ratings.forEach((rating) => {
         const row = document.createElement("div");
         row.className =
-          "rounded-2xl bg-[#FFF5EB] border border-orange-200 px-2 py-3 shadow-sm";
+          "rounded-2xl bg-[#FFF5EB] border border-orange-200 px-4 py-3 shadow-sm";
 
         row.innerHTML = `
-          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,80px,50px] md:items-center">
+          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] md:items-center">
             <div class="font-semibold text-gray-900">
               ${rating.advisorName || "—"}
             </div>
