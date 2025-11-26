@@ -4,24 +4,19 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ATENCIÓN AL CLIENTE</title>
-    <!-- FAVICON -->
-<!-- FAVICON -->
-<link rel="icon" type="image/png" sizes="32x32" href="./logopb.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="./logopb.png">
 <link rel="icon" type="image/png" sizes="16x16" href="./logopb.png">
 <link rel="apple-touch-icon" href="./logopb.png">
 
 
-  <!-- Tailwind -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap"
     rel="stylesheet"
   />
 
-  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 
-  <!-- jsPDF + AutoTable -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.1/jspdf.plugin.autotable.min.js"></script>
 
@@ -69,7 +64,6 @@
 </head>
 
 <body class="min-h-screen p-4 md:p-8">
-  <!-- SPINNER -->
   <div
     id="loading-spinner"
     class="fixed inset-0 bg-black/80 flex items-center justify-center z-50"
@@ -79,7 +73,6 @@
     ></div>
   </div>
 
-  <!-- LOGIN -->
   <div
     id="auth-screen"
     class="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-40 hidden"
@@ -134,12 +127,10 @@
     </div>
   </div>
 
-  <!-- DASHBOARD -->
   <div
   id="dashboard-content"
   class="max-w-7xl mx-auto px-4 md:px-6 lg:px-8 hidden">
 
-    <!-- HEADER -->
     <header
       class="flex flex-col md:flex-row md:items-center md:justify-between mb-8"
     >
@@ -183,7 +174,6 @@
       </div>
     </header>
 
-    <!-- FILTROS -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="card rounded-xl px-5 py-4 flex flex-col">
         <p class="text-[12px] text-gray-500 mb-1 uppercase tracking-wide">
@@ -229,7 +219,6 @@
       </div>
     </div>
 
-    <!-- MÉTRICAS -->
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-10">
       <div class="card rounded-xl px-5 py-4 text-center">
         <p class="text-xs text-gray-500 uppercase tracking-wide">
@@ -277,7 +266,6 @@
       </div>
     </div>
 
-    <!-- GRÁFICO -->
     <div class="card rounded-2xl px-6 py-6 mb-10">
       <div class="flex items-center justify-between mb-4">
         <h2 class="text-lg font-semibold text-gray-900">
@@ -290,7 +278,6 @@
       </div>
     </div>
 
-    <!-- LISTA + EXPORT -->
     <div
       class="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-3"
     >
@@ -315,9 +302,8 @@
     </div>
 
     <div class="card rounded-2xl p-4 overflow-hidden">
-      <!-- Cabecera tabla -->
       <div
-        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100"
+        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100 gap-2"
       >
         <span>ASESOR</span>
         <span>CALIFICACIÓN</span>
@@ -327,15 +313,13 @@
         <span class="text-right">ACCIÓN</span>
       </div>
 
-      <!-- Lista -->
       <div
         id="ratings-list-container"
         class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
       ></div>
     </div>
 
-    <!-- CASOS CRÍTICOS -->
-<section class="mt-10">
+    <section class="mt-10">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-2xl font-bold text-slate-900">
           CASOS PARA CONTACTAR
@@ -345,10 +329,7 @@
         </p>
       </div>
 
-      <!-- Usamos la misma “card” que en Calificaciones recientes
-           para que las márgenes izquierda/derecha sean idénticas -->
       <div class="card rounded-2xl p-4">
-        <!-- Encabezado de columnas (alineado con Calificaciones recientes) -->
         <div
           class="low-cases-grid text-[11px] font-semibold text-slate-500 px-4 pb-2 border-b border-slate-200"
         >
@@ -358,9 +339,7 @@
           <span class="text-right pr-2">ACCIÓN</span>
         </div>
 
-        <!-- Lista con scroll, con el mismo alto y padding que la otra tabla -->
         <div class="max-h-[380px] overflow-y-auto pr-1 px-4">
-          <!-- ESTE div es el que usa renderCriticalList() -->
           <div id="critical-container" class="py-3 space-y-3"></div>
         </div>
       </div>
@@ -368,7 +347,6 @@
 
 
 
-    <!-- CASOS SOLUCIONADOS -->
     <div class="mt-6">
       <div class="flex items-center justify-between mb-3">
         <h2 class="text-lg font-semibold text-gray-900">
@@ -385,7 +363,6 @@
     </div>
   </div>
 
-  <!-- MODAL: MARCAR CASO COMO SOLUCIONADO (BLANCO) -->
   <div id="solution-modal"
        class="fixed inset-0 bg-black bg-opacity-40 hidden items-center justify-center z-50">
     <div class="bg-white text-gray-900 rounded-2xl shadow-2xl w-full max-w-md p-6">
@@ -432,7 +409,6 @@
     </div>
   </div>
 
-  <!-- MODAL: VER DETALLE DE CALIFICACIÓN -->
   <div
     id="view-rating-modal"
     class="fixed inset-0 bg-black/60 z-50 hidden items-center justify-center px-4"
@@ -481,7 +457,6 @@
     </div>
   </div>
 
-  <!-- FIREBASE + LÓGICA -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import {
@@ -842,7 +817,7 @@
           "rounded-2xl bg-[#FFF5EB] border border-orange-200 px-4 py-3 shadow-sm";
 
         row.innerHTML = `
-          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] gap-3 md:items-center">
+          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] gap-2 md:items-center">
             <div class="font-semibold text-gray-900">
               ${rating.advisorName || "—"}
             </div>
@@ -865,7 +840,7 @@
               }
             </div>
 
-            <div class="text-sm text-gray-500">
+            <div class="text-sm text-gray-500 text-center">
               ${formatDate(rating.timestamp)}
             </div>
             
@@ -1131,7 +1106,9 @@
       rows.push(["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono", "Estado", "Solucionado Por", "Detalle Solución"]);
       
       currentFilteredRatings.forEach((r) => {
-        const estado = r.resolved ? (r.resolution ? "SOLUCIONADO" : "ATENDIDO") : "SIN NOVEDAD";
+        const estado = (r.rating || 0) <= 2 
+            ? (r.resolved ? "SOLUCIONADO" : "PENDIENTE") 
+            : "SIN NOVEDAD";
         rows.push([
           r.advisorName || r.advisorId || "",
           r.rating != null ? String(r.rating) : "",
@@ -1247,7 +1224,10 @@
         (r.comments || "").replace(/\r?\n/g, " "),
         formatDate(r.timestamp),
         r.clientPhone || r.client_phone || "",
-        r.resolved ? (r.resolution ? "SOLUCIONADO" : "ATENDIDO") : "PENDIENTE",
+        // LÓGICA CORREGIDA PARA EL PDF:
+        (r.rating || 0) <= 2 
+            ? (r.resolved ? "SOLUCIONADO" : "PENDIENTE") 
+            : "SIN NOVEDAD",
       ]);
 
       finalY = docPdf.autoTable({
@@ -1258,10 +1238,13 @@
         headStyles: { fillColor: [15, 23, 42] },
         didParseCell: (data) => {
           if (data.section === 'body' && data.column.dataKey === 5) { // Columna Estado
-            if (data.cell.text[0] === 'PENDIENTE') {
+            const status = data.cell.text[0];
+            if (status === 'PENDIENTE') {
               data.cell.styles.textColor = [220, 38, 38]; // Rojo
-            } else if (data.cell.text[0] === 'SOLUCIONADO') {
+            } else if (status === 'SOLUCIONADO') {
               data.cell.styles.textColor = [5, 150, 105]; // Verde
+            } else if (status === 'SIN NOVEDAD') {
+              data.cell.styles.textColor = [107, 114, 128]; // Gris
             }
           }
         },
