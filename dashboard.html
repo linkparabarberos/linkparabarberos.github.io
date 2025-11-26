@@ -340,12 +340,14 @@
 
   <div class="bg-white rounded-3xl shadow-sm border border-slate-100">
     <!-- Encabezado de columnas -->
-    <div class="low-cases-grid text-xs font-semibold text-slate-500 px-6 pt-5 pb-3 border-b border-slate-200">
-      <span>ASESOR</span>
-      <span>TELÉFONO PROPORCIONADO</span>
-      <span>FECHA DEL REPORTE</span>
-      <span class="text-right pr-2">ACCIÓN</span>
-    </div>
+    <div
+  class="hidden md:grid md:grid-cols-[2fr,3fr,1.5fr,auto] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-red-100">
+  <span>ASESOR</span>
+  <span>TELÉFONO PROPORCIONADO</span>
+  <span>FECHA DEL REPORTE</span>
+  <span class="text-right">ACCIÓN</span>
+</div>
+
 
     <!-- Lista con scroll -->
     <div id="critical-container"
@@ -984,8 +986,10 @@
         const date = formatDate(r.timestamp);
 
         const row = document.createElement("div");
+        
         row.className =
-          "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,40px] gap-2 items-center border border-red-200 rounded-xl px-3 py-2 bg-red-50";
+          "grid grid-cols-1 md:grid-cols-[2fr,3fr,1.5fr,auto] gap-2 items-center border border-red-200 rounded-xl px-3 py-2 bg-red-50";
+
 
         row.innerHTML = `
           <div>
