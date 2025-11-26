@@ -77,7 +77,7 @@
   </p>
 
   <p class="text-sm md:text-base text-gray-300 leading-snug mb-1 max-w-xl mx-auto">
-    Cuéntanos en 3 segundos cómo fue tu atención con
+    Cuéntanos en 3 segundos cómo fue tu atención con:
     <br />
     <span id="asesor-name" class="font-semibold text-white">...</span>
   </p>
@@ -317,23 +317,16 @@ const advisorMap = {
 };
 
 const rawAdvisor = advisorMap[advisorIdFromUrl];
-const contextLabelEl = document.getElementById("context-label");
-let advisorType = "asesor"; // lo usamos luego si quieres diferenciar WhatsApp / punto
+let advisorType = "asesor";
 
 if (rawAdvisor) {
-  // Nombre que se ve (asesor o punto de venta)
   asesorNameEl.textContent = rawAdvisor.nombre;
   advisorIdInput.value = advisorIdFromUrl;
-
-  // Texto «asesor» o «punto de venta»
   advisorType = rawAdvisor.tipo;
-  contextLabelEl.textContent =
-    rawAdvisor.tipo === "punto" ? "punto de venta" : "asesor";
 
   submitButton.disabled = false;
 } else {
   asesorNameEl.textContent = "¡Destino desconocido!";
-  contextLabelEl.textContent = "destino";
   asesorNameEl.classList.remove("text-white");
   asesorNameEl.classList.add("text-red-500");
   submitButton.disabled = true;
@@ -343,6 +336,7 @@ if (rawAdvisor) {
     "Link de calificación inválido. Por favor, revisa el enlace.";
   status.classList.remove("hidden");
 }
+
 
 
   // ESTRELLAS (solo marcan visual, no abren modal)
