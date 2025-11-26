@@ -1123,7 +1123,7 @@
       rows.push(["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono", "Estado", "Solucionado Por", "Detalle Solución"]);
       
       currentFilteredRatings.forEach((r) => {
-        const estado = r.resolved ? (r.resolution ? "SOLUCIONADO" : "ATENDIDO") : "PENDIENTE";
+        const estado = r.resolved ? (r.resolution ? "SOLUCIONADO" : "ATENDIDO") : "SIN NOVEDAD";
         rows.push([
           r.advisorName || r.advisorId || "",
           r.rating != null ? String(r.rating) : "",
