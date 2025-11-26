@@ -298,53 +298,53 @@
       statusMessage.classList.add("text-red-400");
     }
   }
+    // NOMBRE DEL ASESOR O PUNTO DE VENTA DESDE LA URL
+const urlParams = new URLSearchParams(window.location.search);
+const advisorIdFromUrl = (urlParams.get("asesor") || "").toLowerCase();
 
-  // NOMBRE DEL ASESOR DESDE LA URL
-  const urlParams = new URLSearchParams(window.location.search);
-  const advisorIdFromUrl = urlParams.get("asesor"); // ?asesor=asesor1
-
-    const advisorMap = {
+const advisorMap = {
   // Asesores (WhatsApp)
-  asesor1: { nombre: 'Jennifer Andrea Manzanares', tipo: 'asesor' },
-  asesor2: { nombre: 'Daniela Barragan Patiño', tipo: 'asesor' },
-  asesor3: { nombre: 'Jorge Leonardo Bedoya', tipo: 'asesor' },
-  asesor4: { nombre: 'Javier Francisco Mamián', tipo: 'asesor' },
+  asesor1: { nombre: "Jennifer Andrea Manzanares", tipo: "asesor" },
+  asesor2: { nombre: "Daniela Barragan Patiño", tipo: "asesor" },
+  asesor3: { nombre: "Jorge Leonardo Bedoya", tipo: "asesor" },
+  asesor4: { nombre: "Javier Francisco Mamián", tipo: "asesor" },
 
   // Puntos de venta (presencial)
-  punto1: { nombre: 'Punto de venta Cali Centro', tipo: 'punto' },
-  punto2: { nombre: 'Punto de venta Cali Sur', tipo: 'punto' },
-  punto3: { nombre: 'Punto de venta Pasto', tipo: 'punto' },
-  punto4: { nombre: 'Punto de venta Tuluá', tipo: 'punto' },
-  punto5: { nombre: 'Punto de venta Medellín', tipo: 'punto' },
+  punto1: { nombre: "Punto de venta Cali Centro", tipo: "punto" },
+  punto2: { nombre: "Punto de venta Cali Sur", tipo: "punto" },
+  punto3: { nombre: "Punto de venta Pasto", tipo: "punto" },
+  punto4: { nombre: "Punto de venta Tuluá", tipo: "punto" },
+  punto5: { nombre: "Punto de venta Medellín", tipo: "punto" },
 };
 
-  const asesorNombre =
-    advisorMap[advisorIdFromUrl?.toLowerCase()] || null;
-    const rawAdvisor = advisorMap[advisorId ? advisorId.toLowerCase() : ''];
-    const contextLabelEl = document.getElementById('context-label');
+const rawAdvisor = advisorMap[advisorIdFromUrl];
+const contextLabelEl = document.getElementById("context-label");
+let advisorType = "asesor"; // lo usamos luego si quieres diferenciar WhatsApp / punto
 
 if (rawAdvisor) {
-  // Nombre visible (asesor o punto de venta)
+  // Nombre que se ve (asesor o punto de venta)
   asesorNameEl.textContent = rawAdvisor.nombre;
-  advisorIdInput.value = advisorId.toLowerCase();
+  advisorIdInput.value = advisorIdFromUrl;
 
-  // Texto “asesor” o “punto de venta”
-  const label =
-    rawAdvisor.tipo === 'punto' ? 'punto de venta' : 'asesor';
-  contextLabelEl.textContent = label;
+  // Texto «asesor» o «punto de venta»
+  advisorType = rawAdvisor.tipo;
+  contextLabelEl.textContent =
+    rawAdvisor.tipo === "punto" ? "punto de venta" : "asesor";
 
   submitButton.disabled = false;
 } else {
-  asesorNameEl.textContent = '¡Destino desconocido!';
-  contextLabelEl.textContent = 'destino';
-  asesorNameEl.classList.remove('text-white');
-  asesorNameEl.classList.add('text-red-500');
+  asesorNameEl.textContent = "¡Destino desconocido!";
+  contextLabelEl.textContent = "destino";
+  asesorNameEl.classList.remove("text-white");
+  asesorNameEl.classList.add("text-red-500");
   submitButton.disabled = true;
-  const status = document.getElementById('status-message');
+
+  const status = document.getElementById("status-message");
   status.textContent =
-    'Link de calificación inválido. Por favor, revisa el enlace.';
-  status.classList.remove('hidden');
+    "Link de calificación inválido. Por favor, revisa el enlace.";
+  status.classList.remove("hidden");
 }
+
 
   // ESTRELLAS (solo marcan visual, no abren modal)
   if (ratingStars) {
@@ -414,10 +414,11 @@ if (rawAdvisor) {
       rating,
       comments,
       timestamp: new Date().toISOString(),
-      platform: "WhatsApp",
+      platform: advisorType === "punto" ? "Punto de venta" : "WhatsApp",
       client_id: userId,
       clientPhone: phoneFromHidden || null,
     };
+
 
     const collectionPath = `artifacts/${globalAppId}/public/data/whatsapp_ratings`;
     const docRef = doc(collection(db, collectionPath));
