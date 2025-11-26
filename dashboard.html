@@ -53,6 +53,17 @@
     .card .text-gray-500 {
       color: #9ca3af;
     }
+    .ratings-grid {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 2.2fr)  /* Asesor */
+      minmax(0, 0.8fr)  /* Calificación */
+      minmax(0, 3fr)    /* Comentario */
+      minmax(0, 1.6fr)  /* Fecha */
+      minmax(0, 0.8fr); /* Acción */
+    align-items: center;
+    column-gap: 1.5rem;
+  }
   </style>
 </head>
 
@@ -170,13 +181,13 @@
     <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
       <div class="card rounded-xl px-5 py-4 flex flex-col">
         <p class="text-[12px] text-gray-500 mb-1 uppercase tracking-wide">
-          Filtrar por asesor
+          Filtrar por asesor o punto de venta
         </p>
         <select
           id="advisor-filter"
           class="mt-1 p-2 rounded-lg border text-sm focus:ring-2 focus:ring-yellow-500/60 focus:border-yellow-400/60"
         >
-          <option value="">Todos los asesores</option>
+          <option value="">Todos</option>
         </select>
       </div>
 
@@ -299,14 +310,12 @@
 
     <div class="card rounded-2xl p-4 overflow-hidden">
       <!-- Cabecera tabla -->
-      <div
-        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100"
-      >
+      <div class="ratings-grid text-xs font-semibold text-slate-500 px-6 py-3 border-b border-slate-200">
         <span>ASESOR</span>
         <span>CALIFICACIÓN</span>
         <span>COMENTARIO</span>
         <span>FECHA</span>
-        <span class="text-right">ACCIÓN</span>
+        <span class="text-right pr-2">ACCIÓN</span>
       </div>
 
       <!-- Lista -->
