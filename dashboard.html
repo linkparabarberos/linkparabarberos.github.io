@@ -54,16 +54,17 @@
       color: #9ca3af;
     }
     
-    .low-cases-grid {
+.low-cases-grid {
+  /* ¡Alineado con la estructura de las filas de datos críticas! */
   display: grid;
   grid-template-columns:
-    minmax(0, 2.4fr)  /* Asesor + comentario */
-    minmax(0, 1.3fr)  /* Teléfono */
-    minmax(0, 1.3fr)  /* Fecha */
-    minmax(0, 1.1fr); /* Acción (botón) */
+    minmax(0, 2fr)     /* ASESOR */
+    minmax(0, 3fr)     /* TELÉFONO PROPORCIONADO */
+    minmax(0, 1.5fr)   /* FECHA DEL REPORTE */
+    40px;              /* ACCIÓN (botón) */
   align-items: center;
-  column-gap: 1.5rem;
-  }
+  column-gap: 0.5rem; /* Reduzco el gap para un mejor ajuste */
+}
   </style>
 </head>
 
@@ -352,7 +353,7 @@
         </div>
 
         <!-- Lista con scroll, con el mismo alto y padding que la otra tabla -->
-        <div class="max-h-[380px] overflow-y-auto pr-1">
+        <div class="max-h-[380px] overflow-y-auto pr-1 px-4">
           <!-- ESTE div es el que usa renderCriticalList() -->
           <div id="critical-container" class="py-3 space-y-3"></div>
         </div>
