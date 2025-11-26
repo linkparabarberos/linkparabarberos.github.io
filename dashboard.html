@@ -1115,25 +1115,88 @@
         return;
       }
 
-      const rows = [
-        ["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono"],
-      ];
+      const rows = [];
+      const delimiter = ";";
 
+      // --- 1. SECCIÓN: CALIFICACIONES RECIENTES (Todas) ---
+      rows.push(["--- CALIFICACIONES COMPLETAS (Filtros Aplicados) ---"]);
+      rows.push(["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono", "Estado", "Solucionado Por", "Detalle Solución"]);
+      
       currentFilteredRatings.forEach((r) => {
-        const nombre = r.advisorName || r.advisorId || "";
-        const rating = r.rating != null ? String(r.rating) : "";
-        const comentario = (r.comments || "").replace(/\r?\n/g, " ");
-        const fecha = formatDate(r.timestamp);
-        const phone = r.clientPhone || r.client_phone || "";
-
-        rows.push([nombre, rating, comentario, fecha, phone]);
+        const estado = r.resolved ? (r.resolution ? "SOLUCIONADO" : "ATENDIDO") : "PENDIENTE";
+        rows.push([
+          r.advisorName || r.advisorId || "",
+          r.rating != null ? String(r.rating) : "",
+          (r.comments || "").replace(/\r?\n/g, " "),
+          formatDate(r.timestamp),
+          r.clientPhone || r.client_phone || "",
+          estado,
+          r.resolvedBy || "",
+          (r.resolution || "").replace(/\r?\n/g, " "),
+        ]);
       });
+
+      // Línea de separación
+      rows.push([]);
+      rows.push([]);
+
+
+      // --- 2. SECCIÓN: CASOS CRÍTICOS (PENDIENTES DE CONTACTO) ---
+      const criticalRatings = currentFilteredRatings.filter(
+        (r) => (r.rating || 0) <= 2 && !r.resolved
+      );
+
+      rows.push(["--- CASOS CRÍTICOS PENDIENTES DE CONTACTO ---"]);
+      if (criticalRatings.length > 0) {
+          rows.push(["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono"]);
+          criticalRatings.forEach((r) => {
+              rows.push([
+                  r.advisorName || r.advisorId || "",
+                  r.rating != null ? String(r.rating) : "",
+                  (r.comments || "").replace(/\r?\n/g, " "),
+                  formatDate(r.timestamp),
+                  r.clientPhone || r.client_phone || "",
+              ]);
+          });
+      } else {
+          rows.push(["No hay casos críticos pendientes."]);
+      }
+      
+      // Línea de separación
+      rows.push([]);
+      rows.push([]);
+
+
+      // --- 3. SECCIÓN: CASOS SOLUCIONADOS ---
+      const resolvedRatings = currentFilteredRatings.filter(
+        (r) => (r.rating || 0) <= 2 && r.resolved
+      );
+      
+      rows.push(["--- CASOS CRÍTICOS SOLUCIONADOS (Detalle) ---"]);
+      if (resolvedRatings.length > 0) {
+          rows.push(["Asesor", "Calificación", "Comentario Cliente", "Fecha Reporte", "Teléfono Cliente", "Solucionado Por", "Detalle Solución", "Fecha Solución"]);
+          resolvedRatings.forEach((r) => {
+              rows.push([
+                  r.advisorName || r.advisorId || "",
+                  r.rating != null ? String(r.rating) : "",
+                  (r.comments || "").replace(/\r?\n/g, " "),
+                  formatDate(r.timestamp),
+                  r.clientPhone || r.client_phone || "",
+                  r.resolvedBy || "No registrado",
+                  (r.resolution || "").replace(/\r?\n/g, " "),
+                  r.resolvedAt ? formatDate(r.resolvedAt) : "",
+              ]);
+          });
+      } else {
+          rows.push(["No hay casos críticos solucionados."]);
+      }
+
 
       const csv = rows
         .map((row) =>
           row
             .map((field) => `"${String(field).replace(/"/g, '""')}"`)
-            .join(";")
+            .join(delimiter)
         )
         .join("\r\n");
 
@@ -1143,7 +1206,7 @@
       const url = URL.createObjectURL(blob);
       const link = document.createElement("a");
       link.href = url;
-      link.download = "reporte_calificaciones.csv";
+      link.download = "reporte_completo_calificaciones.csv";
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -1158,34 +1221,107 @@
 
       const { jsPDF } = window.jspdf;
       const docPdf = new jsPDF();
+      let finalY = 0;
+      
+      const generalTitle = "Reporte de Calificaciones y Casos";
 
+      // --- 1. SECCIÓN: CALIFICACIONES RECIENTES (Todas) ---
       docPdf.setFontSize(14);
-      docPdf.text("Reporte de calificaciones", 14, 18);
+      docPdf.text(generalTitle, 14, 18);
       docPdf.setFontSize(10);
-      docPdf.text(
-        `Generado: ${new Date().toLocaleString("es-ES")}`,
-        14,
-        24
-      );
+      docPdf.text(`Generado: ${new Date().toLocaleString("es-ES")}`, 14, 24);
+      docPdf.text("1. CALIFICACIONES COMPLETAS (Filtros Aplicados)", 14, 30);
 
-      const body = currentFilteredRatings.map((r) => [
+
+      const allRatingsBody = currentFilteredRatings.map((r) => [
         r.advisorName || r.advisorId || "",
         r.rating != null ? String(r.rating) : "",
         (r.comments || "").replace(/\r?\n/g, " "),
         formatDate(r.timestamp),
         r.clientPhone || r.client_phone || "",
+        r.resolved ? (r.resolution ? "SOLUCIONADO" : "ATENDIDO") : "PENDIENTE",
       ]);
 
-      docPdf.autoTable({
-        startY: 30,
-        head: [["Asesor", "Calificación", "Comentario", "Fecha", "Teléfono"]],
-        body,
+      finalY = docPdf.autoTable({
+        startY: 35,
+        head: [["Asesor", "Calif.", "Comentario", "Fecha", "Teléfono", "Estado"]],
+        body: allRatingsBody,
         styles: { fontSize: 8, cellPadding: 2 },
         headStyles: { fillColor: [15, 23, 42] },
-      });
+        didParseCell: (data) => {
+          if (data.section === 'body' && data.column.dataKey === 5) { // Columna Estado
+            if (data.cell.text[0] === 'PENDIENTE') {
+              data.cell.styles.textColor = [220, 38, 38]; // Rojo
+            } else if (data.cell.text[0] === 'SOLUCIONADO') {
+              data.cell.styles.textColor = [5, 150, 105]; // Verde
+            }
+          }
+        },
+      }).lastAutoTable.finalY;
 
-      docPdf.save("reporte_calificaciones.pdf");
+
+      // --- 2. SECCIÓN: CASOS CRÍTICOS (PENDIENTES DE CONTACTO) ---
+      const criticalRatings = currentFilteredRatings.filter(
+        (r) => (r.rating || 0) <= 2 && !r.resolved
+      );
+
+      if (criticalRatings.length > 0) {
+        docPdf.addPage();
+        finalY = 20; // Reiniciar Y
+        docPdf.setFontSize(12);
+        docPdf.text("2. CASOS CRÍTICOS PENDIENTES DE CONTACTO", 14, finalY);
+        finalY += 5;
+        
+        const criticalBody = criticalRatings.map((r) => [
+          r.advisorName || r.advisorId || "",
+          r.rating != null ? String(r.rating) : "",
+          (r.comments || "").replace(/\r?\n/g, " "),
+          r.clientPhone || r.client_phone || "No proporcionado",
+          formatDate(r.timestamp),
+        ]);
+
+        finalY = docPdf.autoTable({
+          startY: finalY,
+          head: [["Asesor", "Calif.", "Comentario", "Teléfono", "Fecha"]],
+          body: criticalBody,
+          styles: { fontSize: 8, cellPadding: 2 },
+          headStyles: { fillColor: [220, 38, 38] }, // Encabezado rojo
+        }).lastAutoTable.finalY;
+      }
+
+      // --- 3. SECCIÓN: CASOS SOLUCIONADOS ---
+      const resolvedRatings = currentFilteredRatings.filter(
+        (r) => (r.rating || 0) <= 2 && r.resolved
+      );
+      
+      if (resolvedRatings.length > 0) {
+        docPdf.addPage();
+        finalY = 20; // Reiniciar Y
+        docPdf.setFontSize(12);
+        docPdf.text("3. CASOS CRÍTICOS SOLUCIONADOS (Detalle)", 14, finalY);
+        finalY += 5;
+        
+        const resolvedBody = resolvedRatings.map((r) => [
+          r.advisorName || r.advisorId || "",
+          r.rating != null ? String(r.rating) : "",
+          r.resolvedBy || "No registrado",
+          (r.resolution || "").replace(/\r?\n/g, " "),
+          formatDate(r.timestamp),
+          r.clientPhone || r.client_phone || "No proporcionado",
+        ]);
+
+        finalY = docPdf.autoTable({
+          startY: finalY,
+          head: [["Asesor", "Calif.", "Solucionado Por", "Solución Aplicada", "Fecha Reporte", "Teléfono Cliente"]],
+          body: resolvedBody,
+          styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+          headStyles: { fillColor: [5, 150, 105] }, // Encabezado verde
+        }).lastAutoTable.finalY;
+      }
+      
+      docPdf.save("reporte_completo_calificaciones.pdf");
     }
+
 
     // BOTONES MODAL SOLUCIÓN (con null-check por seguridad)
     if (cancelResolveBtn) {
