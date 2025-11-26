@@ -59,7 +59,6 @@
     class="w-full max-w-lg p-8 rounded-2xl bg-neutral-950 border border-neutral-800 shadow-2xl"
   >
     <div class="flex justify-center mb-6">
-      <!-- CAMBIA 'logopb.png' POR EL NOMBRE DE TU LOGO -->
       <img
         src="logopb.png"
         alt="Logo Parabarberos"
@@ -67,25 +66,33 @@
       />
     </div>
 
-    <h1 class="text-3xl font-extrabold text-center mb-2">
-      ¡Tu opinión es muy importante para nosotros!
-    </h1>
-    <p class="text-center text-gray-300 mb-4">
-      Queremos asegurarnos de que cada experiencia con Parabarberos sea increíble
-      </p>
-     <p class="text-center text-gray-300 mb-4">
-      Cuéntanos en 3 segundos cómo fue tu atención con:<br />
-      <span id="asesor-name" class="font-semibold text-white">...</span>
-    </p>
-    <p class="text-center text-gray-300 mb-4">
-            Gracias por ayudarnos a mejorar
-       </p>
+    <!-- CABECERA -->
+<div class="text-center mb-4">
+  <h1 class="text-2xl md:text-3xl font-extrabold leading-tight mb-1">
+    ¡Tu opinión es muy importante para nosotros!
+  </h1>
 
-    <!-- Mensaje de estado -->
-    <p
-      id="status-message"
-      class="text-center text-sm mb-4 text-yellow-400 hidden"
-    ></p>
+  <p class="text-sm md:text-base text-gray-300 leading-snug mb-1 max-w-xl mx-auto">
+    Queremos asegurarnos de que cada experiencia con Parabarberos sea increíble.
+  </p>
+
+  <p class="text-sm md:text-base text-gray-300 leading-snug mb-1 max-w-xl mx-auto">
+    Cuéntanos en 3 segundos cómo fue tu atención con
+    <span id="asesor-name" class="font-semibold text-white">
+      ...
+    </span>.
+  </p>
+
+  <p class="text-sm md:text-base text-gray-300 leading-snug mb-2">
+    ¡Gracias por ayudarnos a mejorar!
+  </p>
+</div>
+
+<!-- Mensaje de estado -->
+<p
+  id="status-message"
+  class="text-center text-xs md:text-sm mb-3 text-yellow-400 hidden"
+></p>
 
     <!-- IDs ocultos -->
     <input type="hidden" id="advisor-id" value="" />
@@ -157,22 +164,24 @@
 
   <!-- MODAL CALIFICACIÓN BAJA -->
   <div
-    id="low-rating-modal"
-    class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden"
+  id="low-rating-modal"
+  class="fixed inset-0 bg-black/70 flex items-center justify-center z-50 hidden"
+>
+  <div
+    class="bg-neutral-950 border border-red-500/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
   >
-    <div
-      class="bg-neutral-950 border border-red-500/60 rounded-2xl p-6 max-w-sm w-full shadow-2xl"
-    >
-      <h2 class="text-xl font-bold text-white mb-2">
-        Lamentamos tu experiencia 😔
-      </h2>
-      <p class="text-sm text-gray-300 mb-4">
-        Queremos entender qué pasó y solucionarlo contigo.
-        Déjanos tu número y un líder de Parabarberos te contactará.
-      </p>
-      <p class="text-sm text-gray-300 mb-4">
-        Tu opinión sí importa.
-        </p>
+    <h2 class="text-lg md:text-xl font-bold text-white leading-tight mb-2">
+      Lamentamos tu experiencia 😔
+    </h2>
+
+    <p class="text-sm text-gray-300 leading-snug mb-2">
+      Queremos entender qué pasó y solucionarlo contigo.
+      Déjanos tu número y un líder de Parabarberos te contactará.
+    </p>
+
+    <p class="text-sm text-gray-300 leading-snug mb-3">
+      Tu opinión sí importa.
+    </p>
 
       <label for="client-phone" class="block text-xs text-gray-400 mb-1">
         Número de teléfono
