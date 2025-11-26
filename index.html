@@ -280,8 +280,6 @@
       app = initializeApp(firebaseConfig);
       auth = getAuth(app);
       db = getFirestore(app);
-
-      statusMessage.textContent = "Autenticando...";
       statusMessage.classList.remove("hidden");
 
       const cred = await signInAnonymously(auth);
