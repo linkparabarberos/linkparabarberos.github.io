@@ -53,6 +53,17 @@
     .card .text-gray-500 {
       color: #9ca3af;
     }
+    
+    .low-cases-grid {
+    display: grid;
+    grid-template-columns:
+      minmax(0, 2.4fr)  /* Asesor + comentario */
+      minmax(0, 1.3fr)  /* Teléfono */
+      minmax(0, 1.3fr)  /* Fecha */
+      minmax(0, 1.1fr); /* Acción (botón) */
+    align-items: center;
+    column-gap: 1.5rem;
+  }
   </style>
 </head>
 
@@ -317,32 +328,33 @@
     </div>
 
     <!-- CASOS CRÍTICOS -->
-    <div class="mt-10">
-      <div class="flex items-center justify-between mb-3">
-        <h2 class="text-lg font-semibold text-gray-900">
-          CASOS PARA CONTACTAR
-        </h2>
-        <p class="text-[11px] text-gray-500">
-          Muestra clientes con calificaciones bajas y su número de teléfono.
-        </p>
-      </div>
+<section class="mt-10">
+  <div class="flex items-center justify-between mb-3">
+    <h2 class="text-2xl font-bold text-slate-900">
+      CASOS PARA CONTACTAR
+    </h2>
+    <p class="text-sm text-slate-500 max-w-md text-right">
+      Muestra clientes con calificaciones bajas y su número de teléfono.
+    </p>
+  </div>
 
-      <div class="card rounded-2xl p-4">
-        <div
-          class="hidden md:grid grid-cols-[2fr,1.7fr,1.5fr,1.1fr] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-red-100"
-        >
-          <span>ASESOR</span>
-          <span>TELÉFONO PROPORCIONADO</span>
-          <span>FECHA DEL REPORTE</span>
-          <span class="text-right">ACCIÓN</span>
-        </div>
-
-        <div
-          id="critical-container"
-          class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
-        ></div>
-      </div>
+  <div class="bg-white rounded-3xl shadow-sm border border-slate-100">
+    <!-- Encabezado de columnas -->
+    <div class="low-cases-grid text-xs font-semibold text-slate-500 px-6 pt-5 pb-3 border-b border-slate-200">
+      <span>ASESOR</span>
+      <span>TELÉFONO PROPORCIONADO</span>
+      <span>FECHA DEL REPORTE</span>
+      <span class="text-right pr-2">ACCIÓN</span>
     </div>
+
+    <!-- Lista con scroll -->
+    <div class="max-h-96 overflow-y-auto" id="low-rating-list-container">
+      <div id="low-rating-list" class="px-4 py-4"></div>
+    </div>
+  </div>
+</section>
+
+
 
     <!-- CASOS SOLUCIONADOS -->
     <div class="mt-6">
@@ -837,7 +849,7 @@
               ${
                 rating.comments && rating.comments.trim()
                   ? rating.comments
-                  : "— Sin comentarios —"
+                  : "Sin comentarios"
               }
             </div>
 
@@ -893,7 +905,7 @@
       viewCommentEl.textContent =
         rating.comments && rating.comments.trim()
           ? rating.comments
-          : "— Sin comentarios —";
+          : "Sin comentarios";
       viewDateEl.textContent = formatDate(rating.timestamp);
 
       const phone =
@@ -982,7 +994,7 @@
               <span class="text-xs font-normal text-gray-500">(${r.rating} ★)</span>
             </p>
             <p class="text-xs text-gray-800 mt-1">
-              ${r.comments || "— Sin comentarios —"}
+              ${r.comments || "Sin comentarios"}
             </p>
             <p class="mt-1 text-[11px] text-gray-500 md:hidden">${date}</p>
           </div>
