@@ -303,7 +303,7 @@
 
     <div class="card rounded-2xl p-4 overflow-hidden">
       <div
-        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100"
+        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,80px,50px] text-[11px] font-semibold text-gray-400 px-2 pb-2 border-b border-amber-100"
       >
         <span>ASESOR</span>
         <span class="text-center">CALIFICACIÓN</span>
@@ -315,7 +315,7 @@
 
       <div
         id="ratings-list-container"
-        class="space-y-3 max-h-[380px] overflow-y-auto pr-1"
+        class="space-y-3 max-h-[380px] overflow-y-auto"
       ></div>
     </div>
 
@@ -814,10 +814,10 @@
       ratings.forEach((rating) => {
         const row = document.createElement("div");
         row.className =
-          "rounded-2xl bg-[#FFF5EB] border border-orange-200 px-4 py-3 shadow-sm";
+          "rounded-2xl bg-[#FFF5EB] border border-orange-200 px-2 py-3 shadow-sm";
 
         row.innerHTML = `
-          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] md:items-center">
+          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,80px,50px] md:items-center">
             <div class="font-semibold text-gray-900">
               ${rating.advisorName || "—"}
             </div>
