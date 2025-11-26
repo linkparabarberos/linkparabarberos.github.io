@@ -317,12 +317,13 @@
     <div class="card rounded-2xl p-4 overflow-hidden">
       <!-- Cabecera tabla -->
       <div
-        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100"
+        class="hidden md:grid grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] text-[11px] font-semibold text-gray-400 px-4 pb-2 border-b border-amber-100"
       >
         <span>ASESOR</span>
         <span>CALIFICACIÓN</span>
         <span>COMENTARIO</span>
         <span>FECHA</span>
+        <span class="text-center">ESTADO</span>
         <span class="text-right">ACCIÓN</span>
       </div>
 
@@ -841,7 +842,7 @@
           "rounded-2xl bg-[#FFF5EB] border border-orange-200 px-4 py-3 shadow-sm";
 
         row.innerHTML = `
-          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,auto] gap-3 md:items-center">
+          <div class="grid grid-cols-1 md:grid-cols-[2fr,1fr,3fr,1.5fr,70px,40px] gap-3 md:items-center">
             <div class="font-semibold text-gray-900">
               ${rating.advisorName || "—"}
             </div>
@@ -866,6 +867,13 @@
 
             <div class="text-sm text-gray-500">
               ${formatDate(rating.timestamp)}
+            </div>
+            
+            <div class="hidden md:block text-[10px] font-bold text-center 
+              ${(rating.rating || 0) <= 2 && !rating.resolved ? 'text-red-500' : 'text-gray-500'}">
+              ${(rating.rating || 0) <= 2 
+                ? (rating.resolved ? "SOLUCIONADO" : "PENDIENTE") 
+                : "SIN NOVEDAD"}
             </div>
 
             <div class="flex justify-end">
