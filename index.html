@@ -227,7 +227,6 @@
     setDoc,
     collection,
   } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-  import { parsePhoneNumberFromString } from "https://cdn.jsdelivr.net/npm/libphonenumber-js@1.11.3/+esm";
 
 
   // CONFIG FIREBASE
@@ -275,24 +274,44 @@
   function closeLowRatingModal() {
     lowRatingModal.classList.add("hidden");
   }
-    function validateInternationalPhone(raw) {
-  const input = (raw || "").trim();
+    function validatePhoneNoPrefix(raw) {
+  const digits = (raw || "").replace(/\D/g, ""); // deja solo dígitos
 
-  // Requerimos prefijo + para poder validar "cualquier país" sin adivinar el país.
-  if (!input.startsWith("+")) {
-    return { ok: false, message: "Incluye el prefijo del país. Ej: +57 3001234567, +34 612345678, +1 2025550123" };
+  if (!digits) return { ok: false, message: "El número de teléfono es obligatorio." };
+
+  // Ajusta si quieres: por ejemplo mínimo 10
+  if (digits.length < 7 || digits.length > 15) {
+    return { ok: false, message: "Ingresa un teléfono válido (7 a 15 dígitos)." };
   }
 
-  // Limpieza: deja + y dígitos
-  const normalized = "+" + input.replace(/[^\d]/g, "");
-
-  const phone = parsePhoneNumberFromString(normalized);
-  if (!phone || !phone.isValid()) {
-    return { ok: false, message: "Por favor ingresa un número válido con prefijo de país (formato internacional)." };
+  // 0000000, 1111111, etc.
+  if (/^(\d)\1+$/.test(digits)) {
+    return { ok: false, message: "Ese número no es válido." };
   }
 
-  return { ok: true, e164: phone.number }; // devuelve en formato E.164: +573001234567
+  // 1234567 o 7654321 (secuencias)
+  const isSequential = (s) => {
+    let asc = true, desc = true;
+    for (let i = 1; i < s.length; i++) {
+      const prev = Number(s[i - 1]);
+      const cur = Number(s[i]);
+      if (cur !== (prev + 1) % 10) asc = false;
+      if (cur !== (prev + 9) % 10) desc = false;
+    }
+    return asc || desc;
+  };
+  if (digits.length >= 7 && isSequential(digits)) {
+    return { ok: false, message: "Ese número parece de prueba. Ingresa uno real." };
+  }
+
+  // Patrones repetidos tipo 12121212, 123123123
+  if (/^(\d{2,6})\1+$/.test(digits)) {
+    return { ok: false, message: "Ese número parece de prueba. Ingresa uno real." };
+  }
+
+  return { ok: true, value: digits };
 }
+
 
 
   // INICIAR FIREBASE
@@ -458,25 +477,25 @@ if (rawAdvisor) {
 
   // BOTÓN GUARDAR NÚMERO (modal)
     savePhoneBtn.addEventListener("click", async () => {
-      const rawPhone = clientPhoneInput.value.trim();
-      const result = validateInternationalPhone(rawPhone);
-      if (!result.ok) {
-        phoneErrorEl.textContent = result.message;
-        phoneErrorEl.classList.remove("hidden");
-        return;
-      }
-      
-      // Guardamos normalizado (E.164)
-      clientPhoneHidden.value = result.e164;
-      phoneErrorEl.classList.add("hidden");
-      closeLowRatingModal();
-      
-      // Si el usuario venía de "Enviar calificación", enviamos ahora
-      if (pendingSubmitAfterModal) {
-        pendingSubmitAfterModal = false;
-        await doSubmit();
-      }
-    });
+  const rawPhone = clientPhoneInput.value.trim();
+  const result = validatePhoneNoPrefix(rawPhone);
+
+  if (!result.ok) {
+    phoneErrorEl.textContent = result.message;
+    phoneErrorEl.classList.remove("hidden");
+    return;
+  }
+
+  clientPhoneHidden.value = result.value; // guarda solo dígitos
+  phoneErrorEl.classList.add("hidden");
+  closeLowRatingModal();
+
+  if (pendingSubmitAfterModal) {
+    pendingSubmitAfterModal = false;
+    await doSubmit();
+  }
+});
+
 
     closePhoneBtn.addEventListener("click", () => {
       pendingSubmitAfterModal = false;
