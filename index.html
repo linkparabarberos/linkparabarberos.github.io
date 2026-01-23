@@ -227,6 +227,8 @@
     setDoc,
     collection,
   } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+  import { parsePhoneNumberFromString } from "https://cdn.jsdelivr.net/npm/libphonenumber-js@1.11.3/+esm";
+
 
   // CONFIG FIREBASE
   const firebaseConfig = {
@@ -260,8 +262,8 @@
   const closePhoneBtn = document.getElementById("close-phone-btn");
 
   // Flags
-  let skipPhoneForThisRating = false;      // el cliente ya decidió si deja teléfono o no
-  let pendingSubmitAfterModal = false;     // hay un envío pendiente después del modal
+    let pendingSubmitAfterModal = false; // solo para saber si luego de guardar teléfono enviamos
+
 
   function openLowRatingModal() {
     phoneErrorEl.classList.add("hidden");
@@ -273,6 +275,25 @@
   function closeLowRatingModal() {
     lowRatingModal.classList.add("hidden");
   }
+    function validateInternationalPhone(raw) {
+  const input = (raw || "").trim();
+
+  // Requerimos prefijo + para poder validar "cualquier país" sin adivinar el país.
+  if (!input.startsWith("+")) {
+    return { ok: false, message: "Incluye el prefijo del país. Ej: +57 3001234567, +34 612345678, +1 2025550123" };
+  }
+
+  // Limpieza: deja + y dígitos
+  const normalized = "+" + input.replace(/[^\d]/g, "");
+
+  const phone = parsePhoneNumberFromString(normalized);
+  if (!phone || !phone.isValid()) {
+    return { ok: false, message: "Por favor ingresa un número válido con prefijo de país (formato internacional)." };
+  }
+
+  return { ok: true, e164: phone.number }; // devuelve en formato E.164: +573001234567
+}
+
 
   // INICIAR FIREBASE
   async function initFirebase() {
@@ -352,9 +373,6 @@ if (rawAdvisor) {
           }
         });
 
-        // al cambiar de calificación, reseteamos la decisión
-        skipPhoneForThisRating = false;
-
         // si la nota es buena, limpiamos teléfono opcional
         if (value > 2) {
           clientPhoneHidden.value = "";
@@ -385,6 +403,16 @@ if (rawAdvisor) {
       statusMessage.classList.add("text-red-400");
       return;
     }
+    if (rating <= 2) {
+      if (!phoneFromHidden) {
+    statusMessage.textContent = "Para calificaciones de 1 o 2 estrellas debes dejar tu número de teléfono.";
+    statusMessage.classList.remove("hidden");
+    statusMessage.classList.add("text-red-400");
+    openLowRatingModal();
+    return;
+      }
+    }
+
 
     if (!db) {
       statusMessage.textContent =
@@ -429,38 +457,31 @@ if (rawAdvisor) {
   }
 
   // BOTÓN GUARDAR NÚMERO (modal)
-  savePhoneBtn.addEventListener("click", async () => {
-    const phone = clientPhoneInput.value.trim();
+    savePhoneBtn.addEventListener("click", async () => {
+      const rawPhone = clientPhoneInput.value.trim();
+      const result = validateInternationalPhone(rawPhone);
+      if (!result.ok) {
+        phoneErrorEl.textContent = result.message;
+        phoneErrorEl.classList.remove("hidden");
+        return;
+      }
+      
+      // Guardamos normalizado (E.164)
+      clientPhoneHidden.value = result.e164;
+      phoneErrorEl.classList.add("hidden");
+      closeLowRatingModal();
+      
+      // Si el usuario venía de "Enviar calificación", enviamos ahora
+      if (pendingSubmitAfterModal) {
+        pendingSubmitAfterModal = false;
+        await doSubmit();
+      }
+    });
 
-    // Teléfono OPCIONAL: solo marcamos error si escribió algo muy corto
-    if (phone && phone.length < 7) {
-      phoneErrorEl.textContent =
-        "Por favor ingresa un número de teléfono válido.";
-      phoneErrorEl.classList.remove("hidden");
-      return;
-    }
-
-    clientPhoneHidden.value = phone; // puede ser vacío (no pasa nada)
-    skipPhoneForThisRating = true;   // no volver a pedir para esta calificación
-    closeLowRatingModal();
-
-    if (pendingSubmitAfterModal) {
+    closePhoneBtn.addEventListener("click", () => {
       pendingSubmitAfterModal = false;
-      await doSubmit(); // enviar automáticamente
-    }
-  });
-
-  // BOTÓN CANCELAR (modal) → no quiere dejar número, pero igual se envía
-  closePhoneBtn.addEventListener("click", async () => {
-    skipPhoneForThisRating = true;
-    clientPhoneHidden.value = ""; // explícitamente sin teléfono
-    closeLowRatingModal();
-
-    if (pendingSubmitAfterModal) {
-      pendingSubmitAfterModal = false;
-      await doSubmit(); // enviar automáticamente SIN teléfono
-    }
-  });
+      closeLowRatingModal();
+    });
 
   // BOTÓN ENVIAR CALIFICACIÓN
   submitButton.addEventListener("click", async () => {
@@ -483,12 +504,13 @@ if (rawAdvisor) {
       return;
     }
 
-    // Si la calificación es baja (1–2) y aún no hemos preguntado, abrimos modal
-    if (rating <= 2 && !skipPhoneForThisRating && !phoneFromHidden) {
+    // Si la calificación es baja (1–2), el teléfono es obligatorio
+    if (rating <= 2 && !phoneFromHidden) {
       pendingSubmitAfterModal = true;
       openLowRatingModal();
       return;
     }
+
 
     // Si ya no hay que preguntar (o nota > 2), enviamos directo
     await doSubmit();
